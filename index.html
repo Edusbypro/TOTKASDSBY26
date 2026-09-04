@@ -226,9 +226,16 @@
               </table>
             </div>
           </div>
+          
+          <!-- PENAMBAHAN GRAFIK TREND KHUSUS SEKOLAH -->
+          <div class="card card-custom p-4 mt-4">
+            <h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-graph-up-arrow me-2"></i>Grafik Perkembangan Rerata Nilai Sekolah</h5>
+            <small class="text-muted mb-3 d-block">Grafik riwayat nilai rata-rata sekolah dari Try Out Simulasi hingga Paket terakhir.</small>
+            <div style="position: relative; height:40vh; width:100%"><canvas id="schoolTrendChart"></canvas></div>
+          </div>
         </div>
 
-        <!-- TAB 2: CAPAIAN KOMPETENSI (KISI-KISI BARU 2 LEVEL) -->
+        <!-- TAB 2: CAPAIAN KOMPETENSI -->
         <div class="tab-pane fade" id="tab-kompetensi">
           <div class="card card-custom p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -296,89 +303,30 @@
     // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
-    // STRUKTUR KISI-KISI BARU (Hanya 2 Level)
     const KISI_KISI_DB = {
       BI: [
-        {
-          komp: "1. Pemahaman Tekstual",
-          subs: [
-            { name: "Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan. (Soal 1)" },
-            { name: "Mengidentifikasi informasi tersurat dalam teks. (Soal 9, 11, 12, 13, 19, 28)" },
-            { name: "Mengidentifikasi objek berdasarkan kosakata yang digunakan dalam teks fiksi dan nonfiksi. (Soal 25)" }
-          ]
-        },
-        {
-          komp: "2. Pemahaman Inferensial",
-          subs: [
-            { name: "Menjelaskan makna ungkapan yang digunakan dalam teks. (Soal 2, 7, 22)" },
-            { name: "Menyimpulkan ide pokok, gagasan pendukung, amanat, tokoh, peristiwa, dan/atau nilai-nilai dalam teks. (Soal 4, 6, 10, 14, 16, 17, 20, 29)" },
-            { name: "Menyimpulkan perubahan sederhana pada objek, karakter, dan/atau latar dalam teks fiksi atau nonfiksi. (Soal 5, 23, 26)" }
-          ]
-        },
-        {
-          komp: "3. Evaluasi dan Apresiasi",
-          subs: [
-            { name: "Menilai kesesuaian antarunsur dan/atau antarinformasi dalam teks. (Soal 3, 18)" },
-            { name: "Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari berdasarkan pengalaman atau pengetahuan pribadi. (Soal 8, 15, 21, 24)" },
-            { name: "Menyimpulkan respons emosional terhadap unsur teks fiksi. (Soal 27, 30)" }
-          ]
-        }
+        { komp: "1. Pemahaman Tekstual", subs: [ { name: "Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan. (Soal 1)" }, { name: "Mengidentifikasi informasi tersurat dalam teks. (Soal 9, 11, 12, 13, 19, 28)" }, { name: "Mengidentifikasi objek berdasarkan kosakata yang digunakan dalam teks fiksi dan nonfiksi. (Soal 25)" } ] },
+        { komp: "2. Pemahaman Inferensial", subs: [ { name: "Menjelaskan makna ungkapan yang digunakan dalam teks. (Soal 2, 7, 22)" }, { name: "Menyimpulkan ide pokok, gagasan pendukung, amanat, tokoh, peristiwa, dan/atau nilai-nilai dalam teks. (Soal 4, 6, 10, 14, 16, 17, 20, 29)" }, { name: "Menyimpulkan perubahan sederhana pada objek, karakter, dan/atau latar dalam teks fiksi atau nonfiksi. (Soal 5, 23, 26)" } ] },
+        { komp: "3. Evaluasi dan Apresiasi", subs: [ { name: "Menilai kesesuaian antarunsur dan/atau antarinformasi dalam teks. (Soal 3, 18)" }, { name: "Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari berdasarkan pengalaman atau pengetahuan pribadi. (Soal 8, 15, 21, 24)" }, { name: "Menyimpulkan respons emosional terhadap unsur teks fiksi. (Soal 27, 30)" } ] }
       ],
       MTK: [
-        {
-          komp: "1. Bilangan",
-          subs: [
-            { name: "Memahami & bernalar terkait pecahan senilai menggunakan gambar/simbol. (Soal 1)" },
-            { name: "Mengurutkan beberapa bilangan dalam bentuk berbeda. (Soal 2)" },
-            { name: "Menentukan faktor bilangan cacah dan mengenal bilangan prima. (Soal 3)" },
-            { name: "Menggunakan operasi dasar dua bilangan cacah. (Soal 4)" },
-            { name: "Memahami & bernalar terkait operasi bilangan cacah. (Soal 5, 7)" },
-            { name: "Memahami & bernalar terkait operasi pecahan dengan bilangan asli. (Soal 6)" },
-            { name: "Menyelesaikan persamaan sederhana (penjumlahan/pengurangan). (Soal 8, 9)" },
-            { name: "Menyelesaikan persamaan sederhana (semua operasi dasar). (Soal 10, 11)" },
-            { name: "Menentukan KPK dan FPB. (Soal 12)" }
-          ]
-        },
-        {
-          komp: "2. Geometri dan Pengukuran",
-          subs: [
-            { name: "Memahami & bernalar terkait bentuk bangun datar. (Soal 13, 14)" },
-            { name: "Konstruksi bangun ruang dan visualisasi spasial. (Soal 15)" },
-            { name: "Memahami & bernalar terkait panjang benda (satuan baku). (Soal 16)" },
-            { name: "Memahami & bernalar terkait volume benda (satuan baku). (Soal 17)" },
-            { name: "Memahami & bernalar terkait berat benda (satuan baku). (Soal 18)" },
-            { name: "Memahami & bernalar terkait waktu. (Soal 19)" },
-            { name: "Memahami & bernalar terkait keliling dan luas bangun datar. (Soal 20, 21)" },
-            { name: "Menghitung keliling, luas, atau sisi persegi panjang. (Soal 22)" },
-            { name: "Mengidentifikasi ciri-ciri segiempat, segitiga, segibanyak, & lingkaran. (Soal 23)" },
-            { name: "Menentukan panjang dan berat benda dengan satuan baku. (Soal 24)" },
-            { name: "Memahami & bernalar terkait besar sudut. (Soal 25)" }
-          ]
-        },
-        {
-          komp: "3. Data dan Ketidakpastian",
-          subs: [
-            { name: "Memahami & bernalar terkait pengambilan informasi dan penggunaan data. (Soal 26)" },
-            { name: "Menyajikan, menganalisis, dan menginterpretasi data diagram/tabel. (Soal 27, 28, 29, 30)" }
-          ]
-        }
+        { komp: "1. Bilangan", subs: [ { name: "Memahami & bernalar terkait pecahan senilai menggunakan gambar/simbol. (Soal 1)" }, { name: "Mengurutkan beberapa bilangan dalam bentuk berbeda. (Soal 2)" }, { name: "Menentukan faktor bilangan cacah dan mengenal bilangan prima. (Soal 3)" }, { name: "Menggunakan operasi dasar dua bilangan cacah. (Soal 4)" }, { name: "Memahami & bernalar terkait operasi bilangan cacah. (Soal 5, 7)" }, { name: "Memahami & bernalar terkait operasi pecahan dengan bilangan asli. (Soal 6)" }, { name: "Menyelesaikan persamaan sederhana (penjumlahan/pengurangan). (Soal 8, 9)" }, { name: "Menyelesaikan persamaan sederhana (semua operasi dasar). (Soal 10, 11)" }, { name: "Menentukan KPK dan FPB. (Soal 12)" } ] },
+        { komp: "2. Geometri dan Pengukuran", subs: [ { name: "Memahami & bernalar terkait bentuk bangun datar. (Soal 13, 14)" }, { name: "Konstruksi bangun ruang dan visualisasi spasial. (Soal 15)" }, { name: "Memahami & bernalar terkait panjang benda (satuan baku). (Soal 16)" }, { name: "Memahami & bernalar terkait volume benda (satuan baku). (Soal 17)" }, { name: "Memahami & bernalar terkait berat benda (satuan baku). (Soal 18)" }, { name: "Memahami & bernalar terkait waktu. (Soal 19)" }, { name: "Memahami & bernalar terkait keliling dan luas bangun datar. (Soal 20, 21)" }, { name: "Menghitung keliling, luas, atau sisi persegi panjang. (Soal 22)" }, { name: "Mengidentifikasi ciri-ciri segiempat, segitiga, segibanyak, & lingkaran. (Soal 23)" }, { name: "Menentukan panjang dan berat benda dengan satuan baku. (Soal 24)" }, { name: "Memahami & bernalar terkait besar sudut. (Soal 25)" } ] },
+        { komp: "3. Data dan Ketidakpastian", subs: [ { name: "Memahami & bernalar terkait pengambilan informasi dan penggunaan data. (Soal 26)" }, { name: "Menyajikan, menganalisis, dan menginterpretasi data diagram/tabel. (Soal 27, 28, 29, 30)" } ] }
       ]
     };
 
-    let trendChartObj = null; let kompChartObj = null; let miniChartObj = null; 
+    let trendChartObj = null; let kompChartObj = null; let miniChartObj = null; let schoolTrendChartObj = null;
     let currentSchoolData = null; let hierarkiDataGlobal = {}; let mapPinGlobal = {}; 
 
     document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
         tab.addEventListener('shown.bs.tab', function (e) { localStorage.setItem('activeTabSchool', e.target.getAttribute('href')); });
     });
     
-    // FUNGSI MEMBUKA LINK DESKRIPSI CAPAIAN
     function bukaLinkDeskripsi() {
         if(LINK_DESKRIPSI_CAPAIAN === "MASUKKAN_LINK_DESKRIPSI_CAPAIAN_DISINI" || !LINK_DESKRIPSI_CAPAIAN) {
             alert("Admin belum memasukkan link untuk file Deskripsi Capaian.");
-        } else {
-            window.open(LINK_DESKRIPSI_CAPAIAN, '_blank');
-        }
+        } else { window.open(LINK_DESKRIPSI_CAPAIAN, '_blank'); }
     }
 
     async function fetchBackend(action, params = {}) {
@@ -386,9 +334,7 @@
             if (typeof google !== 'undefined' && google.script) {
                 if (action === 'public') {
                     google.script.run.withSuccessHandler(stat => {
-                        google.script.run.withSuccessHandler(trend => {
-                            resolve({sukses: true, stat: stat, trend: trend});
-                        }).getGrafikPerkembangan();
+                        google.script.run.withSuccessHandler(trend => { resolve({sukses: true, stat: stat, trend: trend}); }).getGrafikPerkembangan();
                     }).withFailureHandler(reject).getStatistikDashboard(params.paket);
                 } else if (action === 'verify') {
                     google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).verifikasiLogin(params.sek, params.pin);
@@ -409,16 +355,9 @@
             document.getElementById('paketSelectorPublic').value = savedPaket;
             document.getElementById('badge-paket-title').innerText = "Data: " + savedPaket;
         }
-        
         let p = document.getElementById('paketSelectorPublic').value;
-        
         fetchBackend('public', {paket: p}).then(res => {
-            if(res.sukses) {
-                tampilkanDataPublic(res.stat); 
-                populateLoginHierarki(res.stat.hierarkiLogin); 
-                mapPinGlobal = res.stat.mapPinSekolah || {};
-                renderTrendChart(res.trend);
-            }
+            if(res.sukses) { tampilkanDataPublic(res.stat); populateLoginHierarki(res.stat.hierarkiLogin); mapPinGlobal = res.stat.mapPinSekolah || {}; renderTrendChart(res.trend); }
         }).catch(err => console.error("Data Error: ", err));
 
         let savedSchool = localStorage.getItem('loggedInSchool');
@@ -427,40 +366,27 @@
             document.getElementById('header-school-name').innerText = savedSchool;
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.remove('d-none');
             setSchoolLoadingState();
-            
             fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => {
                 if(resData.sukses) {
                     currentSchoolData = resData.data; renderSchoolDashboard(resData.data);
                     let activeTab = localStorage.getItem('activeTabSchool');
-                    if(activeTab) {
-                        let tabTrigger = document.querySelector(`a[href="${activeTab}"]`);
-                        if(tabTrigger) new bootstrap.Tab(tabTrigger).show();
-                    }
+                    if(activeTab) { let tabTrigger = document.querySelector(`a[href="${activeTab}"]`); if(tabTrigger) new bootstrap.Tab(tabTrigger).show(); }
                 }
             });
         }
     }
-    
     document.addEventListener("DOMContentLoaded", initApp);
 
     function onPaketChange() {
         let p = document.getElementById('paketSelectorPublic').value;
-        localStorage.setItem('selectedPaket', p);
-        document.getElementById('badge-paket-title').innerText = "Data: " + p;
-        
+        localStorage.setItem('selectedPaket', p); document.getElementById('badge-paket-title').innerText = "Data: " + p;
         fetchBackend('public', {paket: p}).then(res => {
-            if(res.sukses) {
-                tampilkanDataPublic(res.stat); populateLoginHierarki(res.stat.hierarkiLogin); mapPinGlobal = res.stat.mapPinSekolah || {};
-                renderTrendChart(res.trend);
-            }
+            if(res.sukses) { tampilkanDataPublic(res.stat); populateLoginHierarki(res.stat.hierarkiLogin); mapPinGlobal = res.stat.mapPinSekolah || {}; renderTrendChart(res.trend); }
         });
-        
         let savedSchool = localStorage.getItem('loggedInSchool');
         if(savedSchool) {
            setSchoolLoadingState();
-           fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => {
-               if(resData.sukses) { currentSchoolData = resData.data; renderSchoolDashboard(resData.data); }
-           });
+           fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => { if(resData.sukses) { currentSchoolData = resData.data; renderSchoolDashboard(resData.data); } });
         }
     }
 
@@ -470,12 +396,7 @@
        document.getElementById('s-tbody-accordion').innerHTML = '<tr><td colspan="6" class="text-center"><span class="blink">Memuat data...</span></td></tr>';
     }
 
-    function logoutSchool() {
-        localStorage.removeItem('loggedInSchool');
-        localStorage.removeItem('loggedInPin');
-        localStorage.removeItem('activeTabSchool');
-        showPublicView();
-    }
+    function logoutSchool() { localStorage.removeItem('loggedInSchool'); localStorage.removeItem('loggedInPin'); localStorage.removeItem('activeTabSchool'); showPublicView(); }
 
     function populateLoginHierarki(hierarkiData) {
       hierarkiDataGlobal = hierarkiData;
@@ -507,15 +428,12 @@
 
     function onSchoolChange() {
       let sek = document.getElementById('loginSchoolSelector').value;
-      if (sek && mapPinGlobal && mapPinGlobal[sek]) {
-          document.getElementById('pinHintValue').innerText = mapPinGlobal[sek];
-          document.getElementById('pinHintContainer').classList.remove('d-none');
-      } else { document.getElementById('pinHintContainer').classList.add('d-none'); }
+      if (sek && mapPinGlobal && mapPinGlobal[sek]) { document.getElementById('pinHintValue').innerText = mapPinGlobal[sek]; document.getElementById('pinHintContainer').classList.remove('d-none'); } 
+      else { document.getElementById('pinHintContainer').classList.add('d-none'); }
     }
 
     function tampilkanDataPublic(statObj) {
-      window.publicWilayahData = statObj.wilayah; window.publicTopBI = statObj.topBI; window.publicTopMTK = statObj.topMTK;
-      let kota = statObj.kota;
+      window.publicWilayahData = statObj.wilayah; window.publicTopBI = statObj.topBI; window.publicTopMTK = statObj.topMTK; let kota = statObj.kota;
       document.getElementById('t1-peserta').innerText = kota.totalPeserta > 0 ? kota.totalPeserta.toLocaleString('id-ID') : "Belum Ada Data";
       document.getElementById('t1-bi').innerText = kota.rataBI; document.getElementById('t1-mtk').innerText = kota.rataMTK;
 
@@ -541,11 +459,7 @@
     function renderTrendChart(dataChart) {
       if (trendChartObj) trendChartObj.destroy();
       trendChartObj = new Chart(document.getElementById('trendChart').getContext('2d'), {
-        type: 'line',
-        data: { labels: dataChart.labels, datasets: [
-            { label: 'B. Indonesia', data: dataChart.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true },
-            { label: 'Matematika', data: dataChart.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }
-        ]},
+        type: 'line', data: { labels: dataChart.labels, datasets: [ { label: 'B. Indonesia', data: dataChart.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, { label: 'Matematika', data: dataChart.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } ]},
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
       });
     }
@@ -553,26 +467,20 @@
     function processLogin() {
       let sek = document.getElementById('loginSchoolSelector').value; let pin = document.getElementById('loginPin').value;
       if(!sek) return alert("Pilih sekolah terlebih dahulu dari opsi di atas!"); if(!pin) return alert("Masukkan PIN Login!");
-
-      let btn = document.getElementById('btnLoginBtn'); let btnText = document.getElementById('loginBtnText');
-      btn.disabled = true; btnText.innerText = "Memverifikasi...";
+      let btn = document.getElementById('btnLoginBtn'); let btnText = document.getElementById('loginBtnText'); btn.disabled = true; btnText.innerText = "Memverifikasi...";
 
       fetchBackend('verify', {sek: sek, pin: pin}).then(res => {
         if(res.sukses) {
            localStorage.setItem('loggedInSchool', sek); localStorage.setItem('loggedInPin', pin);
-           
-           btnText.innerText = "Mengambil Data...";
-           let p = document.getElementById('paketSelectorPublic').value;
+           btnText.innerText = "Mengambil Data..."; let p = document.getElementById('paketSelectorPublic').value;
            fetchBackend('school', {paket: p, sek: sek}).then(resData => {
                if(resData.sukses) {
-                  currentSchoolData = resData.data; 
-                  renderSchoolDashboard(resData.data);
+                  currentSchoolData = resData.data; renderSchoolDashboard(resData.data);
                   let modal = bootstrap.Modal.getInstance(document.getElementById('loginModal')); modal.hide();
                   document.getElementById('nav-login-btn').classList.add('d-none'); document.getElementById('nav-user-profile').classList.remove('d-none');
                   document.getElementById('header-school-name').innerText = sek;
                   document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.remove('d-none');
-                  document.getElementById('loginPin').value = ''; 
-                  btn.disabled = false; btnText.innerText = "Masuk Dashboard Sekolah";
+                  document.getElementById('loginPin').value = ''; btn.disabled = false; btnText.innerText = "Masuk Dashboard Sekolah";
                }
            });
         } else { alert(res.pesan); btn.disabled = false; btnText.innerText = "Masuk Dashboard Sekolah"; }
@@ -609,6 +517,17 @@
 
       document.getElementById('kompMapelSelector').value = 'BI';
       renderKompetensiAccordion();
+
+      // MENGGAMBAR GRAFIK TREND SEKOLAH
+      if(schoolTrendChartObj) schoolTrendChartObj.destroy();
+      schoolTrendChartObj = new Chart(document.getElementById('schoolTrendChart').getContext('2d'), {
+          type: 'line',
+          data: { labels: data.trendSekolah.labels, datasets: [
+              { label: 'B. Indonesia', data: data.trendSekolah.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true },
+              { label: 'Matematika', data: data.trendSekolah.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }
+          ]},
+          options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+      });
     }
 
     function showMiniGraph(bi, mtk) {
@@ -623,8 +542,7 @@
     function seededRandom(seed) { var x = Math.sin(seed++) * 10000; return x - Math.floor(x); }
     function calcSim(base, seedOffset) {
         if(base <= 0 || isNaN(base)) return "-";
-        let variation = (seededRandom(base + seedOffset) * 6) - 3; 
-        return Math.min(100, Math.max(0, base + variation)).toFixed(2) + "%";
+        let variation = (seededRandom(base + seedOffset) * 6) - 3; return Math.min(100, Math.max(0, base + variation)).toFixed(2) + "%";
     }
 
     function renderKompetensiAccordion() {
@@ -640,30 +558,22 @@
       let hrefLink = linkSoalTarget ? linkSoalTarget : "javascript:void(0)";
       let targetAttr = linkSoalTarget ? 'target="_blank"' : `onclick="alert('Link soal PDF belum ditambahkan admin di Konfigurasi (Kolom E).\\n\\nSilakan hubungi Admin untuk mengisi link PDF Try Out ${mapel} pada Sheet Konfigurasi.')"`;
 
-      let db = KISI_KISI_DB[mapel];
-      let htmlTbl = '';
-      
-      let chartLabels = []; let chartS = []; let chartK = []; let chartW = []; let chartC = [];
-      let globalCounter = 1;
+      let db = KISI_KISI_DB[mapel]; let htmlTbl = '';
+      let chartLabels = []; let chartS = []; let chartK = []; let chartW = []; let chartC = []; let globalCounter = 1;
 
       db.forEach((kompData, iKomp) => {
          let seedKomp = globalCounter++;
          let sKompS = calcSim(baseS, seedKomp); let sKompK = calcSim(baseK, seedKomp); let sKompW = calcSim(baseW, seedKomp); let sKompC = calcSim(baseC, seedKomp);
-         
-         chartLabels.push(kompData.komp.substring(3)); 
-         chartS.push(parseFloat(sKompS)); chartK.push(parseFloat(sKompK)); chartW.push(parseFloat(sKompW)); chartC.push(parseFloat(sKompC));
+         chartLabels.push(kompData.komp.substring(3)); chartS.push(parseFloat(sKompS)); chartK.push(parseFloat(sKompK)); chartW.push(parseFloat(sKompW)); chartC.push(parseFloat(sKompC));
 
-         // RENDER LEVEL 1 (KOMPETENSI)
          htmlTbl += `<tr class="row-komp" onclick="toggleAccordion('komp-${iKomp}', event)">
             <td class="ps-4"><i class="bi bi-caret-right-fill caret-icon text-primary" id="icon-komp-${iKomp}"></i> <span class="text-primary fw-bold">${kompData.komp}</span></td>
             <td class="text-center fw-bold" style="color: #0f766e;">${sKompS}</td><td class="text-center text-dark">${sKompK}</td><td class="text-center text-dark">${sKompW}</td><td class="text-center text-dark">${sKompC}</td><td class="text-center">-</td>
          </tr>`;
 
-         // RENDER LEVEL 2 (SUBKOMPETENSI & TOMBOL LIHAT SOAL)
          kompData.subs.forEach((subData, iSub) => {
              let seedSub = globalCounter++;
              let sSubS = calcSim(baseS, seedSub); let sSubK = calcSim(baseK, seedSub); let sSubW = calcSim(baseW, seedSub); let sSubC = calcSim(baseC, seedSub);
-
              htmlTbl += `<tr class="row-sub komp-${iKomp}">
                 <td class="ps-5" style="padding-left: 2.5rem !important;"><span class="text-secondary fw-semibold">• ${subData.name}</span></td>
                 <td class="text-center fw-bold text-secondary">${sSubS}</td><td class="text-center text-muted">${sSubK}</td><td class="text-center text-muted">${sSubW}</td><td class="text-center text-muted">${sSubC}</td>
@@ -677,36 +587,23 @@
       if(kompChartObj) kompChartObj.destroy();
       kompChartObj = new Chart(document.getElementById('kompChart').getContext('2d'), {
         type: 'bar',
-        data: { labels: chartLabels, datasets: [
-            { label: 'Sekolah (%)', data: chartS, backgroundColor: '#0f766e' },
-            { label: 'Kecamatan (%)', data: chartK, backgroundColor: '#d97706' },
-            { label: 'Wilayah (%)', data: chartW, backgroundColor: '#15803d' },
-            { label: 'Kota (%)', data: chartC, backgroundColor: '#3b82f6' }
-        ]},
+        data: { labels: chartLabels, datasets: [ { label: 'Sekolah (%)', data: chartS, backgroundColor: '#0f766e' }, { label: 'Kecamatan (%)', data: chartK, backgroundColor: '#d97706' }, { label: 'Wilayah (%)', data: chartW, backgroundColor: '#15803d' }, { label: 'Kota (%)', data: chartC, backgroundColor: '#3b82f6' } ]},
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
       });
     }
 
     function toggleAccordion(className, event) {
       if(event) event.stopPropagation(); 
-      let rows = document.getElementsByClassName(className);
-      let isExpanding = false;
-
+      let rows = document.getElementsByClassName(className); let isExpanding = false;
       if(rows.length > 0 && (rows[0].style.display === "none" || rows[0].style.display === "")) isExpanding = true;
-
       let icon = document.getElementById("icon-" + className);
-      if(icon) {
-        if(isExpanding) icon.classList.add("caret-down"); else icon.classList.remove("caret-down");
-      }
+      if(icon) { if(isExpanding) icon.classList.add("caret-down"); else icon.classList.remove("caret-down"); }
 
       for (let i = 0; i < rows.length; i++) {
          if (isExpanding) { rows[i].style.display = "table-row"; } 
          else {
              rows[i].style.display = "none";
-             if(className.startsWith('komp-')) {
-                 let childIcon = rows[i].querySelector('.caret-icon');
-                 if(childIcon) childIcon.classList.remove("caret-down");
-             }
+             if(className.startsWith('komp-')) { let childIcon = rows[i].querySelector('.caret-icon'); if(childIcon) childIcon.classList.remove("caret-down"); }
          }
       }
     }
