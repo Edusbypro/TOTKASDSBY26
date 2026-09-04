@@ -43,10 +43,8 @@
     
     .row-komp { background-color: #e2e8f0; font-weight: bold; cursor: pointer; border-top: 2px solid #cbd5e1;}
     .row-komp:hover { background-color: #cbd5e1; }
-    .row-sub { background-color: #f8fafc; font-weight: 600; cursor: pointer; display: none; }
-    .row-sub:hover { background-color: #f1f5f9; }
-    .row-ind { background-color: #ffffff; color: #475569; display: none; font-size: 0.9rem; }
-    .row-ind:hover { background-color: #f8fafc; }
+    .row-sub { background-color: #ffffff; color: #475569; display: none; font-size: 0.9rem; }
+    .row-sub:hover { background-color: #f8fafc; }
     .caret-icon { transition: transform 0.3s; display: inline-block; margin-right: 8px;}
     .caret-down { transform: rotate(90deg); }
     
@@ -58,7 +56,6 @@
 </head>
 <body>
 
-  <!-- NAVBAR UTAMA -->
   <nav class="navbar navbar-expand-lg px-4 py-2 sticky-top">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="#" onclick="showPublicView()">
@@ -69,7 +66,6 @@
         </div>
       </a>
       <div class="d-flex align-items-center gap-3">
-        <!-- Tombol Kisi-Kisi Besar -->
         <a href="https://docs.google.com/spreadsheets/d/1ycmu9pchfcYyr4WMWHYSqQHSK1S0-SJRRzS3HLWaJdM/edit?usp=sharing" target="_blank" class="btn btn-outline-primary fw-semibold btn-sm"><i class="bi bi-link-45deg me-1"></i>Kisi-kisi Soal</a>
         
         <div id="nav-login-btn">
@@ -86,7 +82,6 @@
     </div>
   </nav>
 
-  <!-- MODAL LOGIN SEKOLAH BERTINGKAT -->
   <div class="modal fade" id="loginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -127,7 +122,6 @@
   </div>
 
   <main>
-    <!-- VIEW PUBLIK KOTA -->
     <div id="view-public" class="container-fluid px-4 py-4">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #ffffff, #f8fafc);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -136,12 +130,15 @@
             <span class="badge rounded-pill bg-light text-dark border">TA 2026/2027</span>
             <span class="badge rounded-pill bg-primary text-white" id="badge-paket-title">Data: SIMULASI</span>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <label class="fw-bold text-secondary" style="font-size: 0.9rem;">Pilih Paket Ujian: </label>
+          <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+            <!-- TOMBOL DOWNLOAD DESKRIPSI DI DASHBOARD PUBLIK -->
+            <a href="javascript:void(0)" onclick="bukaLinkDeskripsi()" class="btn btn-outline-info btn-sm fw-bold border-2 text-dark"><i class="bi bi-cloud-arrow-down-fill me-1 text-primary"></i>Deskripsi Capaian</a>
+            
+            <label class="fw-bold text-secondary ms-2" style="font-size: 0.9rem;">Pilih Paket Ujian: </label>
             <select id="paketSelectorPublic" class="form-select form-select-sm fw-bold border-primary text-primary shadow-sm" style="width: 150px; cursor: pointer;" onchange="onPaketChange()">
               <option value="SIMULASI">SIMULASI</option><option value="PAKET 1">PAKET 1</option><option value="PAKET 2">PAKET 2</option><option value="PAKET 3">PAKET 3</option><option value="PAKET 4">PAKET 4</option><option value="PAKET 5">PAKET 5</option><option value="PAKET 6">PAKET 6</option><option value="PAKET 7">PAKET 7</option><option value="PAKET 8">PAKET 8</option><option value="PAKET 9">PAKET 9</option><option value="PAKET 10">PAKET 10</option><option value="PAKET 11">PAKET 11</option><option value="PAKET 12">PAKET 12</option><option value="PAKET 13">PAKET 13</option><option value="PAKET 14">PAKET 14</option><option value="PAKET 15">PAKET 15</option>
             </select>
-            <button class="btn btn-success btn-sm ms-2" onclick="onPaketChange()"><i class="bi bi-arrow-clockwise"></i></button>
+            <button class="btn btn-success btn-sm ms-1" onclick="onPaketChange()"><i class="bi bi-arrow-clockwise"></i></button>
           </div>
         </div>
       </div>
@@ -208,6 +205,10 @@
                 <tbody id="s-tbody-hierarki"><tr><td colspan="6" class="text-center"><span class="blink">Memuat data sekolah...</span></td></tr></tbody>
               </table>
             </div>
+            <!-- TOMBOL DOWNLOAD DESKRIPSI DI DASHBOARD SEKOLAH -->
+            <div class="text-end mt-3">
+              <a href="javascript:void(0)" onclick="bukaLinkDeskripsi()" class="btn btn-outline-info btn-sm fw-bold border-2 text-dark"><i class="bi bi-cloud-arrow-down-fill me-1 text-primary"></i>Download Deskripsi Capaian</a>
+            </div>
           </div>
 
           <div class="card card-custom p-4" style="background-color: #f1f5f9;">
@@ -227,7 +228,7 @@
           </div>
         </div>
 
-        <!-- TAB 2: CAPAIAN KOMPETENSI (ACCORDION DRILL-DOWN) -->
+        <!-- TAB 2: CAPAIAN KOMPETENSI (KISI-KISI BARU 2 LEVEL) -->
         <div class="tab-pane fade" id="tab-kompetensi">
           <div class="card card-custom p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -239,17 +240,16 @@
             
             <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-list-nested me-2"></i>Hierarki Capaian Kompetensi (Sesuai Kisi-Kisi)</h6>
             
-            <!-- TABEL ACCORDION KISI-KISI -->
             <div class="table-responsive mb-4 border rounded">
               <table class="table table-hover mb-0" style="font-size: 0.95rem;">
                 <thead class="table-light">
                   <tr>
-                    <th class="py-3 ps-4" width="40%">HIERARKI KOMPETENSI</th>
-                    <th class="py-3 text-center" width="12%">SEKOLAH</th>
-                    <th class="py-3 text-center" width="12%">KECAMATAN</th>
-                    <th class="py-3 text-center" width="12%">WILAYAH</th>
-                    <th class="py-3 text-center" width="12%">KOTA SBY</th>
-                    <th class="py-3 text-center" width="12%">CONTOH SOAL</th>
+                    <th class="py-3 ps-4" width="45%">KOMPETENSI & SUBKOMPETENSI</th>
+                    <th class="py-3 text-center" width="11%">SEKOLAH</th>
+                    <th class="py-3 text-center" width="11%">KECAMATAN</th>
+                    <th class="py-3 text-center" width="11%">WILAYAH</th>
+                    <th class="py-3 text-center" width="11%">KOTA SBY</th>
+                    <th class="py-3 text-center" width="11%">CONTOH SOAL</th>
                   </tr>
                 </thead>
                 <tbody id="s-tbody-accordion">
@@ -258,7 +258,6 @@
               </table>
             </div>
             
-            <!-- Tombol Akses Cepat Kisi-Kisi -->
             <div class="text-center mb-5">
                <a href="https://docs.google.com/spreadsheets/d/1ycmu9pchfcYyr4WMWHYSqQHSK1S0-SJRRzS3HLWaJdM/edit?usp=sharing" target="_blank" class="btn btn-outline-primary fw-bold px-5 py-2 rounded-pill"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Akses Database Kisi-Kisi Soal Lengkap</a>
             </div>
@@ -291,31 +290,37 @@
     // !!! PASTE LINK /EXEC ANDA DI BAWAH INI !!!
     // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
+    
+    // ----------------------------------------------------
+    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH INI !!!
+    // ----------------------------------------------------
+    const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
+    // STRUKTUR KISI-KISI BARU (Hanya 2 Level)
     const KISI_KISI_DB = {
       BI: [
         {
           komp: "1. Pemahaman Tekstual",
           subs: [
-            { name: "Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan.", inds: ["Menentukan bagan berdasarkan isi di dalam teks", "Menentukan ikhtisar dari teks yang disajikan"] },
-            { name: "Mengidentifikasi informasi tersurat dalam teks.", inds: ["Menentukan informasi tersurat pada teks", "Mengidentifikasi tokoh yang terdapat dalam teks", "Mengidentifikasi latar tempat yang spesifik", "Menentukan urutan kronologis kejadian", "Menyebutkan data atau fakta yang disampaikan secara langsung"] },
-            { name: "Mengidentifikasi objek berdasarkan kosakata yang digunakan dalam teks fiksi/nonfiksi.", inds: ["Menentukan kosakata yang sesuai dengan objek", "Menentukan fenomena atau peristiwa utama berdasarkan kosakata", "Membedakan objek berdasarkan kosakata spesifik yang melekat"] }
+            { name: "Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan. (Soal 1)" },
+            { name: "Mengidentifikasi informasi tersurat dalam teks. (Soal 9, 11, 12, 13, 19, 28)" },
+            { name: "Mengidentifikasi objek berdasarkan kosakata yang digunakan dalam teks fiksi dan nonfiksi. (Soal 25)" }
           ]
         },
         {
           komp: "2. Pemahaman Inferensial",
           subs: [
-            { name: "Menjelaskan makna ungkapan yang digunakan dalam teks.", inds: ["Menentukan makna ungkapan dalam teks", "Mengidentifikasi ungkapan semakna", "Menggunakan ungkapan dalam kalimat yang sesuai dengan makna"] },
-            { name: "Menyimpulkan ide pokok, gagasan pendukung, amanat, tokoh, peristiwa.", inds: ["Menyusun kesimpulan relevansi Isi dalam teks", "Menyimpulkan ide pokok dalam teks", "Menyimpulkan amanat dalam teks", "Menyimpulkan karakter tokoh berdasarkan pikiran dan ucapan"] },
-            { name: "Menyimpulkan perubahan sederhana pada objek, karakter, dan/atau latar.", inds: ["Menyimpulkan perubahan sederhana pada objek", "Menyimpulkan perubahan keadaan suatu objek", "Menganalisis penyebab perubahan latar tempat / waktu"] }
+            { name: "Menjelaskan makna ungkapan yang digunakan dalam teks. (Soal 2, 7, 22)" },
+            { name: "Menyimpulkan ide pokok, gagasan pendukung, amanat, tokoh, peristiwa, dan/atau nilai-nilai dalam teks. (Soal 4, 6, 10, 14, 16, 17, 20, 29)" },
+            { name: "Menyimpulkan perubahan sederhana pada objek, karakter, dan/atau latar dalam teks fiksi atau nonfiksi. (Soal 5, 23, 26)" }
           ]
         },
         {
           komp: "3. Evaluasi dan Apresiasi",
           subs: [
-            { name: "Menilai kesesuaian antarunsur dan/atau antarinformasi dalam teks.", inds: ["Menentukan kesesualan antara judul dengan isi teks", "Menentukan kesesualan antara amanat dengan isi teks", "Menilai kesesuaian antara ilustrasi dengan isi teks"] },
-            { name: "Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari.", inds: ["Merefleksi peristiwa dalam teks dengan kehidupan", "Menilai kesesuaian moral dalam teks dengan kebiasaan baik", "Memberikan contoh konkret dari lingkungan sekitar"] },
-            { name: "Menyimpulkan respons emosional terhadap unsur teks fiksi.", inds: ["Menentukan respons emosional terhadap peristiwa/konflik", "Menentukan perubahan perasaan tokoh", "Menilai kesesuaian respon emosional tokoh terhadap masalah"] }
+            { name: "Menilai kesesuaian antarunsur dan/atau antarinformasi dalam teks. (Soal 3, 18)" },
+            { name: "Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari berdasarkan pengalaman atau pengetahuan pribadi. (Soal 8, 15, 21, 24)" },
+            { name: "Menyimpulkan respons emosional terhadap unsur teks fiksi. (Soal 27, 30)" }
           ]
         }
       ],
@@ -323,23 +328,38 @@
         {
           komp: "1. Bilangan",
           subs: [
-            { name: "Bilangan Rasional (Pemahaman & Aplikasi)", inds: ["Menentukan representasi pecahan dari bagian suatu objek utuh", "Mengurutkan beberapa bilangan berbeda", "Menentukan faktor bilangan cacah dan mengenal bilangan prima", "Menggunakan operasi bilangan cacah (maks. empat angka)"] },
-            { name: "Bilangan Rasional (Bernalar Tinggi)", inds: ["Memodelkan masalah kontekstual ke dalam bentuk kalimat matematika", "Mengevaluasi kebenaran hasil operasi bilangan pada diagram alir", "Menyelesaikan persamaan sederhana", "Menentukan KPK dan FPB dari dua atau tiga bilangan"] }
+            { name: "Memahami & bernalar terkait pecahan senilai menggunakan gambar/simbol. (Soal 1)" },
+            { name: "Mengurutkan beberapa bilangan dalam bentuk berbeda. (Soal 2)" },
+            { name: "Menentukan faktor bilangan cacah dan mengenal bilangan prima. (Soal 3)" },
+            { name: "Menggunakan operasi dasar dua bilangan cacah. (Soal 4)" },
+            { name: "Memahami & bernalar terkait operasi bilangan cacah. (Soal 5, 7)" },
+            { name: "Memahami & bernalar terkait operasi pecahan dengan bilangan asli. (Soal 6)" },
+            { name: "Menyelesaikan persamaan sederhana (penjumlahan/pengurangan). (Soal 8, 9)" },
+            { name: "Menyelesaikan persamaan sederhana (semua operasi dasar). (Soal 10, 11)" },
+            { name: "Menentukan KPK dan FPB. (Soal 12)" }
           ]
         },
         {
           komp: "2. Geometri dan Pengukuran",
           subs: [
-            { name: "Objek Geometri", inds: ["Membedakan ciri-ciri berbagai jenis bangun datar", "Mengidentifikasi bangun datar penyusun suatu bangun segi banyak", "Menyelesaikan masalah konstruksi visualisasi spasial (kubus)"] },
-            { name: "Pengukuran Panjang, Volume, Berat & Waktu", inds: ["Mengidentifikasi kelogisan penggunaan satuan baku", "Menentukan representasi visual dari volume benda", "Menentukan representasi kesetimbangan neraca (berat)", "Menentukan durasi suatu aktivitas berdasarkan keterangan waktu"] },
-            { name: "Keliling, Luas, dan Sudut", inds: ["Menghitung keliling dan luas bangun datar segi banyak beraturan", "Menggunakan konsep keliling persegi/persegi panjang", "Menentukan besar sudut berdasarkan sifat-sifat yang diketahui"] }
+            { name: "Memahami & bernalar terkait bentuk bangun datar. (Soal 13, 14)" },
+            { name: "Konstruksi bangun ruang dan visualisasi spasial. (Soal 15)" },
+            { name: "Memahami & bernalar terkait panjang benda (satuan baku). (Soal 16)" },
+            { name: "Memahami & bernalar terkait volume benda (satuan baku). (Soal 17)" },
+            { name: "Memahami & bernalar terkait berat benda (satuan baku). (Soal 18)" },
+            { name: "Memahami & bernalar terkait waktu. (Soal 19)" },
+            { name: "Memahami & bernalar terkait keliling dan luas bangun datar. (Soal 20, 21)" },
+            { name: "Menghitung keliling, luas, atau sisi persegi panjang. (Soal 22)" },
+            { name: "Mengidentifikasi ciri-ciri segiempat, segitiga, segibanyak, & lingkaran. (Soal 23)" },
+            { name: "Menentukan panjang dan berat benda dengan satuan baku. (Soal 24)" },
+            { name: "Memahami & bernalar terkait besar sudut. (Soal 25)" }
           ]
         },
         {
           komp: "3. Data dan Ketidakpastian",
           subs: [
-            { name: "Penyajian dan Penggunaan Data", inds: ["Mengidentifikasi kesalahan penyajian data dalam diagram batang", "Menentukan nilai yang belum diketahui dari informasi pada tabel", "Menyajikan data dari tabel ke dalam diagram batang secara tepat"] },
-            { name: "Analisis dan Interpretasi Data", inds: ["Menemukan jumlah atau nilai pada kategori tertentu", "Menentukan perbandingan data antarkategori", "Mengurutkan kategori berdasarkan nilai data dari tabel"] }
+            { name: "Memahami & bernalar terkait pengambilan informasi dan penggunaan data. (Soal 26)" },
+            { name: "Menyajikan, menganalisis, dan menginterpretasi data diagram/tabel. (Soal 27, 28, 29, 30)" }
           ]
         }
       ]
@@ -351,11 +371,18 @@
     document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
         tab.addEventListener('shown.bs.tab', function (e) { localStorage.setItem('activeTabSchool', e.target.getAttribute('href')); });
     });
+    
+    // FUNGSI MEMBUKA LINK DESKRIPSI CAPAIAN
+    function bukaLinkDeskripsi() {
+        if(LINK_DESKRIPSI_CAPAIAN === "MASUKKAN_LINK_DESKRIPSI_CAPAIAN_DISINI" || !LINK_DESKRIPSI_CAPAIAN) {
+            alert("Admin belum memasukkan link untuk file Deskripsi Capaian.");
+        } else {
+            window.open(LINK_DESKRIPSI_CAPAIAN, '_blank');
+        }
+    }
 
-    // --- FUNGSI JEMBATAN HYBRID (SMART FETCH) ---
     async function fetchBackend(action, params = {}) {
         return new Promise((resolve, reject) => {
-            // 1. Jika berjalan di dalam Google Apps Script (Sangat Cepat)
             if (typeof google !== 'undefined' && google.script) {
                 if (action === 'public') {
                     google.script.run.withSuccessHandler(stat => {
@@ -368,9 +395,7 @@
                 } else if (action === 'school') {
                     google.script.run.withSuccessHandler(data => resolve({sukses: true, data: data})).withFailureHandler(reject).getSchoolDashboardData(params.paket, params.sek);
                 }
-            } 
-            // 2. Jika berjalan di Netlify / GitHub (API Eksternal Bebas Error Drive)
-            else {
+            } else {
                 let query = new URLSearchParams(params).toString();
                 let url = `${API_URL}?action=${action}&${query}`;
                 fetch(url).then(r => r.json()).then(resolve).catch(reject);
@@ -387,7 +412,6 @@
         
         let p = document.getElementById('paketSelectorPublic').value;
         
-        // Pemanggilan lewat Smart Fetch
         fetchBackend('public', {paket: p}).then(res => {
             if(res.sukses) {
                 tampilkanDataPublic(res.stat); 
@@ -629,30 +653,22 @@
          chartLabels.push(kompData.komp.substring(3)); 
          chartS.push(parseFloat(sKompS)); chartK.push(parseFloat(sKompK)); chartW.push(parseFloat(sKompW)); chartC.push(parseFloat(sKompC));
 
+         // RENDER LEVEL 1 (KOMPETENSI)
          htmlTbl += `<tr class="row-komp" onclick="toggleAccordion('komp-${iKomp}', event)">
-            <td class="ps-4"><i class="bi bi-caret-right-fill caret-icon text-primary" id="icon-komp-${iKomp}"></i> <span class="text-primary">${kompData.komp}</span></td>
+            <td class="ps-4"><i class="bi bi-caret-right-fill caret-icon text-primary" id="icon-komp-${iKomp}"></i> <span class="text-primary fw-bold">${kompData.komp}</span></td>
             <td class="text-center fw-bold" style="color: #0f766e;">${sKompS}</td><td class="text-center text-dark">${sKompK}</td><td class="text-center text-dark">${sKompW}</td><td class="text-center text-dark">${sKompC}</td><td class="text-center">-</td>
          </tr>`;
 
+         // RENDER LEVEL 2 (SUBKOMPETENSI & TOMBOL LIHAT SOAL)
          kompData.subs.forEach((subData, iSub) => {
              let seedSub = globalCounter++;
              let sSubS = calcSim(baseS, seedSub); let sSubK = calcSim(baseK, seedSub); let sSubW = calcSim(baseW, seedSub); let sSubC = calcSim(baseC, seedSub);
 
-             htmlTbl += `<tr class="row-sub komp-${iKomp}" onclick="toggleAccordion('sub-${iKomp}-${iSub}', event)">
-                <td class="ps-5"><i class="bi bi-caret-right-fill caret-icon text-muted" id="icon-sub-${iKomp}-${iSub}"></i> <span class="text-dark">${subData.name}</span></td>
-                <td class="text-center fw-bold" style="color: #0f766e;">${sSubS}</td><td class="text-center text-dark">${sSubK}</td><td class="text-center text-dark">${sSubW}</td><td class="text-center text-dark">${sSubC}</td><td class="text-center">-</td>
+             htmlTbl += `<tr class="row-sub komp-${iKomp}">
+                <td class="ps-5" style="padding-left: 2.5rem !important;"><span class="text-secondary fw-semibold">• ${subData.name}</span></td>
+                <td class="text-center fw-bold text-secondary">${sSubS}</td><td class="text-center text-muted">${sSubK}</td><td class="text-center text-muted">${sSubW}</td><td class="text-center text-muted">${sSubC}</td>
+                <td class="text-center"><a href="${hrefLink}" ${targetAttr} class="td-lihat-soal">Lihat Soal</a></td>
              </tr>`;
-
-             subData.inds.forEach((indName, iInd) => {
-                 let seedInd = globalCounter++;
-                 let sIndS = calcSim(baseS, seedInd); let sIndK = calcSim(baseK, seedInd); let sIndW = calcSim(baseW, seedInd); let sIndC = calcSim(baseC, seedInd);
-
-                 htmlTbl += `<tr class="row-ind komp-${iKomp} sub-${iKomp}-${iSub}">
-                    <td class="ps-5" style="padding-left: 3.5rem !important;"><span class="text-secondary">• ${indName}</span></td>
-                    <td class="text-center text-secondary fw-semibold">${sIndS}</td><td class="text-center text-muted">${sIndK}</td><td class="text-center text-muted">${sIndW}</td><td class="text-center text-muted">${sIndC}</td>
-                    <td class="text-center"><a href="${hrefLink}" ${targetAttr} class="td-lihat-soal">Lihat Soal</a></td>
-                 </tr>`;
-             });
          });
       });
 
