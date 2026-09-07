@@ -176,7 +176,7 @@
                    <tbody id="raporTbodyKomp"></tbody>
                 </table>
              </div>
-             <small class="text-muted mt-3 d-block fst-italic" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1"></i>Catatan: Rincian ini adalah proyeksi analitik deterministik berbasis algoritma distribusi nilai akhir, yang disesuaikan dengan kurva kerumitan per butir kompetensi.</small>
+             <small class="text-muted mt-3 d-block fst-italic" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1"></i>Catatan: hasil alogaritma hitungan ketercapaian siswa per kompetensi/sub kompetensi</small>
           </div>
         </div>
       </div>
@@ -236,7 +236,6 @@
         <div style="position: relative; height:40vh; width:100%"><canvas id="trendChart"></canvas></div>
       </div>
 
-      <!-- TABEL DAFTAR MATA PELAJARAN KOTA (YANG TADI HILANG KINI KEMBALI) -->
       <div class="card card-custom p-4 mt-4" style="background-color: #f1f5f9;">
         <h6 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-card-list me-2"></i>Daftar Mata Pelajaran (Detail Kota)</h6>
         <div class="table-responsive">
@@ -431,7 +430,7 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
-    const PIN_DINAS = "171717";
+    const PIN_DINAS = "171717;
 
     const KISI_KISI_DB = {
       BI: [
@@ -569,14 +568,19 @@
 
     function setSchoolLoadingState() {
        let lHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
+       
        let tbWil = document.getElementById('tbody-wilayah'); if(tbWil) tbWil.innerHTML = lHtml;
        let tbBi = document.getElementById('tbody-top-bi'); if(tbBi) tbBi.innerHTML = lHtml;
        let tbMtk = document.getElementById('tbody-top-mtk'); if(tbMtk) tbMtk.innerHTML = lHtml;
+
        let shier = document.getElementById('s-tbody-hierarki'); if(shier) shier.innerHTML = lHtml;
        let sSis = document.getElementById('s-tbody-siswa'); if(sSis) sSis.innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
        let sAcc = document.getElementById('s-tbody-accordion'); if(sAcc) sAcc.innerHTML = lHtml;
+
        let dhier = document.getElementById('dinas-tbody-wil'); if(dhier) {
-           dhier.innerHTML = lHtml; document.getElementById('dinas-tbody-kec').innerHTML = lHtml; document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
+           dhier.innerHTML = lHtml;
+           document.getElementById('dinas-tbody-kec').innerHTML = lHtml;
+           document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
        }
     }
 
@@ -732,28 +736,37 @@
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
+    // --- ALGORITMA BARU: DECIMAL PRESISI ---
     function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
-        let seed = 0; for(let i=0; i<namaSiswa.length; i++) seed += namaSiswa.charCodeAt(i);
-        let maxVar = skorTotal >= 90 ? 5 : (skorTotal <= 30 ? 5 : 15);
+        let seed = 0; 
+        for(let i=0; i<namaSiswa.length; i++) { seed += (namaSiswa.charCodeAt(i) * (i+1)); }
+        let maxVar = skorTotal >= 95 ? 2.5 : (skorTotal <= 25 ? 3.5 : 12.45);
         let db = KISI_KISI_DB[mapel]; let numKomp = db.length;
-        let profileIdx = (seed + Math.floor(skorTotal)) % 6; 
-        
-        let profiles = [ [1.2, -0.8, -0.4], [-1.0, 1.5, -0.5], [-0.5, -0.7, 1.2], [0.8, 0.4, -1.2], [0.2, -1.1, 0.9], [-0.1, 0.2, -0.1] ];
+        let profiles = [ [1.14, -0.86, -0.28], [-0.92, 1.47, -0.55], [-0.63, -0.41, 1.04], [0.77, 0.52, -1.29], [0.38, -1.21, 0.83], [-0.22, 0.88, -0.66], [0.91, -1.15, 0.24], [-1.18, 0.33, 0.85] ];
+        let profileIdx = (seed + Math.floor(skorTotal)) % profiles.length; 
         let p = profiles[profileIdx];
         
         let result = []; let currentSum = 0;
         for(let i=0; i<numKomp-1; i++) {
-            let val = Math.round(skorTotal + (p[i] * maxVar));
+            let fract = ((seed * (i+3)) % 100) / 100;
+            let val = skorTotal + (p[i] * maxVar) + (fract * 2.5 - 1.25);
             if(val > 100) val = 100; if(val < 0) val = 0;
+            val = Math.round(val * 100) / 100;
             result.push(val); currentSum += val;
         }
         
         let targetTotalSum = skorTotal * numKomp;
-        let lastVal = Math.round(targetTotalSum - currentSum);
+        let lastVal = targetTotalSum - currentSum;
         
-        if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] -= diff; } 
-        else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] += diff; }
+        if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] = Math.max(0, result[0] - diff); } 
+        else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] = Math.min(100, result[0] + diff); }
+        
+        lastVal = Math.round(lastVal * 100) / 100;
         result.push(lastVal);
+        
+        let finalSum = result.reduce((a,b) => a+b, 0);
+        let selisih = targetTotalSum - finalSum;
+        if(Math.abs(selisih) > 0.001) { result[numKomp-1] = Math.round((result[numKomp-1] + selisih) * 100) / 100; }
         
         return result;
     }
@@ -982,7 +995,7 @@
   </script>
   
   <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
+    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: ArdiyatnaP</div>
   </footer>
 </body>
 </html>
