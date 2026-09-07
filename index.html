@@ -192,6 +192,7 @@
   </div>
 
   <main>
+    <!-- VIEW PUBLIK KOTA -->
     <div id="view-public" class="container-fluid px-4 py-4">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #ffffff, #f8fafc);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -217,7 +218,7 @@
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">
             <thead><tr><th class="table-header-blue" width="5%">NO</th><th class="table-header-blue" width="10%">TINGKAT</th><th class="table-header-blue" width="45%">KOTA / WILAYAH</th><th class="table-header-blue" width="15%">JUMLAH PESERTA</th><th class="table-header-blue" width="12.5%">BAHASA INDONESIA</th><th class="table-header-blue" width="12.5%">MATEMATIKA</th></tr></thead>
-            <tbody><tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>RERATA KOTA SURABAYA</td><td class="text-center fw-bold" id="t1-peserta">-</td><td class="text-center text-primary fw-bold" id="t1-bi">-</td><td class="text-center text-primary fw-bold" id="t1-mtk">-</td></tr></tbody>
+            <tbody><tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>RERATA KOTA SURABAYA</td><td class="text-center fw-bold" id="t1-peserta"><span class="blink">...</span></td><td class="text-center text-primary fw-bold" id="t1-bi">-</td><td class="text-center text-primary fw-bold" id="t1-mtk">-</td></tr></tbody>
             <tbody id="tbody-wilayah"><tr><td colspan="6" class="text-center"><span class="blink">Memuat data wilayah...</span></td></tr></tbody>
           </table>
         </div>
@@ -463,24 +464,6 @@
         } else if (input !== null) { alert("PIN Salah. Akses Ditolak."); }
     }
 
-    function showErrorOnScreen(msg) {
-        let errHtml = `<tr><td colspan="6" class="text-center py-4 bg-danger text-white fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> ERROR: ${msg}</td></tr>`;
-        let errDinas = `<tr><td colspan="10" class="text-center py-4 bg-danger text-white fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> ERROR: ${msg}</td></tr>`;
-        
-        let tbWil = document.getElementById('tbody-wilayah'); if(tbWil) tbWil.innerHTML = errHtml;
-        let tbBi = document.getElementById('tbody-top-bi'); if(tbBi) tbBi.innerHTML = errHtml;
-        let tbMtk = document.getElementById('tbody-top-mtk'); if(tbMtk) tbMtk.innerHTML = errHtml;
-        
-        let shier = document.getElementById('s-tbody-hierarki'); if(shier) shier.innerHTML = errHtml;
-        let sSis = document.getElementById('s-tbody-siswa'); if(sSis) sSis.innerHTML = `<tr><td colspan="34" class="text-center py-4 bg-danger text-white fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i> ERROR: ${msg}</td></tr>`;
-        
-        let dhier = document.getElementById('dinas-tbody-wil'); if(dhier) {
-           dhier.innerHTML = errDinas;
-           document.getElementById('dinas-tbody-kec').innerHTML = errDinas;
-           document.getElementById('dinas-tbody-sek').innerHTML = errDinas;
-        }
-    }
-
     async function fetchBackend(action, params = {}) {
         return new Promise((resolve, reject) => {
             if (typeof google !== 'undefined' && google.script) {
@@ -515,19 +498,14 @@
 
         fetchBackend('public', {paket: savedPaket}).then(res => {
             if(res.sukses) { 
-                try {
-                    publicStatGlobal = res.stat; 
-                    tampilkanDataPublic(res.stat); 
-                    populateLoginHierarki(res.stat.hierarkiLogin); 
-                    mapPinGlobal = res.stat.mapPinSekolah || {}; 
-                    renderTrendChart(res.trend); 
-                    if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
-                } catch(e) { showErrorOnScreen("Gagal menggambar tabel publik: " + e.message); }
-            } else { showErrorOnScreen("Akses ditolak server: " + (res.pesan || "")); }
-        }).catch(err => {
-            console.error(err);
-            showErrorOnScreen("Koneksi ke Google Script terputus. Pastikan link Apps Script valid dan diset ke 'Anyone'.");
-        });
+                publicStatGlobal = res.stat; 
+                tampilkanDataPublic(res.stat); 
+                populateLoginHierarki(res.stat.hierarkiLogin); 
+                mapPinGlobal = res.stat.mapPinSekolah || {}; 
+                renderTrendChart(res.trend); 
+                if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
+            }
+        }).catch(err => console.error("Data Error: ", err));
 
         let savedSchool = localStorage.getItem('loggedInSchool');
         let isDinas = localStorage.getItem('loggedInDinas') === 'true';
@@ -545,13 +523,11 @@
             
             fetchBackend('school', {paket: savedPaket, sek: savedSchool}).then(resData => {
                 if(resData.sukses) {
-                    try {
-                        currentSchoolData = resData.data; renderSchoolDashboard(resData.data);
-                        let activeTab = localStorage.getItem('activeTabSchool');
-                        if(activeTab) { let tabTrigger = document.querySelector(`a[href="${activeTab}"]`); if(tabTrigger) new bootstrap.Tab(tabTrigger).show(); }
-                    } catch(e) { showErrorOnScreen("Gagal menggambar dasbor sekolah: " + e.message); }
-                } else { showErrorOnScreen("Data sekolah tidak ditemukan."); }
-            }).catch(err => showErrorOnScreen("Koneksi sekolah terputus."));
+                    currentSchoolData = resData.data; renderSchoolDashboard(resData.data);
+                    let activeTab = localStorage.getItem('activeTabSchool');
+                    if(activeTab) { let tabTrigger = document.querySelector(`a[href="${activeTab}"]`); if(tabTrigger) new bootstrap.Tab(tabTrigger).show(); }
+                }
+            });
         } else {
             document.getElementById('nav-user-profile').classList.add('d-none'); document.getElementById('nav-login-btn').classList.remove('d-none');
             document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-dinas').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none');
@@ -573,41 +549,31 @@
 
         fetchBackend('public', {paket: p}).then(res => {
             if(res.sukses) { 
-                try {
-                    publicStatGlobal = res.stat; 
-                    tampilkanDataPublic(res.stat); 
-                    populateLoginHierarki(res.stat.hierarkiLogin); 
-                    mapPinGlobal = res.stat.mapPinSekolah || {}; 
-                    renderTrendChart(res.trend); 
-                    if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
-                } catch(e) { showErrorOnScreen("Gagal menggambar tabel: " + e.message); }
-            } else { showErrorOnScreen(res.pesan); }
-        }).catch(err => showErrorOnScreen("Koneksi Google Terputus."));
+                publicStatGlobal = res.stat; 
+                tampilkanDataPublic(res.stat); 
+                populateLoginHierarki(res.stat.hierarkiLogin); 
+                mapPinGlobal = res.stat.mapPinSekolah || {}; 
+                renderTrendChart(res.trend); 
+                if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
+            }
+        });
         
         let savedSchool = localStorage.getItem('loggedInSchool');
         if(savedSchool) {
-           fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => { 
-               if(resData.sukses) { currentSchoolData = resData.data; renderSchoolDashboard(resData.data); } 
-               else { showErrorOnScreen(resData.pesan); }
-           }).catch(err => showErrorOnScreen("Koneksi Terputus."));
+           fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => { if(resData.sukses) { currentSchoolData = resData.data; renderSchoolDashboard(resData.data); } });
         }
     }
 
     function setSchoolLoadingState() {
        let lHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
-       
        let tbWil = document.getElementById('tbody-wilayah'); if(tbWil) tbWil.innerHTML = lHtml;
        let tbBi = document.getElementById('tbody-top-bi'); if(tbBi) tbBi.innerHTML = lHtml;
        let tbMtk = document.getElementById('tbody-top-mtk'); if(tbMtk) tbMtk.innerHTML = lHtml;
-
        let shier = document.getElementById('s-tbody-hierarki'); if(shier) shier.innerHTML = lHtml;
        let sSis = document.getElementById('s-tbody-siswa'); if(sSis) sSis.innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
        let sAcc = document.getElementById('s-tbody-accordion'); if(sAcc) sAcc.innerHTML = lHtml;
-
        let dhier = document.getElementById('dinas-tbody-wil'); if(dhier) {
-           dhier.innerHTML = lHtml;
-           document.getElementById('dinas-tbody-kec').innerHTML = lHtml;
-           document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
+           dhier.innerHTML = lHtml; document.getElementById('dinas-tbody-kec').innerHTML = lHtml; document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
        }
     }
 
@@ -763,6 +729,7 @@
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
+    // --- ALGORITMA BARU: DECIMAL PRESISI ---
     function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
         let seed = 0; 
         let safeName = namaSiswa ? namaSiswa.toString() : "Anonim";
@@ -783,6 +750,7 @@
             let val = skorTotal + variation;
             if(val > 100) val = 100; if(val < 0) val = 0;
             
+            val = Math.round(val * 100) / 100;
             result.push(val); currentSum += val;
         }
         
@@ -791,6 +759,8 @@
         
         if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] = Math.max(0, result[0] - diff); } 
         else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] = Math.min(100, result[0] + diff); }
+        
+        lastVal = Math.round(lastVal * 100) / 100;
         result.push(lastVal);
         
         let finalResult = [];
@@ -866,12 +836,11 @@
       if(data.siswa.length === 0) { htmlSiswa = `<tr><td colspan="34" class="text-center py-4">Belum ada siswa yang mengerjakan</td></tr>`; } 
       else {
           data.siswa.forEach((s, idx) => {
-              let safeName = s.nama ? s.nama.replace(/'/g, "\\'").replace(/"/g, '&quot;') : "Siswa";
               htmlSiswa += `<tr><td class="text-center border-end">${idx+1}</td><td class="fw-semibold text-start border-end">${s.nama}</td>`;
               s.riwayat.forEach((r, pIdx) => {
                   let pTitle = pNames[pIdx];
-                  let vBI = r.bi !== "-" ? `<span class="clickable-score bi" onclick="bukaRaporIndividu('${safeName}', 'BI', ${r.bi}, '${pTitle}')">${r.bi}</span>` : `<span class="text-muted opacity-25">-</span>`; 
-                  let vMTK = r.mtk !== "-" ? `<span class="clickable-score mtk" onclick="bukaRaporIndividu('${safeName}', 'MTK', ${r.mtk}, '${pTitle}')">${r.mtk}</span>` : `<span class="text-muted opacity-25">-</span>`;
+                  let vBI = r.bi !== "-" ? `<span class="clickable-score bi" onclick="bukaRaporIndividu('${s.nama}', 'BI', ${r.bi}, '${pTitle}')">${r.bi}</span>` : `<span class="text-muted opacity-25">-</span>`; 
+                  let vMTK = r.mtk !== "-" ? `<span class="clickable-score mtk" onclick="bukaRaporIndividu('${s.nama}', 'MTK', ${r.mtk}, '${pTitle}')">${r.mtk}</span>` : `<span class="text-muted opacity-25">-</span>`;
                   
                   htmlSiswa += `<td class="text-center align-middle text-primary">${vBI}</td><td class="text-center align-middle text-success border-end">${vMTK}</td>`;
               });
@@ -1032,8 +1001,6 @@
     }
   </script>
   
-  <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
-  </footer>
+  <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by : ArdiyatnaP</div>
 </body>
 </html>
