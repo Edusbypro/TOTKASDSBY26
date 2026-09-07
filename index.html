@@ -114,6 +114,15 @@
     </div>
   </div>
 
+  <div class="modal fade" id="grafikMiniModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light"><h5 class="modal-title fw-bold text-primary"><i class="bi bi-bar-chart me-2"></i>Grafik Nilai Per Mata Pelajaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"><div style="height: 300px; width: 100%;"><canvas id="miniBarChart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
   <main>
     <!-- VIEW PUBLIK KOTA (BERANDA UTAMA) -->
     <div id="view-public" class="container-fluid px-4 py-4">
@@ -536,11 +545,15 @@
       document.getElementById('tbody-wilayah').innerHTML = htmlWil || '<tr><td colspan="6" class="text-center text-danger fst-italic">Data belum tersedia.</td></tr>';
 
       let fl = (arr, isMTK) => {
-        if(arr.length===0) return '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>';
-        let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center">${i===0?'<span class="top-rank-badge">1</span>':(i+1)}</td><td><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center fw-bold text-primary fs-6">${isMTK ? (k.rataMTK?k.rataMTK.toFixed(2):"-") : (k.rataBI?k.rataBI.toFixed(2):"-")}</td></tr>`; }); return h;
+        if(!arr || arr.length===0) return '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada data</td></tr>';
+        let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center align-middle">${i===0?'<span class="top-rank-badge shadow-sm">1</span>':(i+1)}</td><td class="align-middle"><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center align-middle fw-bold text-primary fs-6">${isMTK ? (k.rataMTK?parseFloat(k.rataMTK).toFixed(2):"-") : (k.rataBI?parseFloat(k.rataBI).toFixed(2):"-")}</td></tr>`; }); return h;
       };
-      document.getElementById('tbody-top-bi').innerHTML = fl(statObj.topBI, false); 
-      document.getElementById('tbody-top-mtk').innerHTML = fl(statObj.topMTK, true);
+      
+      let topBI = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataBI > 0).sort((a,b) => b.rataBI - a.rataBI).slice(0, 5) : [];
+      let topMTK = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataMTK > 0).sort((a,b) => b.rataMTK - a.rataMTK).slice(0, 5) : [];
+
+      document.getElementById('tbody-top-bi').innerHTML = fl(topBI, false); 
+      document.getElementById('tbody-top-mtk').innerHTML = fl(topMTK, true);
     }
 
     function renderTrendChart(dataChart) {
