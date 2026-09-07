@@ -481,12 +481,12 @@
       statObj.wilayah.forEach((w, idx) => { htmlWil += `<tr class="row-wilayah"><td class="text-center">${idx + 1}</td><td class="text-center text-secondary">Wilayah</td><td class="fw-semibold text-dark">${w.nama}</td><td class="text-center text-muted">${w.peserta.toLocaleString('id-ID')}</td><td class="text-center fw-semibold text-dark">${w.rataBI>0?w.rataBI.toFixed(2):"-"}</td><td class="text-center fw-semibold text-dark">${w.rataMTK>0?w.rataMTK.toFixed(2):"-"}</td></tr>`; });
       document.getElementById('tbody-wilayah').innerHTML = htmlWil || '<tr><td colspan="6" class="text-center text-danger fst-italic">Data belum tersedia.</td></tr>';
 
-      let fl = (arr) => {
-        if(arr.length===0) return '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>';
-        let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center">${i===0?'<span class="top-rank-badge">1</span>':(i+1)}</td><td><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center fw-bold text-primary fs-6">${k.rataBI?k.rataBI.toFixed(2):k.rataMTK.toFixed(2)}</td></tr>`; }); return h;
-      };
-      document.getElementById('tbody-top-bi').innerHTML = fl(statObj.topBI); document.getElementById('tbody-top-mtk').innerHTML = fl(statObj.topMTK);
-    }
+      let fl = (arr, isMTK) => {
+     if(arr.length===0) return '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>';
+     let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center">${i===0?'<span class="top-rank-badge">1</span>':(i+1)}</td><td><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center fw-bold text-primary fs-6">${isMTK ? k.rataMTK.toFixed(2) : k.rataBI.toFixed(2)}</td></tr>`; }); return h;
+   };
+   document.getElementById('tbody-top-bi').innerHTML = fl(statObj.topBI, false); 
+   document.getElementById('tbody-top-mtk').innerHTML = fl(statObj.topMTK, true);
 
     function renderTrendChart(dataChart) {
       if (trendChartObj) trendChartObj.destroy();
