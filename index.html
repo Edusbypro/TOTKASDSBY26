@@ -88,7 +88,6 @@
     </div>
   </nav>
 
-  <!-- MODAL LOGIN SEKOLAH -->
   <div class="modal fade" id="loginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -155,6 +154,22 @@
           </table>
         </div>
       </div>
+      
+      <div class="card card-custom p-4 mt-4" style="background-color: #f1f5f9;">
+        <h6 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-card-list me-2"></i>Daftar Mata Pelajaran (KOTA SURABAYA)</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0 text-center tbl-detail" style="background-color: #fff;">
+            <thead>
+              <tr><th rowspan="2" class="th-main-blue" width="3%">NO</th><th rowspan="2" class="th-main-blue text-start" width="13%">MATA PELAJARAN</th><th rowspan="2" class="th-main-blue" width="8%">JML SEKOLAH</th><th rowspan="2" class="th-main-blue" width="8%">JML SISWA</th><th rowspan="2" class="th-main-blue" width="8%"><i class="bi bi-graph-up me-1"></i> RERATA</th><th rowspan="2" class="th-main-blue" width="7%">% P10</th><th rowspan="2" class="th-main-blue" width="7%">÷ MEDIAN</th><th rowspan="2" class="th-main-blue" width="7%">% P90</th><th rowspan="2" class="th-main-blue" width="7%"><i class="bi bi-bar-chart me-1"></i> STD DEV</th><th colspan="4" class="th-main-blue border-bottom-0"><i class="bi bi-award"></i> KATEGORI (% SISWA)</th></tr>
+              <tr><th class="th-cat-istimewa" width="8%">ISTIMEWA</th><th class="th-cat-baik" width="8%">BAIK</th><th class="th-cat-memadai" width="8%">MEMADAI</th><th class="th-cat-kurang" width="8%">KURANG</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="td-blue-dark">1</td><td class="text-start fw-bold td-blue-dark">B. Indonesia</td><td id="t2-sek-bi" class="fw-bold text-dark">-</td><td id="t2-sis-bi" class="td-purple">-</td><td id="t2-rata-bi" class="td-blue-dark">-</td><td id="t2-p10-bi" class="td-orange">-</td><td id="t2-med-bi" class="td-purple">-</td><td id="t2-p90-bi" class="td-orange">-</td><td id="t2-sd-bi" class="text-primary fw-bold">-</td><td id="t2-ist-bi" class="fw-bold text-success">-</td><td id="t2-baik-bi" class="fw-bold text-primary">-</td><td id="t2-mem-bi" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-bi" class="fw-bold text-danger">-</td></tr>
+              <tr><td class="td-blue-dark">2</td><td class="text-start fw-bold td-blue-dark">Matematika</td><td id="t2-sek-mtk" class="fw-bold text-dark">-</td><td id="t2-sis-mtk" class="td-purple">-</td><td id="t2-rata-mtk" class="td-blue-dark">-</td><td id="t2-p10-mtk" class="td-orange">-</td><td id="t2-med-mtk" class="td-purple">-</td><td id="t2-p90-mtk" class="td-orange">-</td><td id="t2-sd-mtk" class="text-primary fw-bold">-</td><td id="t2-ist-mtk" class="fw-bold text-success">-</td><td id="t2-baik-mtk" class="fw-bold text-primary">-</td><td id="t2-mem-mtk" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-mtk" class="fw-bold text-danger">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <div class="row">
         <div class="col-md-6"><div class="card card-custom p-4 h-100"><h6 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-trophy-fill text-warning me-2"></i>Top 5 Kecamatan (Bahasa Indonesia)</h6><div class="table-responsive"><table class="table table-striped table-hover mb-0"><tbody id="tbody-top-bi"><tr><td colspan="3" class="text-center"><span class="blink">Menyusun peringkat...</span></td></tr></tbody></table></div></div></div>
@@ -167,7 +182,7 @@
       </div>
     </div>
 
-    <!-- VIEW SEKOLAH -->
+    <!-- VIEW SEKOLAH (LOGIN) -->
     <div id="view-school" class="container-fluid px-4 py-4 d-none">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #f8fafc, #ffffff);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -340,15 +355,14 @@
     </div>
   </main>
 
-  <!-- SCRIPT ENGINE API HYBRID -->
   <script>
     // ----------------------------------------------------
-    // !!! PASTE LINK /EXEC ANDA DI SINI !!!
+    // !!! PASTE LINK /EXEC ANDA DI BAWAH SINI !!!
     // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     
     // ----------------------------------------------------
-    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI SINI !!!
+    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH SINI !!!
     // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
@@ -416,13 +430,16 @@
         document.getElementById('badge-paket-title-school').innerText = "Data: " + savedPaket;
         document.getElementById('badge-paket-title-dinas').innerText = "Data: " + savedPaket;
         
-        // PENGAMANAN LOADING DATA EKSPLISIT
+        // FUNGSI PENGAMAN: Jangan menggambar jika data belum selesai
         setSchoolLoadingState();
 
         fetchBackend('public', {paket: savedPaket}).then(res => {
             if(res.sukses) { 
                 publicStatGlobal = res.stat; 
-                tampilkanDataPublic(res.stat); populateLoginHierarki(res.stat.hierarkiLogin); mapPinGlobal = res.stat.mapPinSekolah || {}; renderTrendChart(res.trend); 
+                tampilkanDataPublic(res.stat); 
+                populateLoginHierarki(res.stat.hierarkiLogin); 
+                mapPinGlobal = res.stat.mapPinSekolah || {}; 
+                renderTrendChart(res.trend); 
                 if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
             }
         }).catch(err => console.error("Data Error: ", err));
@@ -432,13 +449,11 @@
         
         if (isDinas) {
             document.getElementById('nav-login-btn').classList.add('d-none'); document.getElementById('nav-user-profile').classList.remove('d-none');
-            document.getElementById('header-account-type').innerText = "AKUN DINAS";
-            document.getElementById('header-school-name').innerText = "KOTA SURABAYA";
+            document.getElementById('header-account-type').innerText = "AKUN DINAS"; document.getElementById('header-school-name').innerText = "KOTA SURABAYA";
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-dinas').classList.remove('d-none');
         } else if(savedSchool) {
             document.getElementById('nav-login-btn').classList.add('d-none'); document.getElementById('nav-user-profile').classList.remove('d-none');
-            document.getElementById('header-account-type').innerText = "AKUN SEKOLAH";
-            document.getElementById('header-school-name').innerText = savedSchool;
+            document.getElementById('header-account-type').innerText = "AKUN SEKOLAH"; document.getElementById('header-school-name').innerText = savedSchool;
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
             
             fetchBackend('school', {paket: savedPaket, sek: savedSchool}).then(resData => {
@@ -453,6 +468,7 @@
             document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-dinas').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none');
         }
     }
+    
     document.addEventListener("DOMContentLoaded", initApp);
 
     function onPaketChangePublic() { let p = document.getElementById('paketSelectorPublic').value; processPaketChange(p); }
@@ -464,13 +480,16 @@
         document.getElementById('paketSelectorPublic').value = p; document.getElementById('paketSelectorSchool').value = p; document.getElementById('paketSelectorDinas').value = p;
         document.getElementById('badge-paket-title').innerText = "Data: " + p; document.getElementById('badge-paket-title-school').innerText = "Data: " + p; document.getElementById('badge-paket-title-dinas').innerText = "Data: " + p;
         
-        // PENGAMAN LOADING EKSPLISIT SAAT GANTI PAKET
+        // PENGAMAN LOADING EKSPLISIT
         setSchoolLoadingState();
 
         fetchBackend('public', {paket: p}).then(res => {
             if(res.sukses) { 
                 publicStatGlobal = res.stat; 
-                tampilkanDataPublic(res.stat); populateLoginHierarki(res.stat.hierarkiLogin); mapPinGlobal = res.stat.mapPinSekolah || {}; renderTrendChart(res.trend); 
+                tampilkanDataPublic(res.stat); 
+                populateLoginHierarki(res.stat.hierarkiLogin); 
+                mapPinGlobal = res.stat.mapPinSekolah || {}; 
+                renderTrendChart(res.trend); 
                 if(localStorage.getItem('loggedInDinas') === 'true') { renderDinasDashboard(res.stat); }
             }
         });
@@ -482,24 +501,20 @@
     }
 
     function setSchoolLoadingState() {
-       let loadingHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
+       let lHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
        
-       // Mengosongkan & meloading tabel publik
-       document.getElementById('tbody-wilayah').innerHTML = loadingHtml;
-       document.getElementById('tbody-top-bi').innerHTML = loadingHtml;
-       document.getElementById('tbody-top-mtk').innerHTML = loadingHtml;
+       let tbWil = document.getElementById('tbody-wilayah'); if(tbWil) tbWil.innerHTML = lHtml;
+       let tbBi = document.getElementById('tbody-top-bi'); if(tbBi) tbBi.innerHTML = lHtml;
+       let tbMtk = document.getElementById('tbody-top-mtk'); if(tbMtk) tbMtk.innerHTML = lHtml;
 
-       // Mengosongkan & meloading tabel sekolah
-       document.getElementById('s-tbody-hierarki').innerHTML = loadingHtml;
-       document.getElementById('s-tbody-siswa').innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
-       document.getElementById('s-tbody-accordion').innerHTML = loadingHtml;
+       let shier = document.getElementById('s-tbody-hierarki'); if(shier) shier.innerHTML = lHtml;
+       let sSis = document.getElementById('s-tbody-siswa'); if(sSis) sSis.innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
+       let sAcc = document.getElementById('s-tbody-accordion'); if(sAcc) sAcc.innerHTML = lHtml;
 
-       // Mengosongkan & meloading tabel dinas
-       let dinasHtml = '<tr><td colspan="13" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menghitung Seluruh Sekolah...</span></td></tr>';
-       if(document.getElementById('d-sek-bi')) {
-           document.getElementById('dinas-tbody-wil').innerHTML = loadingHtml;
-           document.getElementById('dinas-tbody-kec').innerHTML = loadingHtml;
-           document.getElementById('dinas-tbody-sek').innerHTML = loadingHtml;
+       let dhier = document.getElementById('dinas-tbody-wil'); if(dhier) {
+           dhier.innerHTML = lHtml;
+           document.getElementById('dinas-tbody-kec').innerHTML = lHtml;
+           document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
        }
     }
 
@@ -509,13 +524,14 @@
     }
 
     function populateLoginHierarki(hierarkiData) {
+      if(!hierarkiData) return;
       hierarkiDataGlobal = hierarkiData;
       let wilSelect = document.getElementById('loginWilayah'); let htmlWil = '<option value="">-- Pilih Wilayah --</option>';
-      if(hierarkiData) Object.keys(hierarkiData).sort().forEach(w => htmlWil += `<option value="${w}">${w}</option>`);
-      wilSelect.innerHTML = htmlWil;
-      document.getElementById('loginKecamatan').innerHTML = '<option value="">-- Pilih Kecamatan --</option>'; document.getElementById('loginKecamatan').disabled = true;
-      document.getElementById('loginSchoolSelector').innerHTML = '<option value="">-- Pilih Sekolah --</option>'; document.getElementById('loginSchoolSelector').disabled = true;
-      document.getElementById('pinHintContainer').classList.add('d-none');
+      Object.keys(hierarkiData).sort().forEach(w => htmlWil += `<option value="${w}">${w}</option>`);
+      if(wilSelect) wilSelect.innerHTML = htmlWil;
+      let kecSelect = document.getElementById('loginKecamatan'); if(kecSelect) { kecSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>'; kecSelect.disabled = true; }
+      let sekSelect = document.getElementById('loginSchoolSelector'); if(sekSelect) { sekSelect.innerHTML = '<option value="">-- Pilih Sekolah --</option>'; sekSelect.disabled = true; }
+      let hint = document.getElementById('pinHintContainer'); if(hint) hint.classList.add('d-none');
     }
 
     function onWilayahChange() {
@@ -543,37 +559,50 @@
     }
 
     function tampilkanDataPublic(statObj) {
-      if(!statObj || !statObj.kota) return; // PENGAMAN DATA KOSONG
+      if(!statObj || !statObj.kota) return; 
       let kota = statObj.kota;
-      document.getElementById('t1-peserta').innerText = kota.totalPeserta > 0 ? kota.totalPeserta.toLocaleString('id-ID') : "Belum Ada Data";
-      document.getElementById('t1-bi').innerText = kota.rataBI; document.getElementById('t1-mtk').innerText = kota.rataMTK;
+      
+      let t1peserta = document.getElementById('t1-peserta');
+      if(t1peserta) {
+          t1peserta.innerText = kota.totalPeserta > 0 ? kota.totalPeserta.toLocaleString('id-ID') : "Belum Ada Data";
+          document.getElementById('t1-bi').innerText = kota.rataBI; 
+          document.getElementById('t1-mtk').innerText = kota.rataMTK;
+      }
 
-      document.getElementById('t2-sek-bi').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('t2-sis-bi').innerText = kota.pesertaBI.toLocaleString('id-ID'); document.getElementById('t2-rata-bi').innerText = kota.rataBI;
-      document.getElementById('t2-p10-bi').innerText = kota.detailBI.p10; document.getElementById('t2-med-bi').innerText = kota.detailBI.med; document.getElementById('t2-p90-bi').innerText = kota.detailBI.p90; document.getElementById('t2-sd-bi').innerText = kota.detailBI.sd;
-      document.getElementById('t2-ist-bi').innerText = kota.detailBI.kI; document.getElementById('t2-baik-bi').innerText = kota.detailBI.kB; document.getElementById('t2-mem-bi').innerText = kota.detailBI.kM; document.getElementById('t2-kur-bi').innerText = kota.detailBI.kK;
+      let t2sekbi = document.getElementById('t2-sek-bi');
+      if(t2sekbi) {
+          t2sekbi.innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('t2-sis-bi').innerText = kota.pesertaBI.toLocaleString('id-ID'); document.getElementById('t2-rata-bi').innerText = kota.rataBI;
+          document.getElementById('t2-p10-bi').innerText = kota.detailBI.p10; document.getElementById('t2-med-bi').innerText = kota.detailBI.med; document.getElementById('t2-p90-bi').innerText = kota.detailBI.p90; document.getElementById('t2-sd-bi').innerText = kota.detailBI.sd;
+          document.getElementById('t2-ist-bi').innerText = kota.detailBI.kI; document.getElementById('t2-baik-bi').innerText = kota.detailBI.kB; document.getElementById('t2-mem-bi').innerText = kota.detailBI.kM; document.getElementById('t2-kur-bi').innerText = kota.detailBI.kK;
 
-      document.getElementById('t2-sek-mtk').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('t2-sis-mtk').innerText = kota.pesertaMTK.toLocaleString('id-ID'); document.getElementById('t2-rata-mtk').innerText = kota.rataMTK;
-      document.getElementById('t2-p10-mtk').innerText = kota.detailMTK.p10; document.getElementById('t2-med-mtk').innerText = kota.detailMTK.med; document.getElementById('t2-p90-mtk').innerText = kota.detailMTK.p90; document.getElementById('t2-sd-mtk').innerText = kota.detailMTK.sd;
-      document.getElementById('t2-ist-mtk').innerText = kota.detailMTK.kI; document.getElementById('t2-baik-mtk').innerText = kota.detailMTK.kB; document.getElementById('t2-mem-mtk').innerText = kota.detailMTK.kM; document.getElementById('t2-kur-mtk').innerText = kota.detailMTK.kK;
+          document.getElementById('t2-sek-mtk').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('t2-sis-mtk').innerText = kota.pesertaMTK.toLocaleString('id-ID'); document.getElementById('t2-rata-mtk').innerText = kota.rataMTK;
+          document.getElementById('t2-p10-mtk').innerText = kota.detailMTK.p10; document.getElementById('t2-med-mtk').innerText = kota.detailMTK.med; document.getElementById('t2-p90-mtk').innerText = kota.detailMTK.p90; document.getElementById('t2-sd-mtk').innerText = kota.detailMTK.sd;
+          document.getElementById('t2-ist-mtk').innerText = kota.detailMTK.kI; document.getElementById('t2-baik-mtk').innerText = kota.detailMTK.kB; document.getElementById('t2-mem-mtk').innerText = kota.detailMTK.kM; document.getElementById('t2-kur-mtk').innerText = kota.detailMTK.kK;
+      }
 
-      let htmlWil = '';
-      statObj.wilayah.forEach((w, idx) => { htmlWil += `<tr class="row-wilayah"><td class="text-center">${idx + 1}</td><td class="text-center text-secondary">Wilayah</td><td class="fw-semibold text-dark">${w.nama}</td><td class="text-center text-muted">${w.peserta.toLocaleString('id-ID')}</td><td class="text-center fw-semibold text-dark">${w.rataBI>0?w.rataBI.toFixed(2):"-"}</td><td class="text-center fw-semibold text-dark">${w.rataMTK>0?w.rataMTK.toFixed(2):"-"}</td></tr>`; });
-      document.getElementById('tbody-wilayah').innerHTML = htmlWil || '<tr><td colspan="6" class="text-center text-danger fst-italic">Data belum tersedia.</td></tr>';
+      let tbWil = document.getElementById('tbody-wilayah');
+      if(tbWil) {
+          let htmlWil = '';
+          if(statObj.wilayah) {
+              statObj.wilayah.forEach((w, idx) => { htmlWil += `<tr class="row-wilayah"><td class="text-center">${idx + 1}</td><td class="text-center text-secondary">Wilayah</td><td class="fw-semibold text-dark">${w.nama}</td><td class="text-center text-muted">${w.peserta.toLocaleString('id-ID')}</td><td class="text-center fw-semibold text-dark">${w.rataBI>0?w.rataBI.toFixed(2):"-"}</td><td class="text-center fw-semibold text-dark">${w.rataMTK>0?w.rataMTK.toFixed(2):"-"}</td></tr>`; });
+          }
+          tbWil.innerHTML = htmlWil || '<tr><td colspan="6" class="text-center text-danger fst-italic">Data belum tersedia.</td></tr>';
+      }
 
       let fl = (arr, isMTK) => {
         if(!arr || arr.length===0) return '<tr><td colspan="3" class="text-center text-muted py-3">Belum ada data</td></tr>';
         let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center align-middle">${i===0?'<span class="top-rank-badge shadow-sm">1</span>':(i+1)}</td><td class="align-middle"><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center align-middle fw-bold text-primary fs-6">${isMTK ? (k.rataMTK?parseFloat(k.rataMTK).toFixed(2):"-") : (k.rataBI?parseFloat(k.rataBI).toFixed(2):"-")}</td></tr>`; }); return h;
       };
       
-      let topBI = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataBI > 0).sort((a,b) => b.rataBI - a.rataBI).slice(0, 5) : [];
-      let topMTK = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataMTK > 0).sort((a,b) => b.rataMTK - a.rataMTK).slice(0, 5) : [];
+      let topBI = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataBI > 0).sort((a,b) => b.rataBI - a.rataBI).slice(0, 5) : (statObj.topBI || []);
+      let topMTK = statObj.kecamatan ? [...statObj.kecamatan].filter(k => k.rataMTK > 0).sort((a,b) => b.rataMTK - a.rataMTK).slice(0, 5) : (statObj.topMTK || []);
 
-      document.getElementById('tbody-top-bi').innerHTML = fl(topBI, false); 
-      document.getElementById('tbody-top-mtk').innerHTML = fl(topMTK, true);
+      let eBi = document.getElementById('tbody-top-bi'); if(eBi) eBi.innerHTML = fl(topBI, false); 
+      let eMtk = document.getElementById('tbody-top-mtk'); if(eMtk) eMtk.innerHTML = fl(topMTK, true);
     }
 
     function renderTrendChart(dataChart) {
-      if(!dataChart) return;
+      if(!dataChart || !document.getElementById('trendChart')) return;
       if (trendChartObj) trendChartObj.destroy();
       trendChartObj = new Chart(document.getElementById('trendChart').getContext('2d'), {
         type: 'line', data: { labels: dataChart.labels, datasets: [ { label: 'B. Indonesia', data: dataChart.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, { label: 'Matematika', data: dataChart.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } ]},
@@ -597,13 +626,13 @@
     }
 
     function showPublicView() {
-      if (localStorage.getItem('loggedInDinas') === 'true') { return; } // Dinas tetap di Dinas
+      if (localStorage.getItem('loggedInDinas') === 'true') { return; }
       document.getElementById('nav-user-profile').classList.add('d-none'); document.getElementById('nav-login-btn').classList.remove('d-none');
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
     function renderSchoolDashboard(data) {
-      if(!data || !data.hierarki) return; // PENGAMAN DATA KOSONG
+      if(!data || !data.hierarki) return; 
       let h = data.hierarki; let d = data.sekolahInfo;
       let htmlHier = `
         <tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>KOTA SURABAYA</td><td class="text-center fw-bold">-</td><td class="text-center text-primary fw-bold">${h.kota.bi}</td><td class="text-center text-primary fw-bold">${h.kota.mtk}</td></tr>
@@ -650,11 +679,8 @@
       });
     }
 
-    // ==========================================
-    // FUNGSI KHUSUS PORTAL DINAS (DEWA)
-    // ==========================================
     function renderDinasDashboard(statObj) {
-      if(!statObj || !statObj.kota) return; // PENGAMAN DATA KOSONG
+      if(!statObj || !statObj.kota) return; 
       let kota = statObj.kota;
       
       document.getElementById('d-sek-bi').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('d-sis-bi').innerText = kota.pesertaBI.toLocaleString('id-ID'); document.getElementById('d-rata-bi').innerText = kota.rataBI;
@@ -670,7 +696,7 @@
     }
 
     function renderDinasRankings() {
-      if(!publicStatGlobal) return;
+      if(!publicStatGlobal || !publicStatGlobal.sekolah) return;
       let mapel = document.getElementById('dinasRankMapel').value;
       let isMTK = mapel === 'MTK';
 
@@ -683,7 +709,7 @@
         let html = '';
         arr.forEach((k,i) => {
           let namaTeks = type === 'wil' ? k.nama : (type === 'kec' ? `${k.nama}<br><small class="text-muted fw-normal">${k.wilayah}</small>` : `<span style="font-size:0.85rem">${k.nama}</span><br><small class="text-muted fw-normal" style="font-size:0.75rem">${k.kecamatan}</small>`);
-          let nilai = isMTK ? k.rataMTK.toFixed(2) : k.rataBI.toFixed(2);
+          let nilai = isMTK ? parseFloat(k.rataMTK).toFixed(2) : parseFloat(k.rataBI).toFixed(2);
           let topBadge = i < 3 ? `<span class="top-rank-badge shadow-sm">${i+1}</span>` : `<span class="rank-dinas text-secondary">${i+1}</span>`;
           html += `<tr><td class="text-center align-middle">${topBadge}</td><td class="fw-bold align-middle">${namaTeks}</td><td class="text-center align-middle fw-bold text-primary fs-6">${nilai}</td></tr>`;
         });
@@ -783,34 +809,20 @@
     function calcSim(base, seedOffset) { if(base <= 0 || isNaN(base)) return "-"; let variation = (seededRandom(base + seedOffset) * 6) - 3; return Math.min(100, Math.max(0, base + variation)).toFixed(2) + "%"; }
 
     function toggleAccordion(className, event) {
-      if(Berdasarkan tangkapan layar, tampilan antarmuka terhenti pada status "Memuat data wilayah..." dan tabel indikator bernilai kosong ("-"). Hal ini mengindikasikan bahwa *frontend* (HTML/JavaScript) gagal menerima atau memproses data dari *backend* (`code.gs`).
-
-Jika Anda sudah memperbarui kode di `code.gs` tetapi tidak ada perubahan di aplikasi web, berikut adalah langkah-langkah penyelesaiannya:
-
-**1. Perbarui Versi Deployment (Penyebab Paling Umum)**
-Di Google Apps Script, sekadar menyimpan kode (Ctrl+S) tidak akan mengubah aplikasi web pada URL publik (yang berakhiran `/exec`). Anda **wajib** membuat versi baru setiap kali ada pembaruan kode.
-* Klik tombol **Deploy** di sudut kanan atas editor Apps Script.
-* Pilih **Manage deployments**.
-* Klik ikon **Pensil (Edit)** pada deployment yang sedang aktif di sebelah kanan.
-* Pada *dropdown* **Version**, ubah dari versi sebelumnya menjadi **New version**.
-* Klik **Deploy**.
-
-**2. Uji Coba Menggunakan Mode Dev (`/dev`)**
-Untuk mengisolasi masalah dan memastikan apakah kode baru sebenarnya sudah berfungsi, gunakan URL *development*. URL ini akan selalu memuat *draft* kode terbaru yang Anda simpan tanpa perlu melakukan *deploy* versi baru.
-* Klik **Deploy** -> **Test deployments**.
-* Salin URL Web App yang berakhiran `/dev`.
-* Buka URL tersebut di *tab* baru. Jika data berhasil dimuat di mode `/dev` tetapi gagal di `/exec`, berarti Anda hanya perlu melakukan pembaruan versi seperti pada langkah pertama.
-
-**3. Periksa Error di Console Browser**
-Karena indikator *loading* terus berjalan tanpa hasil ("Menyusun peringkat..."), kemungkinan besar eksekusi JavaScript terhenti karena *error*.
-* Buka portal tersebut di browser, tekan **F12** atau klik kanan lalu pilih **Inspect**.
-* Masuk ke tab **Console**.
-* Periksa apakah ada pesan *error* berwarna merah. Biasanya ini terjadi jika respons dari `google.script.run` mengembalikan nilai yang tidak terduga (*undefined* atau format JSON yang salah) sehingga *script* di halaman HTML terhenti.
-
-**4. Periksa Log Eksekusi Apps Script**
-Jika fungsi pemanggil di *frontend* tidak bermasalah, *error* mungkin terjadi di dalam fungsi `code.gs` saat mengambil data.
-* Buka halaman editor Google Apps Script.
-* Klik menu **Executions** (ikon garis berderet di sebelah kiri layar).
-* Periksa riwayat eksekusi terbaru. Jika ada yang berstatus **Failed**, klik untuk melihat pesan *error* lengkap beserta baris kode (misalnya *TypeError* atau rentang *spreadsheet* yang tidak valid) yang menyebabkan kegagalan memuat data. 
-
-Lakukan pembaruan *New version* pada *deployment* terlebih dahulu, lalu lakukan *hard refresh* (**Ctrl + F5**) pada browser untuk membersihkan *cache* aplikasi web Anda.
+      if(event) event.stopPropagation(); 
+      let rows = document.getElementsByClassName(className); let isExpanding = false;
+      if(rows.length > 0 && (rows[0].style.display === "none" || rows[0].style.display === "")) isExpanding = true;
+      let icon = document.getElementById("icon-" + className);
+      if(icon) { if(isExpanding) icon.classList.add("caret-down"); else icon.classList.remove("caret-down"); }
+      for (let i = 0; i < rows.length; i++) {
+         if (isExpanding) { rows[i].style.display = "table-row"; } 
+         else { rows[i].style.display = "none"; if(className.includes('komp-')) { let childIcon = rows[i].querySelector('.caret-icon'); if(childIcon) childIcon.classList.remove("caret-down"); } }
+      }
+    }
+  </script>
+  
+  <footer>
+    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
+  </footer>
+</body>
+</html>
