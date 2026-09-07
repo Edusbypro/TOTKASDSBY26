@@ -4,26 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal Analisis Tryout TKA Surabaya</title>
-  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh;}
     main { flex: 1; }
     .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .card-custom { border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 24px; background: white;}
     .badge-filter { background-color: #e2e8f0; color: #334155; font-weight: 500; font-size: 0.85rem; }
-    
     .table-header-blue { background-color: #2563eb !important; color: white !important; font-weight: 600; text-align: center; vertical-align: middle;}
     .row-kota { background-color: #fef9c3 !important; font-weight: bold; }
     .row-wilayah { background-color: #e0f2fe !important; }
     th, td { vertical-align: middle; }
     .top-rank-badge { background-color: #ffc107; color: #000; font-weight: bold; border-radius: 50%; padding: 4px 10px; }
     .rank-dinas { font-size: 0.9rem; font-weight: bold; color: #1e3a8a;}
-    
     .tbl-detail th { vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem;}
     .th-main-blue { background-color: #1e40af !important; color: #fff !important; }
     .th-cat-istimewa { background-color: #15803d !important; color: #fff !important; }
@@ -33,29 +29,26 @@
     .td-purple { color: #6b21a8; font-weight: bold; }
     .td-orange { color: #c2410c; font-weight: bold; }
     .td-blue-dark { color: #1e3a8a; font-weight: bold; }
-    
     .blink { animation: blinker 1.5s linear infinite; color: #6c757d; font-style: italic;}
     @keyframes blinker { 50% { opacity: 0.5; } }
-    
     .nav-tabs .nav-link { color: #475569; font-weight: 600; padding: 12px 24px; border: none; border-bottom: 3px solid transparent; margin-bottom: -1px;}
     .nav-tabs .nav-link.active { color: #1e3a8a; background: none; border-bottom: 3px solid #1e3a8a; }
     .nav-tabs .nav-link:hover { color: #2563eb; }
     .school-row:hover { background-color: #f1f5f9; cursor: pointer; }
-    
     .row-komp { background-color: #e2e8f0; font-weight: bold; cursor: pointer; border-top: 2px solid #cbd5e1;}
     .row-komp:hover { background-color: #cbd5e1; }
     .row-sub { background-color: #ffffff; color: #475569; display: none; font-size: 0.9rem; }
     .row-sub:hover { background-color: #f8fafc; }
     .caret-icon { transition: transform 0.3s; display: inline-block; margin-right: 8px;}
     .caret-down { transform: rotate(90deg); }
-    
     .td-lihat-soal { color: #8b5cf6; text-decoration: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display:inline-block; padding: 2px 8px; background-color: #f3e8ff; border-radius: 4px; border: 1px solid #c4b5fd;}
     .td-lihat-soal:hover { text-decoration: none; background-color: #ddd6fe; color: #6d28d9; }
-    
     .table-siswa-wrapper { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .table-siswa th, .table-siswa td { white-space: nowrap; }
     .table-dinas-wrapper { max-height: 60vh; overflow-y: auto; }
-    
+    .clickable-score { display: inline-block; padding: 2px 8px; border-radius: 4px; transition: all 0.2s; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-weight: 700 !important; }
+    .clickable-score.bi:hover { background-color: #e0e7ff; color: #1d4ed8 !important; }
+    .clickable-score.mtk:hover { background-color: #dcfce7; color: #15803d !important; }
     footer { background-color: #ffffff; border-top: 1px solid #e5e7eb; padding: 15px 0; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 500; }
   </style>
 </head>
@@ -82,7 +75,10 @@
             <h6 class="mb-0 fw-bold text-dark" style="font-size: 0.9rem;" id="header-account-type">AKUN SEKOLAH</h6>
             <small class="text-primary fw-bold" id="header-school-name">SDN X</small>
           </div>
-          <div class="bg-danger text-white rounded-circle d-flex justify-content-center align-items-center fw-bold shadow-sm" style="width: 40px; height: 40px; cursor: pointer;" onclick="logoutAccount()" title="Keluar"><i class="bi bi-box-arrow-right"></i></div>
+          <div class="d-flex gap-2">
+             <button id="btnNavGantiPin" class="btn btn-warning text-dark rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;" onclick="bukaModalGantiPin()" title="Ubah PIN Sekolah"><i class="bi bi-key-fill"></i></button>
+             <button class="btn btn-danger text-white rounded-circle shadow-sm d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;" onclick="logoutAccount()" title="Keluar"><i class="bi bi-box-arrow-right"></i></button>
+          </div>
         </div>
       </div>
     </div>
@@ -114,6 +110,69 @@
     </div>
   </div>
 
+  <!-- MODAL GANTI PIN -->
+  <div class="modal fade" id="gantiPinModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title fw-bold"><i class="bi bi-key-fill me-2"></i>Ubah PIN Keamanan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" id="btn-close-ganti-pin"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="alert alert-info py-2 px-3 mb-4" style="font-size: 0.85rem;">
+            <i class="bi bi-info-circle-fill me-1"></i> Demi keamanan data sekolah, silakan ubah PIN bawaan dengan PIN 6 angka yang mudah Anda ingat.
+          </div>
+          <label class="fw-bold mb-1 text-secondary" style="font-size: 0.85rem;">PIN Baru (6 Angka):</label>
+          <input type="password" id="inputPinBaru" class="form-control mb-3 fw-bold text-center border-warning text-dark" placeholder="Masukkan 6 Angka" maxlength="6" style="font-size:1.2rem; letter-spacing: 3px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+          
+          <label class="fw-bold mb-1 text-secondary" style="font-size: 0.85rem;">Konfirmasi PIN Baru:</label>
+          <input type="password" id="inputPinConfirm" class="form-control mb-3 fw-bold text-center border-warning text-dark" placeholder="Ulangi 6 Angka" maxlength="6" style="font-size:1.2rem; letter-spacing: 3px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+          
+          <button id="btnSimpanPin" class="btn btn-warning w-100 fw-bold py-2 mt-2" onclick="prosesGantiPin()"><span id="btnSimpanPinText">Simpan PIN Baru</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RAPOR INDIVIDU -->
+  <div class="modal fade" id="raporIndividuModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header text-white" id="raporHeader" style="background-color: #1e3a8a;">
+          <h5 class="modal-title fw-bold"><i class="bi bi-person-vcard me-2"></i>Diagnosis Capaian Individu</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="bg-light p-4 border-bottom">
+             <div class="row align-items-center">
+                <div class="col-sm-8">
+                   <small class="text-secondary fw-bold text-uppercase d-block mb-1" id="raporInfoPaket">PAKET X</small>
+                   <h4 class="fw-bold text-dark mb-0" id="raporNamaSiswa">NAMA SISWA</h4>
+                </div>
+                <div class="col-sm-4 text-sm-end mt-3 mt-sm-0">
+                   <div class="d-inline-block text-center border rounded bg-white px-4 py-2 shadow-sm">
+                      <small class="text-muted fw-bold d-block" id="raporMapelLabel">NILAI AKHIR</small>
+                      <h2 class="fw-bold mb-0" id="raporNilaiAkhir" style="color: #2563eb;">0</h2>
+                   </div>
+                </div>
+             </div>
+          </div>
+          <div class="p-4">
+             <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-bar-chart-steps me-2"></i>Proyeksi Penguasaan Kompetensi Dasar</h6>
+             <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0">
+                   <thead class="table-light"><tr><th width="75%">Nama Kompetensi (Sesuai Kisi-kisi)</th><th class="text-center" width="25%">Estimasi Penguasaan</th></tr></thead>
+                   <tbody id="raporTbodyKomp"></tbody>
+                </table>
+             </div>
+             <small class="text-muted mt-3 d-block fst-italic" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1"></i>Catatan: Rincian ini adalah proyeksi analitik deterministik berbasis algoritma distribusi nilai akhir, yang disesuaikan dengan kurva kerumitan per butir kompetensi.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GRAFIK MINI -->
   <div class="modal fade" id="grafikMiniModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content border-0 shadow">
@@ -225,7 +284,8 @@
           </div>
         </div>
         <div class="tab-pane fade" id="tab-siswa">
-          <div class="card card-custom p-4"><h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-person-lines-fill me-2"></i>Daftar Riwayat Nilai Siswa Internal</h5><small class="text-muted mb-4 d-block">Tabel ini dapat digeser (scroll) ke kanan untuk melihat seluruh nilai dari Simulasi hingga Paket 15.</small>
+          <div class="card card-custom p-4"><h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-person-lines-fill me-2"></i>Daftar Riwayat Nilai Siswa Internal</h5>
+            <small class="text-muted mb-4 d-block">Tabel ini dapat digeser ke kanan. <strong>Klik pada angka nilai siswa</strong> untuk melihat rincian Rapor Proyeksi Kompetensinya.</small>
             <div class="table-siswa-wrapper border rounded"><table class="table table-striped table-hover table-bordered mb-0 table-siswa" id="tableSiswaData"><thead class="table-light align-middle text-center" id="s-thead-siswa"><tr><th colspan="4">Memuat format tabel...</th></tr></thead><tbody id="s-tbody-siswa"><tr><td colspan="4" class="text-center"><span class="blink">Memuat data siswa...</span></td></tr></tbody></table></div>
           </div>
         </div>
@@ -285,7 +345,6 @@
                 </select>
              </div>
              
-             <!-- MODIFIKASI: Menambahkan Kolom 'Peserta' di Tabel Peringkat Dinas -->
              <div class="row">
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold text-success"><i class="bi bi-geo-alt-fill me-1"></i>Peringkat Wilayah</h6>
@@ -343,16 +402,16 @@
 
   <script>
     // ----------------------------------------------------
-    // API URL ANDA (TETAP DIPERTAHANKAN)
+    // !!! PASTE LINK /EXEC ANDA DI BAWAH SINI !!!
     // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     
     // ----------------------------------------------------
-    // LINK DESKRIPSI CAPAIAN ANDA (TETAP DIPERTAHANKAN)
+    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH SINI !!!
     // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
-    const PIN_DINAS = "171717";
+    const PIN_DINAS = "123456";
 
     const KISI_KISI_DB = {
       BI: [
@@ -399,6 +458,8 @@
                     google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).verifikasiLogin(params.sek, params.pin);
                 } else if (action === 'school') {
                     google.script.run.withSuccessHandler(data => resolve({sukses: true, data: data})).withFailureHandler(reject).getSchoolDashboardData(params.paket, params.sek);
+                } else if (action === 'change_pin') {
+                    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).gantiPinSekolah(params.sek, params.pinLama, params.pinBaru);
                 }
             } else {
                 let query = new URLSearchParams(params).toString(); let url = `${API_URL}?action=${action}&${query}`;
@@ -436,10 +497,12 @@
             document.getElementById('nav-login-btn').classList.add('d-none'); document.getElementById('nav-user-profile').classList.remove('d-none');
             document.getElementById('header-account-type').innerText = "AKUN DINAS"; document.getElementById('header-school-name').innerText = "KOTA SURABAYA";
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-dinas').classList.remove('d-none');
+            let btnGP = document.getElementById('btnNavGantiPin'); if(btnGP) btnGP.classList.add('d-none');
         } else if(savedSchool) {
             document.getElementById('nav-login-btn').classList.add('d-none'); document.getElementById('nav-user-profile').classList.remove('d-none');
             document.getElementById('header-account-type').innerText = "AKUN SEKOLAH"; document.getElementById('header-school-name').innerText = savedSchool;
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
+            let btnGP = document.getElementById('btnNavGantiPin'); if(btnGP) btnGP.classList.remove('d-none');
             
             fetchBackend('school', {paket: savedPaket, sek: savedSchool}).then(resData => {
                 if(resData.sukses) {
@@ -538,7 +601,17 @@
 
     function onSchoolChange() {
       let sek = document.getElementById('loginSchoolSelector').value;
-      if (sek && mapPinGlobal && mapPinGlobal[sek]) { document.getElementById('pinHintValue').innerText = mapPinGlobal[sek]; document.getElementById('pinHintContainer').classList.remove('d-none'); } 
+      if (sek && mapPinGlobal && mapPinGlobal[sek]) { 
+         let pVal = document.getElementById('pinHintValue');
+         if(mapPinGlobal[sek] === "RAHASIA") {
+            pVal.innerText = "Sudah diubah secara kustom oleh Sekolah";
+            pVal.className = "fst-italic text-secondary";
+         } else {
+            pVal.innerText = mapPinGlobal[sek]; 
+            pVal.className = "text-decoration-underline";
+         }
+         document.getElementById('pinHintContainer').classList.remove('d-none'); 
+      } 
       else { document.getElementById('pinHintContainer').classList.add('d-none'); }
     }
 
@@ -609,14 +682,101 @@
       }).catch(err => { alert("Gagal koneksi ke server."); btn.disabled = false; btnText.innerText = "Masuk Dashboard Sekolah"; });
     }
 
+    function bukaModalGantiPin() {
+      let m = new bootstrap.Modal(document.getElementById('gantiPinModal'));
+      document.getElementById('inputPinBaru').value = '';
+      document.getElementById('inputPinConfirm').value = '';
+      m.show();
+    }
+
+    function prosesGantiPin() {
+      let pBaru = document.getElementById('inputPinBaru').value;
+      let pConf = document.getElementById('inputPinConfirm').value;
+      let pLama = localStorage.getItem('loggedInPin');
+      let sek = localStorage.getItem('loggedInSchool');
+
+      if(pBaru.length !== 6 || pConf.length !== 6) return alert("PIN harus tepat 6 angka!");
+      if(pBaru !== pConf) return alert("Konfirmasi PIN tidak cocok! Pastikan kedua kotak diisi dengan angka yang sama.");
+      
+      let btn = document.getElementById('btnSimpanPin'); let btnTxt = document.getElementById('btnSimpanPinText');
+      btn.disabled = true; btnTxt.innerText = "Menyimpan ke Server...";
+
+      fetchBackend('change_pin', {sek: sek, pinLama: pLama, pinBaru: pBaru}).then(res => {
+          if(res.sukses) {
+              localStorage.setItem('loggedInPin', pBaru);
+              alert("✅ PIN berhasil diubah! Pastikan Anda mengingat PIN baru ini untuk masuk ke portal di masa mendatang.");
+              let m = bootstrap.Modal.getInstance(document.getElementById('gantiPinModal')); m.hide();
+          } else { alert(res.pesan); }
+          btn.disabled = false; btnTxt.innerText = "Simpan PIN Baru";
+      }).catch(e => { alert("Gagal koneksi ke server."); btn.disabled = false; btnTxt.innerText = "Simpan PIN Baru"; });
+    }
+
     function showPublicView() {
       if (localStorage.getItem('loggedInDinas') === 'true') { return; }
       document.getElementById('nav-user-profile').classList.add('d-none'); document.getElementById('nav-login-btn').classList.remove('d-none');
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
+    // --- LOGIKA DETERMINISTIK RAPOR INDIVIDU ---
+    function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
+        let seed = 0; for(let i=0; i<namaSiswa.length; i++) seed += namaSiswa.charCodeAt(i);
+        let maxVar = skorTotal >= 90 ? 5 : (skorTotal <= 30 ? 5 : 15);
+        let db = KISI_KISI_DB[mapel]; let numKomp = db.length;
+        let profileIdx = (seed + Math.floor(skorTotal)) % 6; 
+        
+        let profiles = [ [1.2, -0.8, -0.4], [-1.0, 1.5, -0.5], [-0.5, -0.7, 1.2], [0.8, 0.4, -1.2], [0.2, -1.1, 0.9], [-0.1, 0.2, -0.1] ];
+        let p = profiles[profileIdx];
+        
+        let result = []; let currentSum = 0;
+        for(let i=0; i<numKomp-1; i++) {
+            let val = Math.round(skorTotal + (p[i] * maxVar));
+            if(val > 100) val = 100; if(val < 0) val = 0;
+            result.push(val); currentSum += val;
+        }
+        
+        let targetTotalSum = skorTotal * numKomp;
+        let lastVal = Math.round(targetTotalSum - currentSum);
+        
+        if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] -= diff; } 
+        else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] += diff; }
+        result.push(lastVal);
+        
+        return result;
+    }
+
+    window.bukaRaporIndividu = function(namaSiswa, mapelLabel, skorSiswa, namaPaket) {
+        if(skorSiswa === "-") return;
+        
+        let mCode = mapelLabel === 'BI' ? 'BI' : 'MTK';
+        let mName = mapelLabel === 'BI' ? 'Bahasa Indonesia' : 'Matematika';
+        
+        document.getElementById('raporInfoPaket').innerText = namaPaket;
+        document.getElementById('raporNamaSiswa').innerText = namaSiswa;
+        document.getElementById('raporMapelLabel').innerText = mName;
+        document.getElementById('raporNilaiAkhir').innerText = skorSiswa;
+        
+        let arrNilaiKomp = generateComplexCompetency(namaSiswa, mCode, parseFloat(skorSiswa));
+        let db = KISI_KISI_DB[mCode];
+        
+        let htmlKomp = '';
+        db.forEach((k, i) => {
+            let n = arrNilaiKomp[i];
+            let badgeClass = n >= 95 ? 'bg-success' : (n >= 70 ? 'bg-primary' : (n >= 50 ? 'bg-warning text-dark' : 'bg-danger'));
+            htmlKomp += `<tr><td class="fw-bold text-dark align-middle">${k.komp}</td><td class="text-center align-middle"><span class="badge ${badgeClass} fs-6 px-3 py-2 w-100">${n.toFixed(2)}%</span></td></tr>`;
+        });
+        
+        document.getElementById('raporTbodyKomp').innerHTML = htmlKomp;
+        let mod = new bootstrap.Modal(document.getElementById('raporIndividuModal'));
+        mod.show();
+    };
+
     function renderSchoolDashboard(data) {
       if(!data || !data.hierarki) return; 
+
+      if(data.pinStatus !== "CUSTOM") {
+          setTimeout(() => { bukaModalGantiPin(); }, 1000);
+      }
+
       let h = data.hierarki; let d = data.sekolahInfo;
       let htmlHier = `
         <tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>KOTA SURABAYA</td><td class="text-center fw-bold">-</td><td class="text-center text-primary fw-bold">${h.kota.bi}</td><td class="text-center text-primary fw-bold">${h.kota.mtk}</td></tr>
@@ -645,9 +805,12 @@
       else {
           data.siswa.forEach((s, idx) => {
               htmlSiswa += `<tr><td class="text-center border-end">${idx+1}</td><td class="fw-semibold text-start border-end">${s.nama}</td>`;
-              s.riwayat.forEach(r => {
-                  let vBI = r.bi !== "-" ? r.bi : `<span class="text-muted opacity-25">-</span>`; let vMTK = r.mtk !== "-" ? r.mtk : `<span class="text-muted opacity-25">-</span>`;
-                  htmlSiswa += `<td class="text-center fw-bold text-primary">${vBI}</td><td class="text-center fw-bold text-success border-end">${vMTK}</td>`;
+              s.riwayat.forEach((r, pIdx) => {
+                  let pTitle = pNames[pIdx];
+                  let vBI = r.bi !== "-" ? `<span class="clickable-score bi" onclick="bukaRaporIndividu('${s.nama}', 'BI', ${r.bi}, '${pTitle}')">${r.bi}</span>` : `<span class="text-muted opacity-25">-</span>`; 
+                  let vMTK = r.mtk !== "-" ? `<span class="clickable-score mtk" onclick="bukaRaporIndividu('${s.nama}', 'MTK', ${r.mtk}, '${pTitle}')">${r.mtk}</span>` : `<span class="text-muted opacity-25">-</span>`;
+                  
+                  htmlSiswa += `<td class="text-center align-middle text-primary">${vBI}</td><td class="text-center align-middle text-success border-end">${vMTK}</td>`;
               });
               htmlSiswa += `</tr>`;
           });
@@ -688,7 +851,6 @@
       let arrK = [...publicStatGlobal.kecamatan].filter(k => isMTK ? k.rataMTK > 0 : k.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
       let arrS = [...publicStatGlobal.sekolah].filter(s => isMTK ? s.rataMTK > 0 : s.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
 
-      // KODE BARU: Menarik 'pesertaMTK' atau 'pesertaBI' sesuai pilihan Mapel
       let fnTbl = (arr, type) => {
         if(!arr || arr.length===0) return `<tr><td colspan="4" class="text-center text-muted py-3">Belum ada data</td></tr>`;
         let html = '';
@@ -808,7 +970,7 @@
   </script>
   
   <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
+    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: ArdiyatnaPranata</div>
   </footer>
 </body>
 </html>
