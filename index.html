@@ -88,6 +88,7 @@
     </div>
   </nav>
 
+  <!-- MODAL LOGIN SEKOLAH -->
   <div class="modal fade" id="loginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -151,22 +152,6 @@
             <thead><tr><th class="table-header-blue" width="5%">NO</th><th class="table-header-blue" width="10%">TINGKAT</th><th class="table-header-blue" width="45%">KOTA / WILAYAH</th><th class="table-header-blue" width="15%">JUMLAH PESERTA</th><th class="table-header-blue" width="12.5%">BAHASA INDONESIA</th><th class="table-header-blue" width="12.5%">MATEMATIKA</th></tr></thead>
             <tbody><tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>RERATA KOTA SURABAYA</td><td class="text-center fw-bold" id="t1-peserta"><span class="blink">...</span></td><td class="text-center text-primary fw-bold" id="t1-bi">-</td><td class="text-center text-primary fw-bold" id="t1-mtk">-</td></tr></tbody>
             <tbody id="tbody-wilayah"><tr><td colspan="6" class="text-center"><span class="blink">Memuat data wilayah...</span></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div class="card card-custom p-4 mt-4" style="background-color: #f1f5f9;">
-        <h6 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-card-list me-2"></i>Daftar Mata Pelajaran (KOTA SURABAYA)</h6>
-        <div class="table-responsive">
-          <table class="table table-bordered mb-0 text-center tbl-detail" style="background-color: #fff;">
-            <thead>
-              <tr><th rowspan="2" class="th-main-blue" width="3%">NO</th><th rowspan="2" class="th-main-blue text-start" width="13%">MATA PELAJARAN</th><th rowspan="2" class="th-main-blue" width="8%">JML SEKOLAH</th><th rowspan="2" class="th-main-blue" width="8%">JML SISWA</th><th rowspan="2" class="th-main-blue" width="8%"><i class="bi bi-graph-up me-1"></i> RERATA</th><th rowspan="2" class="th-main-blue" width="7%">% P10</th><th rowspan="2" class="th-main-blue" width="7%">÷ MEDIAN</th><th rowspan="2" class="th-main-blue" width="7%">% P90</th><th rowspan="2" class="th-main-blue" width="7%"><i class="bi bi-bar-chart me-1"></i> STD DEV</th><th colspan="4" class="th-main-blue border-bottom-0"><i class="bi bi-award"></i> KATEGORI (% SISWA)</th></tr>
-              <tr><th class="th-cat-istimewa" width="8%">ISTIMEWA</th><th class="th-cat-baik" width="8%">BAIK</th><th class="th-cat-memadai" width="8%">MEMADAI</th><th class="th-cat-kurang" width="8%">KURANG</th></tr>
-            </thead>
-            <tbody>
-              <tr><td class="td-blue-dark">1</td><td class="text-start fw-bold td-blue-dark">B. Indonesia</td><td id="t2-sek-bi" class="fw-bold text-dark">-</td><td id="t2-sis-bi" class="td-purple">-</td><td id="t2-rata-bi" class="td-blue-dark">-</td><td id="t2-p10-bi" class="td-orange">-</td><td id="t2-med-bi" class="td-purple">-</td><td id="t2-p90-bi" class="td-orange">-</td><td id="t2-sd-bi" class="text-primary fw-bold">-</td><td id="t2-ist-bi" class="fw-bold text-success">-</td><td id="t2-baik-bi" class="fw-bold text-primary">-</td><td id="t2-mem-bi" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-bi" class="fw-bold text-danger">-</td></tr>
-              <tr><td class="td-blue-dark">2</td><td class="text-start fw-bold td-blue-dark">Matematika</td><td id="t2-sek-mtk" class="fw-bold text-dark">-</td><td id="t2-sis-mtk" class="td-purple">-</td><td id="t2-rata-mtk" class="td-blue-dark">-</td><td id="t2-p10-mtk" class="td-orange">-</td><td id="t2-med-mtk" class="td-purple">-</td><td id="t2-p90-mtk" class="td-orange">-</td><td id="t2-sd-mtk" class="text-primary fw-bold">-</td><td id="t2-ist-mtk" class="fw-bold text-success">-</td><td id="t2-baik-mtk" class="fw-bold text-primary">-</td><td id="t2-mem-mtk" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-mtk" class="fw-bold text-danger">-</td></tr>
-            </tbody>
           </table>
         </div>
       </div>
@@ -300,23 +285,24 @@
                 </select>
              </div>
              
+             <!-- MODIFIKASI: Menambahkan Kolom 'Peserta' di Tabel Peringkat Dinas -->
              <div class="row">
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold text-success"><i class="bi bi-geo-alt-fill me-1"></i>Peringkat Wilayah</h6>
                  <div class="table-dinas-wrapper border rounded">
-                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="15%">Rank</th><th>Wilayah</th><th class="text-center">Nilai</th></tr></thead><tbody id="dinas-tbody-wil"></tbody></table>
+                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="10%">Rank</th><th>Wilayah</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-wil"></tbody></table>
                  </div>
                </div>
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold" style="color: #c2410c;"><i class="bi bi-pin-map-fill me-1"></i>Peringkat Kecamatan</h6>
                  <div class="table-dinas-wrapper border rounded">
-                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="15%">Rank</th><th>Kecamatan</th><th class="text-center">Nilai</th></tr></thead><tbody id="dinas-tbody-kec"></tbody></table>
+                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="10%">Rank</th><th>Kecamatan</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-kec"></tbody></table>
                  </div>
                </div>
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold text-primary"><i class="bi bi-building-fill me-1"></i>Peringkat Sekolah</h6>
                  <div class="table-dinas-wrapper border rounded">
-                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="15%">Rank</th><th>Sekolah</th><th class="text-center">Nilai</th></tr></thead><tbody id="dinas-tbody-sek"></tbody></table>
+                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="10%">Rank</th><th>Sekolah</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-sek"></tbody></table>
                  </div>
                </div>
              </div>
@@ -357,16 +343,16 @@
 
   <script>
     // ----------------------------------------------------
-    // !!! PASTE LINK /EXEC ANDA DI BAWAH SINI !!!
+    // API URL ANDA (TETAP DIPERTAHANKAN)
     // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     
     // ----------------------------------------------------
-    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH SINI !!!
+    // LINK DESKRIPSI CAPAIAN ANDA (TETAP DIPERTAHANKAN)
     // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
-    const PIN_DINAS = "123456";
+    const PIN_DINAS = "171717";
 
     const KISI_KISI_DB = {
       BI: [
@@ -430,7 +416,6 @@
         document.getElementById('badge-paket-title-school').innerText = "Data: " + savedPaket;
         document.getElementById('badge-paket-title-dinas').innerText = "Data: " + savedPaket;
         
-        // FUNGSI PENGAMAN: Jangan menggambar jika data belum selesai
         setSchoolLoadingState();
 
         fetchBackend('public', {paket: savedPaket}).then(res => {
@@ -480,7 +465,6 @@
         document.getElementById('paketSelectorPublic').value = p; document.getElementById('paketSelectorSchool').value = p; document.getElementById('paketSelectorDinas').value = p;
         document.getElementById('badge-paket-title').innerText = "Data: " + p; document.getElementById('badge-paket-title-school').innerText = "Data: " + p; document.getElementById('badge-paket-title-dinas').innerText = "Data: " + p;
         
-        // PENGAMAN LOADING EKSPLISIT
         setSchoolLoadingState();
 
         fetchBackend('public', {paket: p}).then(res => {
@@ -704,14 +688,16 @@
       let arrK = [...publicStatGlobal.kecamatan].filter(k => isMTK ? k.rataMTK > 0 : k.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
       let arrS = [...publicStatGlobal.sekolah].filter(s => isMTK ? s.rataMTK > 0 : s.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
 
+      // KODE BARU: Menarik 'pesertaMTK' atau 'pesertaBI' sesuai pilihan Mapel
       let fnTbl = (arr, type) => {
-        if(!arr || arr.length===0) return `<tr><td colspan="3" class="text-center text-muted py-3">Belum ada data</td></tr>`;
+        if(!arr || arr.length===0) return `<tr><td colspan="4" class="text-center text-muted py-3">Belum ada data</td></tr>`;
         let html = '';
         arr.forEach((k,i) => {
           let namaTeks = type === 'wil' ? k.nama : (type === 'kec' ? `${k.nama}<br><small class="text-muted fw-normal">${k.wilayah}</small>` : `<span style="font-size:0.85rem">${k.nama}</span><br><small class="text-muted fw-normal" style="font-size:0.75rem">${k.kecamatan}</small>`);
           let nilai = isMTK ? parseFloat(k.rataMTK).toFixed(2) : parseFloat(k.rataBI).toFixed(2);
+          let peserta = isMTK ? (k.pesertaMTK || 0) : (k.pesertaBI || 0);
           let topBadge = i < 3 ? `<span class="top-rank-badge shadow-sm">${i+1}</span>` : `<span class="rank-dinas text-secondary">${i+1}</span>`;
-          html += `<tr><td class="text-center align-middle">${topBadge}</td><td class="fw-bold align-middle">${namaTeks}</td><td class="text-center align-middle fw-bold text-primary fs-6">${nilai}</td></tr>`;
+          html += `<tr><td class="text-center align-middle">${topBadge}</td><td class="fw-bold align-middle">${namaTeks}</td><td class="text-center align-middle text-muted" style="font-size:0.85rem;">${peserta.toLocaleString('id-ID')}</td><td class="text-center align-middle fw-bold text-primary fs-6">${nilai}</td></tr>`;
         });
         return html;
       };
