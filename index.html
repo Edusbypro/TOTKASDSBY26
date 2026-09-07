@@ -298,7 +298,6 @@
             <h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-person-lines-fill me-2"></i>Daftar Riwayat Nilai Siswa Internal</h5>
             <small class="text-muted mb-4 d-block">Tabel ini dapat digeser (scroll) ke kanan untuk melihat seluruh nilai dari Simulasi hingga Paket 15.</small>
             
-            <!-- Tabel Super Lebar dibungkus wrapper khusus -->
             <div class="table-siswa-wrapper border rounded">
               <table class="table table-striped table-hover table-bordered mb-0 table-siswa" id="tableSiswaData">
                 <thead class="table-light align-middle text-center" id="s-thead-siswa">
@@ -318,14 +317,14 @@
   <!-- SCRIPT ENGINE API HYBRID -->
   <script>
     // ----------------------------------------------------
-    // !!! PASTE LINK /EXEC ANDA DI BAWAH INI !!!
+    // !!! PASTE LINK /EXEC ANDA DI SINI !!!
     // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     
     // ----------------------------------------------------
-    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH INI !!!
+    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI SINI !!!
     // ----------------------------------------------------
-    const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
+    const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=sharing";
 
     const KISI_KISI_DB = {
       BI: [
@@ -482,11 +481,12 @@
       document.getElementById('tbody-wilayah').innerHTML = htmlWil || '<tr><td colspan="6" class="text-center text-danger fst-italic">Data belum tersedia.</td></tr>';
 
       let fl = (arr, isMTK) => {
-     if(arr.length===0) return '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>';
-     let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center">${i===0?'<span class="top-rank-badge">1</span>':(i+1)}</td><td><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center fw-bold text-primary fs-6">${isMTK ? k.rataMTK.toFixed(2) : k.rataBI.toFixed(2)}</td></tr>`; }); return h;
-   };
-   document.getElementById('tbody-top-bi').innerHTML = fl(statObj.topBI, false); 
-   document.getElementById('tbody-top-mtk').innerHTML = fl(statObj.topMTK, true);
+        if(arr.length===0) return '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>';
+        let h=''; arr.forEach((k,i)=>{ h+=`<tr><td class="text-center">${i===0?'<span class="top-rank-badge">1</span>':(i+1)}</td><td><span class="fw-bold">${k.nama}</span><br /><small class="text-muted">${k.wilayah}</small></td><td class="text-center fw-bold text-primary fs-6">${isMTK ? (k.rataMTK?k.rataMTK.toFixed(2):"-") : (k.rataBI?k.rataBI.toFixed(2):"-")}</td></tr>`; }); return h;
+      };
+      document.getElementById('tbody-top-bi').innerHTML = fl(statObj.topBI, false); 
+      document.getElementById('tbody-top-mtk').innerHTML = fl(statObj.topMTK, true);
+    }
 
     function renderTrendChart(dataChart) {
       if (trendChartObj) trendChartObj.destroy();
