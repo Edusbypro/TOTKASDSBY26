@@ -4,22 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal Analisis Tryout TKA Surabaya</title>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh;}
     main { flex: 1; }
     .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .card-custom { border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 24px; background: white;}
     .badge-filter { background-color: #e2e8f0; color: #334155; font-weight: 500; font-size: 0.85rem; }
+    
     .table-header-blue { background-color: #2563eb !important; color: white !important; font-weight: 600; text-align: center; vertical-align: middle;}
     .row-kota { background-color: #fef9c3 !important; font-weight: bold; }
     .row-wilayah { background-color: #e0f2fe !important; }
     th, td { vertical-align: middle; }
     .top-rank-badge { background-color: #ffc107; color: #000; font-weight: bold; border-radius: 50%; padding: 4px 10px; }
     .rank-dinas { font-size: 0.9rem; font-weight: bold; color: #1e3a8a;}
+    
     .tbl-detail th { vertical-align: middle; border: 1px solid rgba(255,255,255,0.2); font-size: 0.85rem;}
     .th-main-blue { background-color: #1e40af !important; color: #fff !important; }
     .th-cat-istimewa { background-color: #15803d !important; color: #fff !important; }
@@ -29,26 +33,33 @@
     .td-purple { color: #6b21a8; font-weight: bold; }
     .td-orange { color: #c2410c; font-weight: bold; }
     .td-blue-dark { color: #1e3a8a; font-weight: bold; }
+    
     .blink { animation: blinker 1.5s linear infinite; color: #6c757d; font-style: italic;}
     @keyframes blinker { 50% { opacity: 0.5; } }
+    
     .nav-tabs .nav-link { color: #475569; font-weight: 600; padding: 12px 24px; border: none; border-bottom: 3px solid transparent; margin-bottom: -1px;}
     .nav-tabs .nav-link.active { color: #1e3a8a; background: none; border-bottom: 3px solid #1e3a8a; }
     .nav-tabs .nav-link:hover { color: #2563eb; }
     .school-row:hover { background-color: #f1f5f9; cursor: pointer; }
+    
     .row-komp { background-color: #e2e8f0; font-weight: bold; cursor: pointer; border-top: 2px solid #cbd5e1;}
     .row-komp:hover { background-color: #cbd5e1; }
     .row-sub { background-color: #ffffff; color: #475569; display: none; font-size: 0.9rem; }
     .row-sub:hover { background-color: #f8fafc; }
     .caret-icon { transition: transform 0.3s; display: inline-block; margin-right: 8px;}
     .caret-down { transform: rotate(90deg); }
+    
     .td-lihat-soal { color: #8b5cf6; text-decoration: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display:inline-block; padding: 2px 8px; background-color: #f3e8ff; border-radius: 4px; border: 1px solid #c4b5fd;}
     .td-lihat-soal:hover { text-decoration: none; background-color: #ddd6fe; color: #6d28d9; }
+    
     .table-siswa-wrapper { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .table-siswa th, .table-siswa td { white-space: nowrap; }
     .table-dinas-wrapper { max-height: 60vh; overflow-y: auto; }
+    
     .clickable-score { display: inline-block; padding: 2px 8px; border-radius: 4px; transition: all 0.2s; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-weight: 700 !important; }
     .clickable-score.bi:hover { background-color: #e0e7ff; color: #1d4ed8 !important; }
     .clickable-score.mtk:hover { background-color: #dcfce7; color: #15803d !important; }
+    
     footer { background-color: #ffffff; border-top: 1px solid #e5e7eb; padding: 15px 0; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 500; }
   </style>
 </head>
@@ -223,6 +234,23 @@
       <div class="card card-custom p-4 mt-2">
         <h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-graph-up-arrow me-2"></i>Grafik Perkembangan Rerata Nilai Kota</h5>
         <div style="position: relative; height:40vh; width:100%"><canvas id="trendChart"></canvas></div>
+      </div>
+
+      <!-- TABEL DAFTAR MATA PELAJARAN KOTA (YANG TADI HILANG KINI KEMBALI) -->
+      <div class="card card-custom p-4 mt-4" style="background-color: #f1f5f9;">
+        <h6 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-card-list me-2"></i>Daftar Mata Pelajaran (Detail Kota)</h6>
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0 text-center tbl-detail" style="background-color: #fff;">
+            <thead>
+              <tr><th rowspan="2" class="th-main-blue" width="3%">NO</th><th rowspan="2" class="th-main-blue text-start" width="13%">MATA PELAJARAN</th><th rowspan="2" class="th-main-blue" width="8%">JML SEKOLAH</th><th rowspan="2" class="th-main-blue" width="8%">JML SISWA</th><th rowspan="2" class="th-main-blue" width="8%"><i class="bi bi-graph-up me-1"></i> RERATA</th><th rowspan="2" class="th-main-blue" width="7%">% P10</th><th rowspan="2" class="th-main-blue" width="7%">÷ MEDIAN</th><th rowspan="2" class="th-main-blue" width="7%">% P90</th><th rowspan="2" class="th-main-blue" width="7%"><i class="bi bi-bar-chart me-1"></i> STD DEV</th><th colspan="4" class="th-main-blue border-bottom-0"><i class="bi bi-award"></i> KATEGORI (% SISWA)</th></tr>
+              <tr><th class="th-cat-istimewa" width="8%">ISTIMEWA</th><th class="th-cat-baik" width="8%">BAIK</th><th class="th-cat-memadai" width="8%">MEMADAI</th><th class="th-cat-kurang" width="8%">KURANG</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="td-blue-dark">1</td><td class="text-start fw-bold td-blue-dark">B. Indonesia</td><td id="t2-sek-bi" class="fw-bold text-dark">-</td><td id="t2-sis-bi" class="td-purple">-</td><td id="t2-rata-bi" class="td-blue-dark">-</td><td id="t2-p10-bi" class="td-orange">-</td><td id="t2-med-bi" class="td-purple">-</td><td id="t2-p90-bi" class="td-orange">-</td><td id="t2-sd-bi" class="text-primary fw-bold">-</td><td id="t2-ist-bi" class="fw-bold text-success">-</td><td id="t2-baik-bi" class="fw-bold text-primary">-</td><td id="t2-mem-bi" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-bi" class="fw-bold text-danger">-</td></tr>
+              <tr><td class="td-blue-dark">2</td><td class="text-start fw-bold td-blue-dark">Matematika</td><td id="t2-sek-mtk" class="fw-bold text-dark">-</td><td id="t2-sis-mtk" class="td-purple">-</td><td id="t2-rata-mtk" class="td-blue-dark">-</td><td id="t2-p10-mtk" class="td-orange">-</td><td id="t2-med-mtk" class="td-purple">-</td><td id="t2-p90-mtk" class="td-orange">-</td><td id="t2-sd-mtk" class="text-primary fw-bold">-</td><td id="t2-ist-mtk" class="fw-bold text-success">-</td><td id="t2-baik-mtk" class="fw-bold text-primary">-</td><td id="t2-mem-mtk" class="fw-bold text-warning" style="color: #b45309 !important;">-</td><td id="t2-kur-mtk" class="fw-bold text-danger">-</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -401,16 +429,8 @@
   </main>
 
   <script>
-    // ----------------------------------------------------
-    // !!! PASTE LINK /EXEC ANDA DI BAWAH SINI !!!
-    // ----------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
-    
-    // ----------------------------------------------------
-    // !!! PASTE LINK PDF DESKRIPSI CAPAIAN DI BAWAH SINI !!!
-    // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
-
     const PIN_DINAS = "171717";
 
     const KISI_KISI_DB = {
@@ -549,19 +569,14 @@
 
     function setSchoolLoadingState() {
        let lHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
-       
        let tbWil = document.getElementById('tbody-wilayah'); if(tbWil) tbWil.innerHTML = lHtml;
        let tbBi = document.getElementById('tbody-top-bi'); if(tbBi) tbBi.innerHTML = lHtml;
        let tbMtk = document.getElementById('tbody-top-mtk'); if(tbMtk) tbMtk.innerHTML = lHtml;
-
        let shier = document.getElementById('s-tbody-hierarki'); if(shier) shier.innerHTML = lHtml;
        let sSis = document.getElementById('s-tbody-siswa'); if(sSis) sSis.innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
        let sAcc = document.getElementById('s-tbody-accordion'); if(sAcc) sAcc.innerHTML = lHtml;
-
        let dhier = document.getElementById('dinas-tbody-wil'); if(dhier) {
-           dhier.innerHTML = lHtml;
-           document.getElementById('dinas-tbody-kec').innerHTML = lHtml;
-           document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
+           dhier.innerHTML = lHtml; document.getElementById('dinas-tbody-kec').innerHTML = lHtml; document.getElementById('dinas-tbody-sek').innerHTML = lHtml;
        }
     }
 
@@ -717,7 +732,6 @@
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
-    // --- LOGIKA DETERMINISTIK RAPOR INDIVIDU ---
     function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
         let seed = 0; for(let i=0; i<namaSiswa.length; i++) seed += namaSiswa.charCodeAt(i);
         let maxVar = skorTotal >= 90 ? 5 : (skorTotal <= 30 ? 5 : 15);
@@ -773,9 +787,7 @@
     function renderSchoolDashboard(data) {
       if(!data || !data.hierarki) return; 
 
-      if(data.pinStatus !== "CUSTOM") {
-          setTimeout(() => { bukaModalGantiPin(); }, 1000);
-      }
+      if(data.pinStatus !== "CUSTOM") { setTimeout(() => { bukaModalGantiPin(); }, 1000); }
 
       let h = data.hierarki; let d = data.sekolahInfo;
       let htmlHier = `
@@ -807,8 +819,8 @@
               htmlSiswa += `<tr><td class="text-center border-end">${idx+1}</td><td class="fw-semibold text-start border-end">${s.nama}</td>`;
               s.riwayat.forEach((r, pIdx) => {
                   let pTitle = pNames[pIdx];
-                  let vBI = r.bi !== "-" ? `<span class="clickable-score bi" onclick="bukaRaporIndividu('${s.nama}', 'BI', ${r.bi}, '${pTitle}')">${r.bi}</span>` : `<span class="text-muted opacity-25">-</span>`; 
-                  let vMTK = r.mtk !== "-" ? `<span class="clickable-score mtk" onclick="bukaRaporIndividu('${s.nama}', 'MTK', ${r.mtk}, '${pTitle}')">${r.mtk}</span>` : `<span class="text-muted opacity-25">-</span>`;
+                  let vBI = r.bi !== "-" ? `<span class="clickable-score bi" onclick="bukaRaporIndividu('${s.nama.replace(/'/g, "\\'")}', 'BI', ${r.bi}, '${pTitle}')">${r.bi}</span>` : `<span class="text-muted opacity-25">-</span>`; 
+                  let vMTK = r.mtk !== "-" ? `<span class="clickable-score mtk" onclick="bukaRaporIndividu('${s.nama.replace(/'/g, "\\'")}', 'MTK', ${r.mtk}, '${pTitle}')">${r.mtk}</span>` : `<span class="text-muted opacity-25">-</span>`;
                   
                   htmlSiswa += `<td class="text-center align-middle text-primary">${vBI}</td><td class="text-center align-middle text-success border-end">${vMTK}</td>`;
               });
@@ -970,7 +982,7 @@
   </script>
   
   <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: ArdiyatnaPranata</div>
+    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
   </footer>
 </body>
 </html>
