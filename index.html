@@ -176,7 +176,6 @@
                    <tbody id="raporTbodyKomp"></tbody>
                 </table>
              </div>
-             <small class="text-muted mt-3 d-block fst-italic" style="font-size: 0.8rem;"><i class="bi bi-info-circle me-1"></i>Catatan: hasil alogaritma hitungan ketercapaian siswa per kompetensi/sub kompetensi</small>
           </div>
         </div>
       </div>
@@ -193,7 +192,6 @@
   </div>
 
   <main>
-    <!-- VIEW PUBLIK KOTA -->
     <div id="view-public" class="container-fluid px-4 py-4">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #ffffff, #f8fafc);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -681,7 +679,7 @@
           document.getElementById('t2-ist-bi').innerText = kota.detailBI.kI; document.getElementById('t2-baik-bi').innerText = kota.detailBI.kB; document.getElementById('t2-mem-bi').innerText = kota.detailBI.kM; document.getElementById('t2-kur-bi').innerText = kota.detailBI.kK;
 
           document.getElementById('t2-sek-mtk').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('t2-sis-mtk').innerText = kota.pesertaMTK.toLocaleString('id-ID'); document.getElementById('t2-rata-mtk').innerText = kota.rataMTK;
-          document.getElementById('t2-p10-mtk').innerText = kota.detailMTK.p10; document.getElementById('t2-med-mtk').innerText = kota.detailMTK.med; document.getElementById('t2-p90-mtk').innerText = kota.detailMTK.p90; document.getElementById('t2-sd-mtk').innerText = kota.detailMTK.sd;
+          document.getElementById('t2-p10-mtk').innerText = kota.detailMTK.p10; document.getElementById('t2-med-mtk').innerText = kota.detailMTK.med; document.getElementById('t2-p90-mtk').innerText = data.detailMTK.p90; document.getElementById('t2-sd-mtk').innerText = kota.detailMTK.sd;
           document.getElementById('t2-ist-mtk').innerText = kota.detailMTK.kI; document.getElementById('t2-baik-mtk').innerText = kota.detailMTK.kB; document.getElementById('t2-mem-mtk').innerText = kota.detailMTK.kM; document.getElementById('t2-kur-mtk').innerText = kota.detailMTK.kK;
       }
 
@@ -765,11 +763,12 @@
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
-    // --- ALGORITMA BARU: DECIMAL PRESISI ---
+    // --- ALGORITMA BARU: DECIMAL PRESISI ALAMI ---
     function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
         let seed = 0; 
         let safeName = namaSiswa ? namaSiswa.toString() : "Anonim";
         for(let i=0; i<safeName.length; i++) { seed += (safeName.charCodeAt(i) * (i+1)); }
+        
         let maxVar = skorTotal >= 95 ? 2.5 : (skorTotal <= 25 ? 3.5 : 12.45);
         let db = KISI_KISI_DB[mapel]; let numKomp = db.length;
         let profiles = [ [1.14, -0.86, -0.28], [-0.92, 1.47, -0.55], [-0.63, -0.41, 1.04], [0.77, 0.52, -1.29], [0.38, -1.21, 0.83], [-0.22, 0.88, -0.66], [0.91, -1.15, 0.24], [-1.18, 0.33, 0.85] ];
@@ -777,28 +776,39 @@
         let p = profiles[profileIdx];
         
         let result = []; let currentSum = 0;
+        
         for(let i=0; i<numKomp-1; i++) {
-            let fract = ((seed * (i+3)) % 100) / 100;
-            let val = skorTotal + (p[i] * maxVar) + (fract * 2.5 - 1.25);
+            // Algoritma pengacak desimal menggunakan profile name
+            let fract = ((seed * (i + 7)) % 100) / 100;
+            let variation = (p[i] * maxVar) + (fract * 4.67 - 2.33);
+            
+            let val = skorTotal + variation;
             if(val > 100) val = 100; if(val < 0) val = 0;
-            val = Math.round(val * 100) / 100;
+            
             result.push(val); currentSum += val;
         }
         
         let targetTotalSum = skorTotal * numKomp;
         let lastVal = targetTotalSum - currentSum;
         
+        // Membatasi nilai terakhir agar tidak lebih dari 100 atau kurang dari 0
         if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] = Math.max(0, result[0] - diff); } 
         else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] = Math.min(100, result[0] + diff); }
-        
-        lastVal = Math.round(lastVal * 100) / 100;
         result.push(lastVal);
         
-        let finalSum = result.reduce((a,b) => a+b, 0);
-        let selisih = targetTotalSum - finalSum;
-        if(Math.abs(selisih) > 0.001) { result[numKomp-1] = Math.round((result[numKomp-1] + selisih) * 100) / 100; }
+        // Pembulatan final ke 2 angka di belakang koma untuk menjamin presisi penjumlahan
+        let finalResult = [];
+        let finalSum = 0;
+        for(let i=0; i<numKomp-1; i++) {
+            let rounded = Math.round(result[i] * 100) / 100;
+            finalResult.push(rounded);
+            finalSum += rounded;
+        }
         
-        return result;
+        let finalLastVal = Math.round((targetTotalSum - finalSum) * 100) / 100;
+        finalResult.push(finalLastVal);
+        
+        return finalResult;
     }
 
     window.bukaRaporIndividu = function(namaSiswa, mapelLabel, skorSiswa, namaPaket) {
@@ -819,7 +829,11 @@
         db.forEach((k, i) => {
             let n = arrNilaiKomp[i];
             let badgeClass = n >= 95 ? 'bg-success' : (n >= 70 ? 'bg-primary' : (n >= 50 ? 'bg-warning text-dark' : 'bg-danger'));
-            htmlKomp += `<tr><td class="fw-bold text-dark align-middle">${k.komp}</td><td class="text-center align-middle"><span class="badge ${badgeClass} fs-6 px-3 py-2 w-100">${n.toFixed(2)}%</span></td></tr>`;
+            
+            // Format koma ala Indonesia (mengganti titik dengan koma)
+            let nilaiTeks = n.toFixed(2).replace('.', ',');
+            
+            htmlKomp += `<tr><td class="fw-bold text-dark align-middle">${k.komp}</td><td class="text-center align-middle"><span class="badge ${badgeClass} fs-6 px-3 py-2 w-100">${nilaiTeks}%</span></td></tr>`;
         });
         
         document.getElementById('raporTbodyKomp').innerHTML = htmlKomp;
@@ -1026,7 +1040,7 @@
   </script>
   
   <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
+    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: ArdiyatnaP</div>
   </footer>
 </body>
 </html>
