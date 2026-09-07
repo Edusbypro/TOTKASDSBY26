@@ -124,7 +124,7 @@
   </div>
 
   <main>
-    <!-- VIEW PUBLIK KOTA (BERANDA UTAMA) -->
+    <!-- VIEW PUBLIK KOTA -->
     <div id="view-public" class="container-fluid px-4 py-4">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #ffffff, #f8fafc);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -165,10 +165,9 @@
         <h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-graph-up-arrow me-2"></i>Grafik Perkembangan Rerata Nilai Kota</h5>
         <div style="position: relative; height:40vh; width:100%"><canvas id="trendChart"></canvas></div>
       </div>
-      
     </div>
 
-    <!-- VIEW SEKOLAH (LOGIN) -->
+    <!-- VIEW SEKOLAH -->
     <div id="view-school" class="container-fluid px-4 py-4 d-none">
       <div class="card card-custom p-3 mb-4" style="background: linear-gradient(to right, #f8fafc, #ffffff);">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
@@ -277,7 +276,6 @@
       </div>
       
       <div class="tab-content">
-        <!-- TAB PERINGKAT KOTA -->
         <div class="tab-pane fade show active" id="dinas-peringkat">
            <div class="card card-custom p-4">
              <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
@@ -310,7 +308,6 @@
            </div>
         </div>
         
-        <!-- TAB KOMPETENSI WILAYAH/KECAMATAN -->
         <div class="tab-pane fade" id="dinas-kompetensi">
            <div class="card card-custom p-4">
              <h5 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-bullseye me-2"></i>Evaluasi Capaian Kompetensi Makro</h5>
@@ -355,9 +352,6 @@
     // ----------------------------------------------------
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
 
-    // ----------------------------------------------------
-    // !!! PIN RAHASIA PORTAL DINAS !!!
-    // ----------------------------------------------------
     const PIN_DINAS = "123456";
 
     const KISI_KISI_DB = {
@@ -422,6 +416,9 @@
         document.getElementById('badge-paket-title-school').innerText = "Data: " + savedPaket;
         document.getElementById('badge-paket-title-dinas').innerText = "Data: " + savedPaket;
         
+        // PENGAMANAN LOADING DATA EKSPLISIT
+        setSchoolLoadingState();
+
         fetchBackend('public', {paket: savedPaket}).then(res => {
             if(res.sukses) { 
                 publicStatGlobal = res.stat; 
@@ -443,7 +440,7 @@
             document.getElementById('header-account-type').innerText = "AKUN SEKOLAH";
             document.getElementById('header-school-name').innerText = savedSchool;
             document.getElementById('view-public').classList.add('d-none'); document.getElementById('view-school').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
-            setSchoolLoadingState();
+            
             fetchBackend('school', {paket: savedPaket, sek: savedSchool}).then(resData => {
                 if(resData.sukses) {
                     currentSchoolData = resData.data; renderSchoolDashboard(resData.data);
@@ -467,6 +464,9 @@
         document.getElementById('paketSelectorPublic').value = p; document.getElementById('paketSelectorSchool').value = p; document.getElementById('paketSelectorDinas').value = p;
         document.getElementById('badge-paket-title').innerText = "Data: " + p; document.getElementById('badge-paket-title-school').innerText = "Data: " + p; document.getElementById('badge-paket-title-dinas').innerText = "Data: " + p;
         
+        // PENGAMAN LOADING EKSPLISIT SAAT GANTI PAKET
+        setSchoolLoadingState();
+
         fetchBackend('public', {paket: p}).then(res => {
             if(res.sukses) { 
                 publicStatGlobal = res.stat; 
@@ -477,15 +477,30 @@
         
         let savedSchool = localStorage.getItem('loggedInSchool');
         if(savedSchool) {
-           setSchoolLoadingState();
            fetchBackend('school', {paket: p, sek: savedSchool}).then(resData => { if(resData.sukses) { currentSchoolData = resData.data; renderSchoolDashboard(resData.data); } });
         }
     }
 
     function setSchoolLoadingState() {
-       document.getElementById('s-tbody-hierarki').innerHTML = '<tr><td colspan="6" class="text-center"><span class="blink">Memuat data...</span></td></tr>';
-       document.getElementById('s-tbody-siswa').innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink">Menarik riwayat 16 paket nilai siswa...</span></td></tr>';
-       document.getElementById('s-tbody-accordion').innerHTML = '<tr><td colspan="6" class="text-center"><span class="blink">Memuat data...</span></td></tr>';
+       let loadingHtml = '<tr><td colspan="6" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Mengambil Data Server...</span></td></tr>';
+       
+       // Mengosongkan & meloading tabel publik
+       document.getElementById('tbody-wilayah').innerHTML = loadingHtml;
+       document.getElementById('tbody-top-bi').innerHTML = loadingHtml;
+       document.getElementById('tbody-top-mtk').innerHTML = loadingHtml;
+
+       // Mengosongkan & meloading tabel sekolah
+       document.getElementById('s-tbody-hierarki').innerHTML = loadingHtml;
+       document.getElementById('s-tbody-siswa').innerHTML = '<tr><td colspan="34" class="text-center py-5"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menarik Riwayat Nilai Siswa...</span></td></tr>';
+       document.getElementById('s-tbody-accordion').innerHTML = loadingHtml;
+
+       // Mengosongkan & meloading tabel dinas
+       let dinasHtml = '<tr><td colspan="13" class="text-center py-4"><span class="blink text-primary fw-bold"><i class="bi bi-hourglass-split me-2"></i>Menghitung Seluruh Sekolah...</span></td></tr>';
+       if(document.getElementById('d-sek-bi')) {
+           document.getElementById('dinas-tbody-wil').innerHTML = loadingHtml;
+           document.getElementById('dinas-tbody-kec').innerHTML = loadingHtml;
+           document.getElementById('dinas-tbody-sek').innerHTML = loadingHtml;
+       }
     }
 
     function logoutAccount() { 
@@ -528,6 +543,7 @@
     }
 
     function tampilkanDataPublic(statObj) {
+      if(!statObj || !statObj.kota) return; // PENGAMAN DATA KOSONG
       let kota = statObj.kota;
       document.getElementById('t1-peserta').innerText = kota.totalPeserta > 0 ? kota.totalPeserta.toLocaleString('id-ID') : "Belum Ada Data";
       document.getElementById('t1-bi').innerText = kota.rataBI; document.getElementById('t1-mtk').innerText = kota.rataMTK;
@@ -557,6 +573,7 @@
     }
 
     function renderTrendChart(dataChart) {
+      if(!dataChart) return;
       if (trendChartObj) trendChartObj.destroy();
       trendChartObj = new Chart(document.getElementById('trendChart').getContext('2d'), {
         type: 'line', data: { labels: dataChart.labels, datasets: [ { label: 'B. Indonesia', data: dataChart.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, { label: 'Matematika', data: dataChart.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } ]},
@@ -586,6 +603,7 @@
     }
 
     function renderSchoolDashboard(data) {
+      if(!data || !data.hierarki) return; // PENGAMAN DATA KOSONG
       let h = data.hierarki; let d = data.sekolahInfo;
       let htmlHier = `
         <tr class="row-kota"><td class="text-center"><i class="bi bi-award"></i></td><td class="text-center">KOTA</td><td>KOTA SURABAYA</td><td class="text-center fw-bold">-</td><td class="text-center text-primary fw-bold">${h.kota.bi}</td><td class="text-center text-primary fw-bold">${h.kota.mtk}</td></tr>
@@ -636,7 +654,9 @@
     // FUNGSI KHUSUS PORTAL DINAS (DEWA)
     // ==========================================
     function renderDinasDashboard(statObj) {
+      if(!statObj || !statObj.kota) return; // PENGAMAN DATA KOSONG
       let kota = statObj.kota;
+      
       document.getElementById('d-sek-bi').innerText = kota.jumlahSekolah.toLocaleString('id-ID'); document.getElementById('d-sis-bi').innerText = kota.pesertaBI.toLocaleString('id-ID'); document.getElementById('d-rata-bi').innerText = kota.rataBI;
       document.getElementById('d-p10-bi').innerText = kota.detailBI.p10; document.getElementById('d-med-bi').innerText = kota.detailBI.med; document.getElementById('d-p90-bi').innerText = kota.detailBI.p90; document.getElementById('d-sd-bi').innerText = kota.detailBI.sd;
       document.getElementById('d-ist-bi').innerText = kota.detailBI.kI; document.getElementById('d-baik-bi').innerText = kota.detailBI.kB; document.getElementById('d-mem-bi').innerText = kota.detailBI.kM; document.getElementById('d-kur-bi').innerText = kota.detailBI.kK;
@@ -659,7 +679,7 @@
       let arrS = [...publicStatGlobal.sekolah].filter(s => isMTK ? s.rataMTK > 0 : s.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
 
       let fnTbl = (arr, type) => {
-        if(arr.length===0) return `<tr><td colspan="3" class="text-center text-muted py-3">Belum ada data</td></tr>`;
+        if(!arr || arr.length===0) return `<tr><td colspan="3" class="text-center text-muted py-3">Belum ada data</td></tr>`;
         let html = '';
         arr.forEach((k,i) => {
           let namaTeks = type === 'wil' ? k.nama : (type === 'kec' ? `${k.nama}<br><small class="text-muted fw-normal">${k.wilayah}</small>` : `<span style="font-size:0.85rem">${k.nama}</span><br><small class="text-muted fw-normal" style="font-size:0.75rem">${k.kecamatan}</small>`);
@@ -763,20 +783,34 @@
     function calcSim(base, seedOffset) { if(base <= 0 || isNaN(base)) return "-"; let variation = (seededRandom(base + seedOffset) * 6) - 3; return Math.min(100, Math.max(0, base + variation)).toFixed(2) + "%"; }
 
     function toggleAccordion(className, event) {
-      if(event) event.stopPropagation(); 
-      let rows = document.getElementsByClassName(className); let isExpanding = false;
-      if(rows.length > 0 && (rows[0].style.display === "none" || rows[0].style.display === "")) isExpanding = true;
-      let icon = document.getElementById("icon-" + className);
-      if(icon) { if(isExpanding) icon.classList.add("caret-down"); else icon.classList.remove("caret-down"); }
-      for (let i = 0; i < rows.length; i++) {
-         if (isExpanding) { rows[i].style.display = "table-row"; } 
-         else { rows[i].style.display = "none"; if(className.includes('komp-')) { let childIcon = rows[i].querySelector('.caret-icon'); if(childIcon) childIcon.classList.remove("caret-down"); } }
-      }
-    }
-  </script>
-  
-  <footer>
-    <div class="container">&copy; 2026 Tim Penulis Soal TKA Kota Surabaya | Developed by: Ardiyatnap@gmail.com</div>
-  </footer>
-</body>
-</html>
+      if(Berdasarkan tangkapan layar, tampilan antarmuka terhenti pada status "Memuat data wilayah..." dan tabel indikator bernilai kosong ("-"). Hal ini mengindikasikan bahwa *frontend* (HTML/JavaScript) gagal menerima atau memproses data dari *backend* (`code.gs`).
+
+Jika Anda sudah memperbarui kode di `code.gs` tetapi tidak ada perubahan di aplikasi web, berikut adalah langkah-langkah penyelesaiannya:
+
+**1. Perbarui Versi Deployment (Penyebab Paling Umum)**
+Di Google Apps Script, sekadar menyimpan kode (Ctrl+S) tidak akan mengubah aplikasi web pada URL publik (yang berakhiran `/exec`). Anda **wajib** membuat versi baru setiap kali ada pembaruan kode.
+* Klik tombol **Deploy** di sudut kanan atas editor Apps Script.
+* Pilih **Manage deployments**.
+* Klik ikon **Pensil (Edit)** pada deployment yang sedang aktif di sebelah kanan.
+* Pada *dropdown* **Version**, ubah dari versi sebelumnya menjadi **New version**.
+* Klik **Deploy**.
+
+**2. Uji Coba Menggunakan Mode Dev (`/dev`)**
+Untuk mengisolasi masalah dan memastikan apakah kode baru sebenarnya sudah berfungsi, gunakan URL *development*. URL ini akan selalu memuat *draft* kode terbaru yang Anda simpan tanpa perlu melakukan *deploy* versi baru.
+* Klik **Deploy** -> **Test deployments**.
+* Salin URL Web App yang berakhiran `/dev`.
+* Buka URL tersebut di *tab* baru. Jika data berhasil dimuat di mode `/dev` tetapi gagal di `/exec`, berarti Anda hanya perlu melakukan pembaruan versi seperti pada langkah pertama.
+
+**3. Periksa Error di Console Browser**
+Karena indikator *loading* terus berjalan tanpa hasil ("Menyusun peringkat..."), kemungkinan besar eksekusi JavaScript terhenti karena *error*.
+* Buka portal tersebut di browser, tekan **F12** atau klik kanan lalu pilih **Inspect**.
+* Masuk ke tab **Console**.
+* Periksa apakah ada pesan *error* berwarna merah. Biasanya ini terjadi jika respons dari `google.script.run` mengembalikan nilai yang tidak terduga (*undefined* atau format JSON yang salah) sehingga *script* di halaman HTML terhenti.
+
+**4. Periksa Log Eksekusi Apps Script**
+Jika fungsi pemanggil di *frontend* tidak bermasalah, *error* mungkin terjadi di dalam fungsi `code.gs` saat mengambil data.
+* Buka halaman editor Google Apps Script.
+* Klik menu **Executions** (ikon garis berderet di sebelah kiri layar).
+* Periksa riwayat eksekusi terbaru. Jika ada yang berstatus **Failed**, klik untuk melihat pesan *error* lengkap beserta baris kode (misalnya *TypeError* atau rentang *spreadsheet* yang tidak valid) yang menyebabkan kegagalan memuat data. 
+
+Lakukan pembaruan *New version* pada *deployment* terlebih dahulu, lalu lakukan *hard refresh* (**Ctrl + F5**) pada browser untuk membersihkan *cache* aplikasi web Anda.
