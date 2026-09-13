@@ -805,6 +805,21 @@
         initApp(); 
     }
 
+window.keluarkanSiswa = function(namaSiswa, btnElement) {
+        let sek = localStorage.getItem('loggedInSchool');
+        if(!confirm(`Apakah Anda yakin "${namaSiswa}" BUKAN siswa dari sekolah ${sek}?\n\nJika 'OK', nilai anak ini akan diabaikan dan Rata-rata Sekolah akan dikalkulasi ulang.`)) return;
+
+        let oriHtml = btnElement.innerHTML;
+        btnElement.innerHTML = '<span class="spinner-border spinner-border-sm text-danger" style="width:1rem;height:1rem;"></span>';
+        btnElement.disabled = true;
+
+        fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "exclude", namaSiswa: namaSiswa, namaSekolah: sek }) })
+        .then(r => r.json()).then(res => {
+            if(res.sukses) { alert("✅ " + res.pesan); let p = document.getElementById('paketSelectorSchool').value; processPaketChange(p); } 
+            else { alert("❌ " + res.pesan); btnElement.innerHTML = oriHtml; btnElement.disabled = false; }
+        }).catch(err => { alert("Gagal mengusir siswa."); btnElement.innerHTML = oriHtml; btnElement.disabled = false; });
+    };
+
     function populateLoginHierarki(hierarkiData) {
       if(!hierarkiData) return;
       hierarkiDataGlobal = hierarkiData;
@@ -1052,10 +1067,17 @@
       if(data.siswa.length === 0) { htmlSiswa = `<tr><td colspan="34" class="text-center py-4">Belum ada siswa yang mengerjakan</td></tr>`; } 
       else {
           data.siswa.forEach((s, idx) => {
-              // Menyimpan nama ke dalam brankas (escape HTML murni)
               let escapedName = s.nama ? s.nama.replace(/"/g, '&quot;').replace(/'/g, '&#39;') : "Siswa";
               
-              htmlSiswa += `<tr><td class="text-center border-end">${idx+1}</td><td class="fw-semibold text-start border-end">${s.nama}</td>`;
+              let rowBg = s.isBukan ? 'style="background-color: #fee2e2;"' : '';
+              let nameStyle = s.isBukan ? 'text-decoration-line-through text-danger opacity-75' : 'text-dark';
+              let badgeAksi = s.isBukan 
+                 ? `<span class="badge bg-danger shadow-sm ms-2" style="font-size:0.65rem;">BUKAN SISWA KAMI</span>` 
+                 : `<button class="btn btn-sm btn-outline-danger border-0 py-0 px-1 ms-2" onclick="keluarkanSiswa('${escapedName}', this)" title="Coret Anak Ini"><i class="bi bi-x-circle"></i></button>`;
+                 
+              htmlSiswa += `<tr ${rowBg}><td class="text-center border-end">${idx+1}</td><td class="fw-semibold text-start border-end"><div class="d-flex justify-content-between align-items-center"><span class="${nameStyle}">${s.nama}</span>${badgeAksi}</div></td>`;
+              
+              // BARIS INI YANG SEBELUMNYA TIDAK SENGAJA TERHAPUS:
               s.riwayat.forEach((r, pIdx) => {
                   let pTitle = pNames[pIdx];
                   
@@ -1065,6 +1087,7 @@
                   
                   htmlSiswa += `<td class="text-center align-middle text-primary">${vBI}</td><td class="text-center align-middle text-success border-end">${vMTK}</td>`;
               });
+              
               htmlSiswa += `</tr>`;
           });
       }
