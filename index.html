@@ -1027,14 +1027,19 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
       document.getElementById('view-school').classList.add('d-none'); document.getElementById('view-public').classList.remove('d-none'); document.getElementById('view-dinas').classList.add('d-none');
     }
 
-    // --- ALGORITMA BARU: DECIMAL PRESISI ---
+    // --- ALGORITMA BARU: DECIMAL PRESISI (REVISI KUNCI 100%) ---
     function generateComplexCompetency(namaSiswa, mapel, skorTotal) {
+        let db = KISI_KISI_DB[mapel]; let numKomp = db.length;
+        
+        // PERBAIKAN 1: Siswa dengan Nilai 100 Sempurna atau 0 Mutlak akan langsung diberi nilai rata (100% / 0%) tanpa diacak!
+        if (skorTotal >= 100) return Array(numKomp).fill(100);
+        if (skorTotal <= 0) return Array(numKomp).fill(0);
+        
         let seed = 0; 
         let safeName = namaSiswa ? namaSiswa.toString() : "Anonim";
         for(let i=0; i<safeName.length; i++) { seed += (safeName.charCodeAt(i) * (i+1)); }
         
-        let maxVar = skorTotal >= 95 ? 2.5 : (skorTotal <= 25 ? 3.5 : 12.45);
-        let db = KISI_KISI_DB[mapel]; let numKomp = db.length;
+        let maxVar = skorTotal >= 95 ? 1.5 : (skorTotal <= 25 ? 2.5 : 8.45); 
         let profiles = [ [1.14, -0.86, -0.28], [-0.92, 1.47, -0.55], [-0.63, -0.41, 1.04], [0.77, 0.52, -1.29], [0.38, -1.21, 0.83], [-0.22, 0.88, -0.66], [0.91, -1.15, 0.24], [-1.18, 0.33, 0.85] ];
         let profileIdx = (seed + Math.floor(skorTotal)) % profiles.length; 
         let p = profiles[profileIdx];
@@ -1045,25 +1050,39 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             let fract = ((seed * (i + 7)) % 100) / 100;
             let variation = (p[i] * maxVar) + (fract * 4.67 - 2.33);
             let val = skorTotal + variation;
-            if(val > 100) val = 100; if(val < 0) val = 0;
-            val = Math.round(val * 100) / 100;
-            result.push(val); currentSum += val;
+            
+            let maxSisa = 100 * (numKomp - 1 - i); 
+            let minSisa = 0;
+            let targetTotalSum = skorTotal * numKomp;
+            
+            let batasBawahVal = targetTotalSum - currentSum - maxSisa; 
+            let batasAtasVal = targetTotalSum - currentSum - minSisa;  
+            
+            // Kunci Ganda: Pastikan tidak kurang dari 0, tidak lebih dari 100, dan menyisakan ruang yang logis untuk kompetensi berikutnya.
+            val = Math.max(0, Math.min(100, val));
+            val = Math.max(batasBawahVal, Math.min(batasAtasVal, val));
+            
+            result.push(val); 
+            currentSum += val;
         }
         
         let targetTotalSum = skorTotal * numKomp;
         let lastVal = targetTotalSum - currentSum;
         
-        if (lastVal > 100) { let diff = lastVal - 100; lastVal = 100; result[0] = Math.max(0, result[0] - diff); } 
-        else if (lastVal < 0) { let diff = 0 - lastVal; lastVal = 0; result[0] = Math.min(100, result[0] + diff); }
-        lastVal = Math.round(lastVal * 100) / 100;
+        // Kunci Nilai Komponen Terakhir
+        lastVal = Math.max(0, Math.min(100, lastVal));
         result.push(lastVal);
         
+        // Pembulatan Desimal 2 Angka
         let finalResult = []; let finalSum = 0;
         for(let i=0; i<numKomp-1; i++) {
             let rounded = Math.round(result[i] * 100) / 100;
             finalResult.push(rounded); finalSum += rounded;
         }
         let finalLastVal = Math.round((targetTotalSum - finalSum) * 100) / 100;
+        
+        // PERBAIKAN 2: Penguncian Akhir (Absolute Clamp) agar angka 101% - 112% mustahil muncul di layar
+        finalLastVal = Math.max(0, Math.min(100, finalLastVal));
         finalResult.push(finalLastVal);
         
         return finalResult;
