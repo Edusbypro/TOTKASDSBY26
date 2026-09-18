@@ -1677,11 +1677,220 @@ window.bukaModalGabungSiswa = function(event) {
             btn.innerHTML = oriHtml; btn.disabled = false;
         });
     };
- 
   </script>
   
   <footer>
     <div class="container">&copy; 2026 Tim Penulis Soal TryOut TKA SD Kota Surabaya | Developed by : ArdiyatnaP</div>
   </footer>
+
+  <!-- ===================================================================== -->
+    <!-- FITUR BARU: EXPORT EXCEL 2 SHEET (SUNTIK BAWAH - 100% AMAN & ISOLASI) -->
+    <!-- ===================================================================== -->
+    
+    <!-- 1. Tombol Melayang Excel -->
+    <button class="btn btn-success no-print" onclick="bukaModalExcel()" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-radius: 50px; padding: 10px 20px; font-weight: bold;">
+      <i class="fas fa-file-excel"></i> Unduh Excel
+    </button>
+
+    <!-- 2. Modal Pilihan Paket Ujian (Versi Upgrade) -->
+    <div class="modal fade" id="modalExcel" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">Konfigurasi Unduh Excel</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+              <span class="text-muted small">Pilih paket ujian yang ingin diunduh:</span>
+              <button class="btn btn-sm btn-outline-success" id="btnToggleCb" onclick="toggleSemuaPaket()">
+                <i class="fas fa-check-double"></i> Pilih Semua
+              </button>
+            </div>
+            <div id="container-checkbox-excel" class="row px-3">
+              <!-- Checkbox akan otomatis membaca dari tabel layar -->
+            </div>
+            <hr>
+            <div class="alert alert-info py-2 small mb-0">
+              <i class="fas fa-info-circle"></i> <b>Hanya nilai yang akan diunduh.</b> Kolom <i>No</i> dan <i>Nama Siswa</i> otomatis disertakan.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-success" onclick="prosesDownloadExcel()">
+              <i class="fas fa-download"></i> Buat Excel Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Library Pengolah Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- 4. Mesin Logika Excel Mandiri (Versi Presisi & Uncheck Default) -->
+    <script>
+      let listPaketTersedia = [];
+      let isPilihSemua = false;
+
+      // Fitur Tombol Pilih Semua / Batal Pilih Semua
+      function toggleSemuaPaket() {
+         isPilihSemua = !isPilihSemua;
+         document.querySelectorAll(".cb-excel-paket").forEach(cb => cb.checked = isPilihSemua);
+         document.getElementById("btnToggleCb").innerHTML = isPilihSemua ? '<i class="fas fa-times"></i> Batal Pilih Semua' : '<i class="fas fa-check-double"></i> Pilih Semua';
+      }
+
+      function bukaModalExcel() {
+        let tabel = document.getElementById("tableSiswaData");
+        if (!tabel || tabel.rows.length <= 2) {
+          alert("Data siswa belum dimuat atau masih kosong. Silakan login sekolah terlebih dahulu.");
+          return;
+        }
+
+        listPaketTersedia = [];
+        
+        // PENTING: Penyelarasan kolom (0: Cb, 1: No, 2: Nama, 3: Aksi X). Nilai ujian selalu mulai dari kolom ke-4.
+        let tdDataStart = 4; 
+        
+        // Baca Judul Paket dari Baris Pertama
+        let headerUtama = tabel.rows[0].cells;
+        for (let c = 0; c < headerUtama.length; c++) {
+           let txt = headerUtama[c].innerText.trim();
+           let txtUp = txt.toUpperCase();
+           if(txtUp !== "" && txtUp !== "NO" && txtUp !== "NAMA SISWA" && txtUp !== "AKSI") {
+               listPaketTersedia.push({
+                   label: txt,
+                   tdBI: tdDataStart,
+                   tdMTK: tdDataStart + 1
+               });
+               tdDataStart += 2;
+           }
+        }
+
+        // Buat Checkbox Kondisi Kosong (Uncheck)
+        let htmlCb = "";
+        listPaketTersedia.forEach((pkt, idx) => {
+           htmlCb += `<div class="col-6 mb-2">
+                        <div class="form-check">
+                          <input class="form-check-input cb-excel-paket" type="checkbox" value="${idx}" id="cbEx_${idx}">
+                          <label class="form-check-label" for="cbEx_${idx}" style="font-size: 13px; font-weight: 500;">${pkt.label}</label>
+                        </div>
+                      </div>`;
+        });
+        document.getElementById("container-checkbox-excel").innerHTML = htmlCb;
+        
+        // Kembalikan status tombol ke Pilih Semua
+        isPilihSemua = false;
+        document.getElementById("btnToggleCb").innerHTML = '<i class="fas fa-check-double"></i> Pilih Semua';
+
+        let modalEx = new bootstrap.Modal(document.getElementById('modalExcel'));
+        modalEx.show();
+      }
+
+      function prosesDownloadExcel() {
+        let btn = event.target; 
+        let oriHtml = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Memproses...`; 
+        btn.disabled = true;
+        
+        setTimeout(() => {
+          let tabel = document.getElementById("tableSiswaData");
+          let tr = tabel.rows;
+          
+          let selectedPakets = [];
+          document.querySelectorAll(".cb-excel-paket").forEach(cb => {
+            if(cb.checked) selectedPakets.push(listPaketTersedia[parseInt(cb.value)]);
+          });
+
+          // Validasi jika guru belum memilih apa-apa
+          if(selectedPakets.length === 0) {
+             alert("Tolong centang minimal 1 paket ujian untuk diunduh!");
+             btn.innerHTML = oriHtml; btn.disabled = false;
+             return;
+          }
+
+          // --- PERSIAPAN SHEET 1: REKAP NILAI ---
+          let sheet1Data = [];
+          let hRow = ["NO", "NAMA SISWA"];
+          selectedPakets.forEach(pkt => {
+              hRow.push(`${pkt.label} - B.Indo`);
+              hRow.push(`${pkt.label} - MTK`);
+          });
+          sheet1Data.push(hRow);
+
+          // --- PERSIAPAN SHEET 2: PROYEKSI CAPAIAN ---
+          let sheet2Data = [];
+          sheet2Data.push(["NAMA SISWA", "PAKET UJIAN", "MATA PELAJARAN", "NILAI", "PERSENTASE", "KATEGORI", "DESKRIPSI PROYEKSI CAPAIAN"]);
+
+          function getDeskripsi(nilai, mapel) {
+             let n = parseFloat(nilai);
+             if (isNaN(n)) return { p: "-", k: "-", d: "Data nilai tidak tersedia." };
+             let k = "", d = "";
+             if (n >= 90) { k = "Istimewa"; d = `Sangat menguasai seluruh kompetensi dasar ${mapel}. Mampu bernalar tingkat tinggi (HOTS) dan memecahkan masalah kompleks dengan sangat baik.`; }
+             else if (n >= 75) { k = "Baik"; d = `Telah menguasai sebagian besar kompetensi ${mapel}. Mampu mengaplikasikan konsep dengan baik, hanya perlu penguatan pada soal analisis analitis.`; }
+             else if (n >= 60) { k = "Memadai"; d = `Cukup memahami materi dasar ${mapel}, namun masih kesulitan menerjemahkan soal cerita dan logika tingkat lanjut. Perlu bimbingan intensif.`; }
+             else { k = "Perlu Intervensi"; d = `Belum memenuhi capaian minimum ${mapel}. Membutuhkan pendampingan khusus dari awal untuk memahami konsep dasar secara fundamental.`; }
+             return { p: n + "%", k: k, d: d };
+          }
+
+          let nomorUrut = 1;
+          
+          // MULAI MENGAMBIL DATA DARI BARIS KE-2 (Melewati judul ganda)
+          for (let i = 2; i < tr.length; i++) {
+             let td = tr[i].cells;
+             if (td.length < 4) continue; 
+             
+             // Kunci presisi: Nama siswa PASTI ada di kolom ke-3 (index 2)
+             let namaSiswa = td[2] ? td[2].innerText.trim() : "";
+             if (namaSiswa.includes("Memuat") || namaSiswa === "") continue;
+
+             // Baris untuk Sheet 1
+             let s1Row = [nomorUrut, namaSiswa];
+             
+             selectedPakets.forEach(pkt => {
+                let valBI = (pkt.tdBI < td.length) ? td[pkt.tdBI].innerText.trim() : "";
+                let valMTK = (pkt.tdMTK < td.length) ? td[pkt.tdMTK].innerText.trim() : "";
+                
+                valBI = (valBI === "-") ? "" : valBI;
+                valMTK = (valMTK === "-") ? "" : valMTK;
+
+                s1Row.push(valBI);
+                s1Row.push(valMTK);
+
+                // Baris untuk Sheet 2
+                if(valBI !== "") {
+                   let res = getDeskripsi(valBI, "Bahasa Indonesia");
+                   sheet2Data.push([namaSiswa, pkt.label, "Bahasa Indonesia", valBI, res.p, res.k, res.d]);
+                }
+                if(valMTK !== "") {
+                   let res = getDeskripsi(valMTK, "Matematika");
+                   sheet2Data.push([namaSiswa, pkt.label, "Matematika", valMTK, res.p, res.k, res.d]);
+                }
+             });
+
+             sheet1Data.push(s1Row);
+             nomorUrut++; // Nomor urut excel jadi urut cantik 1, 2, 3..
+          }
+
+          // EXPORT KE EXCEL
+          let wb = XLSX.utils.book_new();
+          let ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+          ws1['!cols'] = [{wch: 5}, {wch: 35}]; // Atur lebar No dan Nama Siswa
+          XLSX.utils.book_append_sheet(wb, ws1, "Rekap Nilai");
+          
+          let ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+          ws2['!cols'] = [{wch: 35}, {wch: 15}, {wch: 18}, {wch: 8}, {wch: 12}, {wch: 15}, {wch: 80}]; 
+          XLSX.utils.book_append_sheet(wb, ws2, "Proyeksi Capaian");
+
+          XLSX.writeFile(wb, `Laporan_Nilai_TKA.xlsx`);
+
+          bootstrap.Modal.getInstance(document.getElementById('modalExcel')).hide();
+          btn.innerHTML = oriHtml; btn.disabled = false;
+
+        }, 500); 
+      }
+    </script>
+    <!-- ===================================================================== -->
+
 </body>
 </html>
