@@ -1684,15 +1684,15 @@ window.bukaModalGabungSiswa = function(event) {
   </footer>
 
   <!-- ===================================================================== -->
-    <!-- FITUR BARU: EXPORT EXCEL 2 SHEET (SUNTIK BAWAH - 100% AMAN & ISOLASI) -->
+    <!-- FITUR BARU: EXPORT EXCEL 2 SHEET (FINAL BERSIH ANTI-GANDA) -->
     <!-- ===================================================================== -->
     
-    <!-- 1. Tombol Melayang Excel -->
-    <button class="btn btn-success no-print" onclick="bukaModalExcel()" style="position: fixed; bottom: 25px; right: 25px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-radius: 50px; padding: 10px 20px; font-weight: bold;">
+    <!-- 1. Tombol Melayang (Ditambahkan ID dan display:none sebagai default) -->
+    <button class="btn btn-success no-print" onclick="bukaModalExcel()" style="display: none; position: fixed; bottom: 25px; right: 25px; z-index: 9999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-radius: 50px; padding: 10px 20px; font-weight: bold;">
       <i class="fas fa-file-excel"></i> Unduh Excel
     </button>
 
-    <!-- 2. Modal Pilihan Paket Ujian (Versi Upgrade) -->
+    <!-- 2. Modal Pilihan Paket Ujian -->
     <div class="modal fade" id="modalExcel" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -1707,9 +1707,7 @@ window.bukaModalGabungSiswa = function(event) {
                 <i class="fas fa-check-double"></i> Pilih Semua
               </button>
             </div>
-            <div id="container-checkbox-excel" class="row px-3">
-              <!-- Checkbox akan otomatis membaca dari tabel layar -->
-            </div>
+            <div id="container-checkbox-excel" class="row px-3"></div>
             <hr>
             <div class="alert alert-info py-2 small mb-0">
               <i class="fas fa-info-circle"></i> <b>Hanya nilai yang akan diunduh.</b> Kolom <i>No</i> dan <i>Nama Siswa</i> otomatis disertakan.
@@ -1728,12 +1726,32 @@ window.bukaModalGabungSiswa = function(event) {
     <!-- 3. Library Pengolah Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- 4. Mesin Logika Excel Mandiri (Versi Presisi & Uncheck Default) -->
+    <!-- 4. Mesin Logika Excel Mandiri -->
     <script>
+      // SENSOR SAPU BERSIH: Akan mencari SEMUA tombol excel (sekalipun ada yang ganda tertumpuk)
+      // lalu menyembunyikannya secara paksa jika bukan berada di menu Riwayat Nilai
+      setInterval(() => {
+         let allExcelBtns = document.querySelectorAll('button[onclick="bukaModalExcel()"]');
+         let tabel = document.getElementById("tableSiswaData");
+         
+         if (tabel) {
+            let hasData = tabel.rows && tabel.rows.length > 2;
+            // offsetParent mengecek apakah tabel benar-benar tampil (bukan tersembunyi di tab Dashboard)
+            let isVisible = (tabel.offsetParent !== null); 
+
+            allExcelBtns.forEach(btn => {
+               if (hasData && isVisible) {
+                  btn.style.display = "block";
+               } else {
+                  btn.style.display = "none";
+               }
+            });
+         }
+      }, 300);
+
       let listPaketTersedia = [];
       let isPilihSemua = false;
 
-      // Fitur Tombol Pilih Semua / Batal Pilih Semua
       function toggleSemuaPaket() {
          isPilihSemua = !isPilihSemua;
          document.querySelectorAll(".cb-excel-paket").forEach(cb => cb.checked = isPilihSemua);
@@ -1748,26 +1766,19 @@ window.bukaModalGabungSiswa = function(event) {
         }
 
         listPaketTersedia = [];
+        let rowSub = tabel.rows[1].cells; 
         
-        // PENTING: Penyelarasan kolom (0: Cb, 1: No, 2: Nama, 3: Aksi X). Nilai ujian selalu mulai dari kolom ke-4.
-        let tdDataStart = 4; 
+        let totalPaket = Math.floor(rowSub.length / 2);
         
-        // Baca Judul Paket dari Baris Pertama
-        let headerUtama = tabel.rows[0].cells;
-        for (let c = 0; c < headerUtama.length; c++) {
-           let txt = headerUtama[c].innerText.trim();
-           let txtUp = txt.toUpperCase();
-           if(txtUp !== "" && txtUp !== "NO" && txtUp !== "NAMA SISWA" && txtUp !== "AKSI") {
-               listPaketTersedia.push({
-                   label: txt,
-                   tdBI: tdDataStart,
-                   tdMTK: tdDataStart + 1
-               });
-               tdDataStart += 2;
-           }
+        for (let i = 0; i < totalPaket; i++) {
+           let namaPaket = (i === 0) ? "SIMULASI" : "PAKET " + i;
+           listPaketTersedia.push({
+               label: namaPaket,
+               tdBI: 3 + (i * 2),   // Terkunci Mutlak: B.Indo di indeks 3
+               tdMTK: 4 + (i * 2)   // Terkunci Mutlak: MTK di indeks 4
+           });
         }
 
-        // Buat Checkbox Kondisi Kosong (Uncheck)
         let htmlCb = "";
         listPaketTersedia.forEach((pkt, idx) => {
            htmlCb += `<div class="col-6 mb-2">
@@ -1779,7 +1790,6 @@ window.bukaModalGabungSiswa = function(event) {
         });
         document.getElementById("container-checkbox-excel").innerHTML = htmlCb;
         
-        // Kembalikan status tombol ke Pilih Semua
         isPilihSemua = false;
         document.getElementById("btnToggleCb").innerHTML = '<i class="fas fa-check-double"></i> Pilih Semua';
 
@@ -1802,14 +1812,12 @@ window.bukaModalGabungSiswa = function(event) {
             if(cb.checked) selectedPakets.push(listPaketTersedia[parseInt(cb.value)]);
           });
 
-          // Validasi jika guru belum memilih apa-apa
           if(selectedPakets.length === 0) {
              alert("Tolong centang minimal 1 paket ujian untuk diunduh!");
              btn.innerHTML = oriHtml; btn.disabled = false;
              return;
           }
 
-          // --- PERSIAPAN SHEET 1: REKAP NILAI ---
           let sheet1Data = [];
           let hRow = ["NO", "NAMA SISWA"];
           selectedPakets.forEach(pkt => {
@@ -1818,7 +1826,6 @@ window.bukaModalGabungSiswa = function(event) {
           });
           sheet1Data.push(hRow);
 
-          // --- PERSIAPAN SHEET 2: PROYEKSI CAPAIAN ---
           let sheet2Data = [];
           sheet2Data.push(["NAMA SISWA", "PAKET UJIAN", "MATA PELAJARAN", "NILAI", "PERSENTASE", "KATEGORI", "DESKRIPSI PROYEKSI CAPAIAN"]);
 
@@ -1835,16 +1842,13 @@ window.bukaModalGabungSiswa = function(event) {
 
           let nomorUrut = 1;
           
-          // MULAI MENGAMBIL DATA DARI BARIS KE-2 (Melewati judul ganda)
           for (let i = 2; i < tr.length; i++) {
              let td = tr[i].cells;
              if (td.length < 4) continue; 
              
-             // Kunci presisi: Nama siswa PASTI ada di kolom ke-3 (index 2)
              let namaSiswa = td[2] ? td[2].innerText.trim() : "";
              if (namaSiswa.includes("Memuat") || namaSiswa === "") continue;
 
-             // Baris untuk Sheet 1
              let s1Row = [nomorUrut, namaSiswa];
              
              selectedPakets.forEach(pkt => {
@@ -1857,7 +1861,6 @@ window.bukaModalGabungSiswa = function(event) {
                 s1Row.push(valBI);
                 s1Row.push(valMTK);
 
-                // Baris untuk Sheet 2
                 if(valBI !== "") {
                    let res = getDeskripsi(valBI, "Bahasa Indonesia");
                    sheet2Data.push([namaSiswa, pkt.label, "Bahasa Indonesia", valBI, res.p, res.k, res.d]);
@@ -1869,13 +1872,12 @@ window.bukaModalGabungSiswa = function(event) {
              });
 
              sheet1Data.push(s1Row);
-             nomorUrut++; // Nomor urut excel jadi urut cantik 1, 2, 3..
+             nomorUrut++; 
           }
 
-          // EXPORT KE EXCEL
           let wb = XLSX.utils.book_new();
           let ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
-          ws1['!cols'] = [{wch: 5}, {wch: 35}]; // Atur lebar No dan Nama Siswa
+          ws1['!cols'] = [{wch: 5}, {wch: 35}]; 
           XLSX.utils.book_append_sheet(wb, ws1, "Rekap Nilai");
           
           let ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
