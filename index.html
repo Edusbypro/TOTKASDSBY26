@@ -63,12 +63,27 @@
     
     footer { background-color: #ffffff; border-top: 1px solid #e5e7eb; padding: 15px 0; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 500; }
     
-    /* CSS Khusus Cetak Kertas A4 RTL */
+    /* CSS Khusus Cetak Kertas A4 RTL (Perbaikan Solid Box) */
     @media print {
       body * { visibility: hidden; }
       #print-area-rtl, #print-area-rtl * { visibility: visible; }
-      #print-area-rtl { position: absolute; left: 0; top: 0; width: 100%; padding: 1.5cm; }
+      #print-area-rtl { position: absolute; left: 0; top: 0; width: 100%; padding: 10mm 15mm; font-family: 'Times New Roman', Times, serif; color: #000; }
       .no-print { display: none !important; }
+      
+      /* Kelas Anti Terpotong Halaman */
+      .prevent-break { page-break-inside: avoid !important; break-inside: avoid; display: block; margin-bottom: 15px; }
+      
+      /* Struktur Kotak Solid Baru pengganti Table */
+      .print-box-container { border: 1px solid #000; border-radius: 4px; overflow: hidden; margin-bottom: 20px; page-break-inside: avoid !important; }
+      .print-box-row { display: flex; border-bottom: 1px solid #000; }
+      .print-box-row:last-child { border-bottom: none; }
+      .print-box-label { width: 35%; padding: 8px 12px; font-weight: bold; background-color: #f1f5f9; border-right: 1px solid #000; }
+      .print-box-value { width: 65%; padding: 8px 12px; }
+      
+      /* Struktur Header Tabel Biasa */
+      .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: avoid !important; }
+      .print-table th, .print-table td { border: 1px solid #000; padding: 8px; text-align: left; }
+      .print-table th { background-color: #f1f5f9; text-align: center; }
     }
  
 /* Warna Kustom Centang & Fullscreen RTL */
@@ -527,6 +542,39 @@
                   <textarea id="rtl-hasil" class="form-control border-secondary" rows="3" placeholder="Hasil peningkatan try out..."></textarea>
                </div>
             </div>
+			
+			<!-- ================= SUNTIKAN 1: DUA KANVAS TTD ================= -->
+            <div class="row mt-3 border-top pt-4">
+                <!-- TTD Kepala Sekolah (KIRI) -->
+                <div class="col-md-6 text-center mb-4">
+                    <label class="form-label fw-bold text-secondary mb-2" style="font-size:0.85rem;"><i class="bi bi-pen me-1"></i>Goreskan TTD Kepala Sekolah</label>
+                    <div style="border: 1px solid #ced4da; border-radius: 8px; padding: 10px; background-color: #f8f9fa; max-width: 300px; margin: auto;">
+                        <canvas id="canvasTtdKs" style="background: white; border: 2px dashed #adb5bd; border-radius: 5px; width: 100%; height: 120px; touch-action: none; cursor: crosshair;"></canvas>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger shadow-sm w-100" onclick="hapusTandaTangan('ks')">
+                                <i class="bi bi-eraser me-1"></i> Hapus TTD Kepsek
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="inputTtdKsBase64" name="ttdKsBase64">
+                </div>
+
+                <!-- TTD Guru Kelas (KANAN) -->
+                <div class="col-md-6 text-center mb-4">
+                    <label class="form-label fw-bold text-secondary mb-2" style="font-size:0.85rem;"><i class="bi bi-pen me-1"></i>Goreskan TTD Guru Kelas</label>
+                    <div style="border: 1px solid #ced4da; border-radius: 8px; padding: 10px; background-color: #f8f9fa; max-width: 300px; margin: auto;">
+                        <canvas id="canvasTtdGuru" style="background: white; border: 2px dashed #adb5bd; border-radius: 5px; width: 100%; height: 120px; touch-action: none; cursor: crosshair;"></canvas>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger shadow-sm w-100" onclick="hapusTandaTangan('guru')">
+                                <i class="bi bi-eraser me-1"></i> Hapus TTD Guru
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="inputTtdGuruBase64" name="ttdGuruBase64">
+                </div>
+            </div>
+            <!-- ================= AKHIR SUNTIKAN 1 ================= -->
+			
           </div>
           
           <!-- AREA CETAK TERSEMBUNYI (FORMAT A4) -->
@@ -561,29 +609,54 @@
                   <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9; vertical-align:top;">Perlu Ditingkatkan</td><td style="padding: 5px;" id="p-mtk-kurang">-</td></tr>
               </table>
  
+              <!-- D. RENCANA TINDAK LANJUT -->
               <div style="font-weight: bold; margin-bottom: 5px;">D. Rencana Tindak Lanjut</div>
-              <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">1. Bahasa Indonesia</div>
-              <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size:10pt;" border="1">
-                  <tr style="background:#f1f5f9;"><th style="padding:5px;">Kompetensi yang Ditingkatkan</th><th style="padding:5px;">Strategi Pelaksanaan</th><th style="padding:5px;">Dukungan</th><th style="padding:5px;">Indikator Hasil</th></tr>
-                  <tbody id="p-table-bi"><tr><td colspan="4" style="text-align:center; padding:5px;">Nihil</td></tr></tbody>
-              </table>
+              
+              <!-- BUNGKUS 1: Mengikat Judul BI dan Tabel BI -->
+              <div style="page-break-inside: avoid; margin-bottom: 20px;">
+                  <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">1. Bahasa Indonesia</div>
+                  <table style="width: 100%; table-layout: fixed; border-collapse: collapse; font-size:10pt;" border="1">
+                      <thead><tr style="background:#f1f5f9;"><th style="padding:6px; width:25%;">Kompetensi yang Ditingkatkan</th><th style="padding:6px; width:35%;">Strategi Pelaksanaan</th><th style="padding:6px; width:20%;">Dukungan</th><th style="padding:6px; width:20%;">Indikator Hasil</th></tr></thead>
+                      <tbody id="p-table-bi"><tr><td colspan="4" style="text-align:center; padding:6px;">Nihil</td></tr></tbody>
+                  </table>
+              </div>
+
+              <!-- BUNGKUS 2: Mengikat Judul MTK dan Tabel MTK -->
+              <div style="page-break-inside: avoid; margin-bottom: 25px;">
+                  <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">2. Matematika</div>
+                  <table style="width: 100%; table-layout: fixed; border-collapse: collapse; font-size:10pt;" border="1">
+                      <thead><tr style="background:#f1f5f9;"><th style="padding:6px; width:25%;">Kompetensi yang Ditingkatkan</th><th style="padding:6px; width:35%;">Strategi Pelaksanaan</th><th style="padding:6px; width:20%;">Dukungan</th><th style="padding:6px; width:20%;">Indikator Hasil</th></tr></thead>
+                      <tbody id="p-table-mtk"><tr><td colspan="4" style="text-align:center; padding:6px;">Nihil</td></tr></tbody>
+                  </table>
+              </div>
  
-              <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">2. Matematika</div>
-              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size:10pt;" border="1">
-                  <tr style="background:#f1f5f9;"><th style="padding:5px;">Kompetensi yang Ditingkatkan</th><th style="padding:5px;">Strategi Pelaksanaan</th><th style="padding:5px;">Dukungan</th><th style="padding:5px;">Indikator Hasil</th></tr>
-                  <tbody id="p-table-mtk"><tr><td colspan="4" style="text-align:center; padding:5px;">Nihil</td></tr></tbody>
-              </table>
- 
-              <div style="font-weight: bold; margin-bottom: 5px;">E. Tantangan</div>
-              <div style="border: 1px solid black; padding: 10px; margin-bottom: 15px; min-height: 50px;" id="p-tantangan"></div>
- 
-              <div style="font-weight: bold; margin-bottom: 5px;">F. Evaluasi Hasil</div>
-              <div style="border: 1px solid black; padding: 10px; margin-bottom: 30px; min-height: 50px;" id="p-hasil"></div>
- 
-              <table style="width: 100%; text-align: center; border: none; margin-top: 10px;">
+              <div style="page-break-inside: avoid;">
+                  <div style="font-weight: bold; margin-bottom: 5px;">E. Tantangan</div>
+                  <div style="border: 1px solid black; padding: 10px; margin-bottom: 15px; min-height: 50px;" id="p-tantangan"></div>
+              </div>
+
+              <div style="page-break-inside: avoid;">
+                  <div style="font-weight: bold; margin-bottom: 5px;">F. Evaluasi Hasil</div>
+                  <div style="border: 1px solid black; padding: 10px; margin-bottom: 30px; min-height: 50px;" id="p-hasil"></div>
+              </div>
+
+              <!-- TABEL CETAK TTD (KIRI KEPSEK, KANAN GURU) - Anti Terpotong Halaman -->
+              <table style="width: 100%; text-align: center; border: none; margin-top: 30px; page-break-inside: avoid;">
                   <tr>
-                      <td style="width: 50%; border:none; vertical-align: top;">Mengetahui,<br><b>Kepala Sekolah</b><br><br><br><br><br><b style="text-decoration:underline;" id="p-ttd-ks">(........................................)</b><br><span id="p-nip-ks" style="font-size: 10pt;">NIP. -</span></td>
-                      <td style="width: 50%; border:none; vertical-align: top;">Surabaya, <span id="p-ttd-tgl">......................</span><br><b>Guru Kelas / Pengisi</b><br><br><br><br><br><b style="text-decoration:underline;" id="p-ttd-guru">(........................................)</b><br><span id="p-nip-guru" style="font-size: 10pt;">NIP. -</span></td>
+                      <!-- KIRI: KEPALA SEKOLAH -->
+                      <td style="width: 50%; border:none; vertical-align: top;">
+                          Mengetahui,<br><b>Kepala Sekolah</b>
+                          <div id="p-ttd-ks-box" style="height: 70px; margin-top: 5px; margin-bottom: 5px;"></div>
+                          <b style="text-decoration:underline;" id="p-ttd-ks">(........................................)</b><br>
+                          <span id="p-nip-ks" style="font-size: 10pt;">NIP. -</span>
+                      </td>
+                      <!-- KANAN: GURU KELAS -->
+                      <td style="width: 50%; border:none; vertical-align: top;">
+                          Surabaya, <span id="p-ttd-tgl">......................</span><br><b>Guru Kelas / Pengisi</b>
+                          <div id="p-ttd-guru-box" style="height: 70px; margin-top: 5px; margin-bottom: 5px;"></div>
+                          <b style="text-decoration:underline;" id="p-ttd-guru">(........................................)</b><br>
+                          <span id="p-nip-guru" style="font-size: 10pt;">NIP. -</span>
+                      </td>
                   </tr>
               </table>
           </div>
@@ -1438,6 +1511,19 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
     }
  
     function collectRTLData() {
+        // Tarik kode Base64 dari kedua TTD sebelum menyimpan
+        let ttdGuruBase64Code = "";
+        let ttdKsBase64Code = "";
+        
+        if (signaturePadGuru && !signaturePadGuru.isEmpty()) {
+            ttdGuruBase64Code = signaturePadGuru.toDataURL("image/png");
+            document.getElementById('inputTtdGuruBase64').value = ttdGuruBase64Code;
+        }
+        if (signaturePadKs && !signaturePadKs.isEmpty()) {
+            ttdKsBase64Code = signaturePadKs.toDataURL("image/png");
+            document.getElementById('inputTtdKsBase64').value = ttdKsBase64Code;
+        }
+
         return {
             npsn: document.getElementById('rtl-npsn').value, periode: document.getElementById('rtl-periode').value,
             sekolah: document.getElementById('rtl-sekolah').value, wilayah: document.getElementById('rtl-wilayah').value.split(" / ")[0],
@@ -1448,7 +1534,10 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             biBaik: Array.from(document.querySelectorAll('.chk-bi-baik:checked')).map(c => c.value), biKurang: Array.from(document.querySelectorAll('.chk-bi-kurang:checked')).map(c => c.value),
             mtkBaik: Array.from(document.querySelectorAll('.chk-mtk-baik:checked')).map(c => c.value), mtkKurang: Array.from(document.querySelectorAll('.chk-mtk-kurang:checked')).map(c => c.value),
             tantangan: document.getElementById('rtl-tantangan').value, hasil: document.getElementById('rtl-hasil').value,
-            stateDetails: rtlStrategyState, savedAt: new Date().toISOString()
+            stateDetails: rtlStrategyState, savedAt: new Date().toISOString(),
+            // TAMBAHAN DATA TANDA TANGAN KE DATABASE
+            ttdGuruBase64: ttdGuruBase64Code,
+            ttdKsBase64: ttdKsBase64Code 
         };
     }
  
@@ -1485,6 +1574,10 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
                     let baikArr = m === 'bi' ? d.biBaik : d.mtkBaik; let kurgArr = m === 'bi' ? d.biKurang : d.mtkKurang;
                     if(baikArr) baikArr.forEach(v => { let el = document.querySelector(`.chk-${m}-baik[value="${v.replace(/"/g, '&quot;')}"]`); if(el) el.checked = true; });
                     if(kurgArr) kurgArr.forEach(v => { let el = document.querySelector(`.chk-${m}-kurang[value="${v.replace(/"/g, '&quot;')}"]`); if(el) el.checked = true; });
+					// === SUNTIKKAN KODE INI DI SINI ===
+                if (d.ttdGuruBase64 && signaturePadGuru) signaturePadGuru.fromDataURL(d.ttdGuruBase64);
+                if (d.ttdKsBase64 && signaturePadKs) signaturePadKs.fromDataURL(d.ttdKsBase64);
+                // ==================================
                 });
                 updateRtlStrategiView(); statLabel.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Arsip Dimuat.</span>';
             } else { statLabel.innerHTML = '<span class="text-secondary"><i class="bi bi-file-earmark-plus"></i> Formulir Baru.</span>'; }
@@ -1501,12 +1594,35 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
         let tglFormat = d.tanggal ? d.tanggal.split('-').reverse().join('-') : "......";
         document.getElementById('p-tgl').innerText = tglFormat; document.getElementById('p-ttd-tgl').innerText = tglFormat;
         
+        // --- PROSES TANDA TANGAN KEPALA SEKOLAH (KIRI) ---
+        // 1. Tulis Nama dan NIP
         document.getElementById('p-ttd-ks').innerText = `(${d.ks || "........................................"})`;
         document.getElementById('p-nip-ks').innerText = d.nipKs ? "NIP. " + d.nipKs : "";
-        
+        // 2. Suntikkan Gambar ke Kotak Kosong di atas nama
+        let boxKs = document.getElementById('p-ttd-ks-box');
+        if (boxKs) {
+            if (d.ttdKsBase64 && d.ttdKsBase64 !== "") {
+                boxKs.innerHTML = `<img src="${d.ttdKsBase64}" style="max-height: 65px; max-width: 180px; object-fit: contain; display: inline-block;">`;
+            } else {
+                boxKs.innerHTML = `<br><br><br>`; // Beri spasi jika tidak ada TTD
+            }
+        }
+
+        // --- PROSES TANDA TANGAN GURU KELAS (KANAN) ---
+        // 1. Tulis Nama dan NIP
         document.getElementById('p-ttd-guru').innerText = `(${d.guru || "........................................"})`;
         document.getElementById('p-nip-guru').innerText = d.nipGuru ? "NIP. " + d.nipGuru : "";
+        // 2. Suntikkan Gambar ke Kotak Kosong di atas nama
+        let boxGuru = document.getElementById('p-ttd-guru-box');
+        if (boxGuru) {
+            if (d.ttdGuruBase64 && d.ttdGuruBase64 !== "") {
+                boxGuru.innerHTML = `<img src="${d.ttdGuruBase64}" style="max-height: 65px; max-width: 180px; object-fit: contain; display: inline-block;">`;
+            } else {
+                boxGuru.innerHTML = `<br><br><br>`; // Beri spasi jika tidak ada TTD
+            }
+        }
         
+        // --- PROSES DATA NILAI DAN ANALISIS BAWAH ---
         document.getElementById('p-ratabi').innerText = d.rataBI; document.getElementById('p-ratamtk').innerText = d.rataMTK;
         
         let fnList = (arr) => arr.length > 0 ? `<ul style="margin:0; padding-left:15px;">${arr.map(x=>`<li>${x}</li>`).join('')}</ul>` : "-";
@@ -1534,10 +1650,27 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
  
     function unduhPDFRTL() {
         persiapkanAreaCetak();
+        
+        // KUNCI 1: Paksa layar kembali ke titik 0 (puncak) agar PDF tidak blank di atas
+        window.scrollTo(0, 0); 
+        
         let element = document.getElementById('print-area-rtl');
         element.classList.remove('d-none');
-        let opt = { margin: 10, filename: `RTL_${document.getElementById('rtl-sekolah').value.replace(/[^a-zA-Z0-9]/g, '_')}_${document.getElementById('rtl-periode').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        html2pdf().set(opt).from(element).save().then(() => { element.classList.add('d-none'); });
+        
+        let opt = { 
+            margin: 10, 
+            filename: `RTL_${document.getElementById('rtl-sekolah').value.replace(/[^a-zA-Z0-9]/g, '_')}_${document.getElementById('rtl-periode').value}.pdf`, 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            // KUNCI 2: Pastikan render dari posisi Y:0 
+            html2canvas: { scale: 2, scrollY: 0 }, 
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            // KUNCI 3: Aktifkan pencegah kotak terpotong (page-break)
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+        
+        html2pdf().set(opt).from(element).save().then(() => { 
+            element.classList.add('d-none'); 
+        });
     }
  
     function unduhWordRTL() {
@@ -1726,8 +1859,69 @@ window.bukaModalGabungSiswa = function(event) {
     <!-- 3. Library Pengolah Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<!-- ================= SUNTIKAN 2: LIBRARY TTD ================= -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+  <!-- ================= AKHIR SUNTIKAN 2 ================= -->
+
     <!-- 4. Mesin Logika Excel Mandiri -->
     <script>
+	
+	// ================= SUNTIKAN 3: LOGIKA 2 TTD (GURU & KEPSEK) =================
+      let signaturePadGuru, signaturePadKs;
+
+      function jalankanKanvasTtd() {
+          const canvasGuru = document.getElementById('canvasTtdGuru');
+          const canvasKs = document.getElementById('canvasTtdKs');
+          
+          if (!canvasGuru || !canvasKs) return;
+
+          // Mencegah inisialisasi ganda
+          if (!signaturePadGuru) {
+              signaturePadGuru = new SignaturePad(canvasGuru, { penColor: "rgb(0, 0, 128)", backgroundColor: "rgba(255, 255, 255, 0)" });
+          }
+          if (!signaturePadKs) {
+              signaturePadKs = new SignaturePad(canvasKs, { penColor: "rgb(0, 0, 128)", backgroundColor: "rgba(255, 255, 255, 0)" });
+          }
+
+          function resizeCanvas(canvas, pad) {
+              const ratio = Math.max(window.devicePixelRatio || 1, 1);
+              canvas.width = canvas.offsetWidth * ratio;
+              canvas.height = canvas.offsetHeight * ratio;
+              canvas.getContext("2d").scale(ratio, ratio);
+              pad.clear();
+          }
+
+          window.addEventListener("resize", () => {
+              resizeCanvas(canvasGuru, signaturePadGuru);
+              resizeCanvas(canvasKs, signaturePadKs);
+          });
+
+          // Panggil fungsi resize agar ukurannya pas saat tab dibuka
+          resizeCanvas(canvasGuru, signaturePadGuru);
+          resizeCanvas(canvasKs, signaturePadKs);
+      }
+
+      function hapusTandaTangan(jenis) {
+          if (jenis === 'guru' && signaturePadGuru) {
+              signaturePadGuru.clear();
+              document.getElementById('inputTtdGuruBase64').value = "";
+          } else if (jenis === 'ks' && signaturePadKs) {
+              signaturePadKs.clear();
+              document.getElementById('inputTtdKsBase64').value = "";
+          }
+      }
+
+      // Deteksi ketika tab RTL di-klik, nyalakan kanvas!
+      document.addEventListener("DOMContentLoaded", function() {
+          let tabRtlObj = document.querySelector('a[href="#tab-rtl"]');
+          if(tabRtlObj) {
+              tabRtlObj.addEventListener('shown.bs.tab', function () {
+                  jalankanKanvasTtd();
+              });
+          }
+      });
+      // ================= AKHIR SUNTIKAN 3 =================
+	  
       // SENSOR SAPU BERSIH: Akan mencari SEMUA tombol excel (sekalipun ada yang ganda tertumpuk)
       // lalu menyembunyikannya secara paksa jika bukan berada di menu Riwayat Nilai
       setInterval(() => {
