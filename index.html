@@ -152,6 +152,23 @@
     </div>
   </nav>
  
+<!-- MODAL LOGIN DINAS -->
+  <div class="modal fade" id="loginDinasModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title fw-bold"><i class="bi bi-star-fill me-2"></i>Akses Portal Dinas</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <label class="fw-bold mb-1 text-secondary" style="font-size: 0.85rem;">PIN Dinas (Rahasia):</label>
+          <input type="password" id="loginPinDinas" class="form-control mb-3 fw-bold text-center border-warning text-dark" placeholder="Masukkan PIN" style="font-size:1.2rem; letter-spacing: 3px;" />
+          <button class="btn btn-warning w-100 fw-bold py-2" onclick="processLoginDinas()">Masuk Portal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL LOGIN SEKOLAH -->
   <div class="modal fade" id="loginModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -849,36 +866,61 @@
                     </button>
                 </div>
 
-                <!-- Filter Berlapis RTL -->
-                <div class="row g-3 mb-4 bg-light p-3 rounded border">
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary mb-1">Filter Wilayah</label>
-                        <select id="filterRtlWilayah" class="form-select fw-bold" onchange="updateFilterRtlKecamatan()">
-                            <option value="">Semua Wilayah</option>
-                        </select>
+                <!-- Panel Kontrol RTL (Filter, Sortir, Pencarian) -->
+                <div class="bg-light p-3 rounded border mb-4">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.8rem;">Filter Wilayah</label>
+                            <select id="filterRtlWilayah" class="form-select form-select-sm fw-bold" onchange="updateFilterRtlKecamatan()"><option value="">Semua Wilayah</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.8rem;">Filter Kecamatan</label>
+                            <select id="filterRtlKecamatan" class="form-select form-select-sm fw-bold" onchange="updateFilterRtlSekolah()" disabled><option value="">Semua Kecamatan</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.8rem;">Filter Sekolah</label>
+                            <select id="filterRtlSearch" class="form-select form-select-sm fw-bold" onchange="renderTabelStatusRTL()" disabled><option value="">Semua Sekolah</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.8rem;">Urutkan Berdasarkan</label>
+                            <select id="sortRtlTable" class="form-select form-select-sm fw-bold border-primary" onchange="renderTabelStatusRTL()">
+                                <option value="nama_asc">Abjad Sekolah (A-Z)</option>
+                                <option value="nama_desc">Abjad Sekolah (Z-A)</option>
+                                <option value="status_sudah">Status (Sudah Membuat)</option>
+                                <option value="status_belum">Status (Belum Membuat)</option>
+                                <option value="tanggal_baru">Waktu Pembuatan (Terbaru)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold text-secondary mb-1">Filter Kecamatan</label>
-                        <select id="filterRtlKecamatan" class="form-select fw-bold" onchange="updateFilterRtlSekolah()" disabled>
-                            <option value="">Semua Kecamatan</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-secondary mb-1">Pilih Sekolah</label>
-                        <select id="filterRtlSearch" class="form-select fw-bold" onchange="renderTabelStatusRTL()" disabled>
-                            <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
-                        </select>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-12">
+                            <div class="input-group input-group-sm shadow-sm">
+                                <span class="input-group-text bg-white text-secondary"><i class="bi bi-search"></i></span>
+                                <input type="text" id="searchRtlText" class="form-control fw-bold" placeholder="Ketik pencarian nama sekolah, wilayah, atau kecamatan di sini..." oninput="renderTabelStatusRTL()">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Ringkasan Teks Laporan (Detail Gabungan) -->
                 <div class="mb-4">
-                    <button class="btn btn-sm btn-info text-white fw-bold w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#kumpulanLaporan" aria-expanded="false" aria-controls="kumpulanLaporan">
-                        <i class="bi bi-journal-text me-1"></i> Lihat Kumpulan Detail Laporan (Tantangan & Evaluasi)
+                    <button class="btn btn-sm btn-info text-white fw-bold w-100 mb-2 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#kumpulanLaporan" aria-expanded="false" aria-controls="kumpulanLaporan">
+                        <i class="bi bi-journal-text me-1"></i> Tampilkan / Sembunyikan Kumpulan Detail Laporan
                     </button>
                     <div class="collapse" id="kumpulanLaporan">
-                        <div class="card card-body bg-light border" style="max-height: 300px; overflow-y: auto;" id="kumpulanLaporanIsi">
-                            <span class="text-muted fst-italic text-center">Pilih filter atau ketik pencarian untuk menampilkan laporan gabungan.</span>
+                        <div class="card card-body bg-light border p-3">
+                            <!-- Checkbox Visibilitas Komponen Laporan -->
+                            <div class="d-flex flex-wrap gap-3 border-bottom pb-2 mb-3">
+                                <span class="fw-bold text-secondary" style="font-size:0.85rem;"><i class="bi bi-eye-fill me-1"></i>Tampilkan:</span>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="viewTantangan" checked onchange="renderTabelStatusRTL()"><label class="form-check-label small fw-bold text-danger" for="viewTantangan">Tantangan</label></div>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="viewEvaluasi" checked onchange="renderTabelStatusRTL()"><label class="form-check-label small fw-bold text-primary" for="viewEvaluasi">Evaluasi</label></div>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="viewStrategi" checked onchange="renderTabelStatusRTL()"><label class="form-check-label small fw-bold text-success" for="viewStrategi">Strategi RTL</label></div>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="viewDukungan" checked onchange="renderTabelStatusRTL()"><label class="form-check-label small fw-bold text-success" for="viewDukungan">Dukungan</label></div>
+                                <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="viewIndikator" checked onchange="renderTabelStatusRTL()"><label class="form-check-label small fw-bold text-success" for="viewIndikator">Indikator</label></div>
+                            </div>
+                            <div id="kumpulanLaporanIsi" style="max-height: 400px; overflow-y: auto;">
+                                <span class="text-muted fst-italic text-center d-block">Pilih filter atau ketik pencarian untuk menampilkan laporan gabungan.</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -960,12 +1002,21 @@
     }
  
     function promptLoginDinas() {
-        let input = prompt("PINTU AKSES KOTA SURABAYA\nMasukkan PIN Dinas Anda:");
+        let m = new bootstrap.Modal(document.getElementById('loginDinasModal'));
+        document.getElementById('loginPinDinas').value = '';
+        m.show();
+    }
+    
+    function processLoginDinas() {
+        let input = document.getElementById('loginPinDinas').value;
         if (input === PIN_DINAS) {
             localStorage.setItem('loggedInDinas', 'true');
             localStorage.removeItem('loggedInSchool');
+            bootstrap.Modal.getInstance(document.getElementById('loginDinasModal')).hide();
             initApp();
-        } else if (input !== null) { alert("PIN Salah. Akses Ditolak."); }
+        } else {
+            alert("PIN Salah. Akses Ditolak.");
+        }
     }
  
     async function fetchBackend(action, params = {}) {
@@ -2384,32 +2435,65 @@ window.bukaModalGabungSiswa = function(event) {
         let tbody = document.getElementById('tbody-status-rtl');
         let fWilayah = document.getElementById('filterRtlWilayah').value;
         let fKecamatan = document.getElementById('filterRtlKecamatan').value;
-        let fSekolah = document.getElementById('filterRtlSearch').value; 
+        let fSekolah = document.getElementById('filterRtlSearch').value;
+        let searchText = document.getElementById('searchRtlText').value.toLowerCase();
+        let sortBy = document.getElementById('sortRtlTable').value;
+        
         let kumpulIsi = document.getElementById('kumpulanLaporanIsi');
+        
+        // Membaca status centang visibilitas
+        let vTantangan = document.getElementById('viewTantangan').checked;
+        let vEvaluasi = document.getElementById('viewEvaluasi').checked;
+        let vStrategi = document.getElementById('viewStrategi').checked;
+        let vDukungan = document.getElementById('viewDukungan').checked;
+        let vIndikator = document.getElementById('viewIndikator').checked;
 
         if (!dataRtlDinasGlobal || dataRtlDinasGlobal.length === 0) {
              tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Belum ada sekolah yang membuat RTL untuk periode ini.</td></tr>';
-             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Data tidak tersedia.</span>';
+             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center d-block">Data tidak tersedia.</span>';
              return;
         }
 
-        // Terapkan Filter Berjenjang
+        // 1. FILTERING BERLAPIS & PENCARIAN
         let filteredData = dataRtlDinasGlobal.filter(d => {
             let matchWilayah = fWilayah === "" || d.wilayah === fWilayah;
             let matchKecamatan = fKecamatan === "" || d.kecamatan === fKecamatan;
             let matchSekolah = fSekolah === "" || d.sekolah === fSekolah;
-            return matchWilayah && matchKecamatan && matchSekolah;
+            let matchSearch = searchText === "" || 
+                              d.sekolah.toLowerCase().includes(searchText) || 
+                              d.wilayah.toLowerCase().includes(searchText) || 
+                              d.kecamatan.toLowerCase().includes(searchText);
+            return matchWilayah && matchKecamatan && matchSekolah && matchSearch;
+        });
+
+        // 2. SORTING (PENGURUTAN)
+        filteredData.sort((a, b) => {
+            let aHasRtl = (a.tanggal && a.tanggal !== "") ? 1 : 0;
+            let bHasRtl = (b.tanggal && b.tanggal !== "") ? 1 : 0;
+            
+            if (sortBy === 'nama_asc') return a.sekolah.localeCompare(b.sekolah);
+            if (sortBy === 'nama_desc') return b.sekolah.localeCompare(a.sekolah);
+            if (sortBy === 'status_sudah') return bHasRtl - aHasRtl || a.sekolah.localeCompare(b.sekolah);
+            if (sortBy === 'status_belum') return aHasRtl - bHasRtl || a.sekolah.localeCompare(b.sekolah);
+            if (sortBy === 'tanggal_baru') {
+                if (!aHasRtl && !bHasRtl) return a.sekolah.localeCompare(b.sekolah);
+                if (!aHasRtl) return 1;
+                if (!bHasRtl) return -1;
+                return new Date(b.tanggal) - new Date(a.tanggal);
+            }
+            return 0;
         });
 
         if (filteredData.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Data tidak ditemukan dengan filter tersebut.</td></tr>';
-            kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Data tidak tersedia.</span>';
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Data tidak ditemukan dengan filter atau pencarian tersebut.</td></tr>';
+            kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center d-block">Data tidak tersedia.</span>';
             return;
         }
 
         let htmlTr = "";
         let htmlKumpulan = "";
         
+        // 3. RENDERING TABEL & KUMPULAN LAPORAN
         filteredData.forEach((d, idx) => {
             let hasRtl = (d.tanggal && d.tanggal !== ""); 
             let statusBadge = hasRtl ? `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-check-circle me-1"></i>Sudah Membuat</span>` : `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-x-circle me-1"></i>Belum Membuat</span>`;
@@ -2419,12 +2503,56 @@ window.bukaModalGabungSiswa = function(event) {
                 let safeData = JSON.stringify(d).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 btnAksi = `<button class="btn btn-sm btn-info text-white fw-bold shadow-sm" onclick="lihatDetailRTLDinas(this)" data-json="${safeData}"><i class="bi bi-eye me-1"></i>Tampilkan</button>`;
                 
+                // MENGONTROL VISIBILITAS ISI LAPORAN BERDASARKAN CENTANG
+                let rincianStrategi = "";
+                if (d.stateDetails && (vStrategi || vDukungan || vIndikator)) {
+                    ['bi', 'mtk'].forEach(mapel => {
+                        let labelMapel = mapel === 'bi' ? "Bahasa Indonesia" : "Matematika";
+                        let colorMapel = mapel === 'bi' ? "text-primary" : "text-success";
+                        
+                        if(d.stateDetails[mapel] && Object.keys(d.stateDetails[mapel]).length > 0) {
+                            rincianStrategi += `<div class="mt-2 fw-bold ${colorMapel}" style="font-size: 0.8rem;"><i class="bi bi-bookmark-fill me-1"></i>${labelMapel}</div>`;
+                            
+                            // Membentuk Kolom Header Secara Dinamis
+                            let thHtml = `<th width="30%">Kompetensi Dituju</th>`;
+                            if(vStrategi) thHtml += `<th width="30%">Strategi Pelaksanaan</th>`;
+                            if(vDukungan) thHtml += `<th width="20%">Dukungan</th>`;
+                            if(vIndikator) thHtml += `<th width="20%">Indikator</th>`;
+                            
+                            rincianStrategi += `<div class="table-responsive"><table class="table table-sm table-bordered mt-1 mb-2" style="font-size: 0.75rem;">
+                                <thead class="table-light"><tr>${thHtml}</tr></thead><tbody>`;
+                            
+                            for (let komp in d.stateDetails[mapel]) {
+                                let st = d.stateDetails[mapel][komp];
+                                
+                                let tdHtml = `<td class="text-dark fw-semibold">${komp}</td>`;
+                                if(vStrategi) tdHtml += `<td class="text-muted">${st.strat ? st.strat.replace(/\n/g, '<br>') : '-'}</td>`;
+                                if(vDukungan) tdHtml += `<td class="text-muted">${st.dukung ? st.dukung.replace(/\n/g, '<br>') : '-'}</td>`;
+                                if(vIndikator) tdHtml += `<td class="text-muted">${st.ind ? st.ind.replace(/\n/g, '<br>') : '-'}</td>`;
+                                
+                                rincianStrategi += `<tr>${tdHtml}</tr>`;
+                            }
+                            rincianStrategi += `</tbody></table></div>`;
+                        }
+                    });
+                }
+
+                if(rincianStrategi === "" && (vStrategi || vDukungan || vIndikator)) {
+                    rincianStrategi = `<span class="text-muted fst-italic ms-2 small d-block mb-2">Tidak ada rincian strategi/kompetensi yang dibuat.</span>`;
+                }
+
+                let contentTantangan = vTantangan ? `<div class="mb-2"><b><i class="bi bi-exclamation-triangle text-danger me-1"></i>Tantangan Umum:</b><br><span class="text-muted">${d.tantangan ? d.tantangan.replace(/\n/g, '<br>') : '-'}</span></div>` : "";
+                let contentEvaluasi = vEvaluasi ? `<div class="mb-2"><b><i class="bi bi-bullseye text-primary me-1"></i>Evaluasi Hasil:</b><br><span class="text-muted">${d.hasil ? d.hasil.replace(/\n/g, '<br>') : '-'}</span></div>` : "";
+
                 htmlKumpulan += `
-                <div class="mb-3 border-bottom pb-2">
-                    <h6 class="fw-bold text-primary mb-1">${d.sekolah}</h6>
-                    <div style="font-size: 0.85rem;">
-                        <b>Tantangan:</b> <span class="text-muted">${d.tantangan ? d.tantangan : '-'}</span><br>
-                        <b>Evaluasi:</b> <span class="text-muted">${d.hasil ? d.hasil : '-'}</span>
+                <div class="mb-4 border-bottom pb-3">
+                    <h6 class="fw-bold text-dark bg-light p-2 border rounded mb-2"><i class="bi bi-building me-2"></i>${d.sekolah} <span class="badge bg-secondary ms-1 fw-normal" style="font-size:0.65rem;">Tgl Susun: ${d.tanggal}</span></h6>
+                    <div class="px-2" style="font-size: 0.85rem;">
+                        ${contentTantangan}
+                        ${contentEvaluasi}
+                    </div>
+                    <div class="mt-2 px-2">
+                        ${rincianStrategi}
                     </div>
                 </div>`;
             } else {
@@ -2443,7 +2571,7 @@ window.bukaModalGabungSiswa = function(event) {
 
         tbody.innerHTML = htmlTr;
         if(htmlKumpulan === "") {
-             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Belum ada laporan dari sekolah yang ditampilkan.</span>';
+             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center d-block">Belum ada laporan dari sekolah yang ditampilkan.</span>';
         } else {
              kumpulIsi.innerHTML = htmlKumpulan;
         }
