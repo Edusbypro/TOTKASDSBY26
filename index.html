@@ -10,6 +10,10 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- ================= SUNTIKAN LANGKAH 4: LIBRARY ZIP & DOWNLOAD ================= -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <!-- ================= AKHIR SUNTIKAN LANGKAH 4 ================= -->
  
   <style>
     body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh;}
@@ -324,7 +328,8 @@
       
       <div class="card card-custom p-4 mt-2">
         <h5 class="fw-bold mb-1" style="color: #1e3a8a;"><i class="bi bi-graph-up-arrow me-2"></i>Grafik Perkembangan Rerata Nilai Kota</h5>
-        <div style="position: relative; height:40vh; width:100%"><canvas id="trendChart"></canvas></div>
+        <!-- PERBAIKAN: Mengubah ID menjadi trendChartPublic agar sinkron dengan JavaScript -->
+        <div style="position: relative; height:40vh; width:100%"><canvas id="trendChartPublic"></canvas></div>
       </div>
  
       <div class="card card-custom p-4 mt-4" style="background-color: #f1f5f9;">
@@ -708,6 +713,8 @@
         <ul class="nav nav-tabs border-bottom-0" id="dinasTabs">
           <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#dinas-peringkat"><i class="bi bi-trophy me-2"></i>Papan Peringkat Kota</a></li>
           <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dinas-kompetensi"><i class="bi bi-bullseye me-2"></i>Evaluasi Kompetensi Wilayah/Kecamatan</a></li>
+          <!-- TAB BARU UNTUK RTL -->
+          <li class="nav-item"><a class="nav-link text-success" data-bs-toggle="tab" href="#dinas-rtl" onclick="loadStatusRTLDinas()"><i class="bi bi-journal-check me-2"></i>Status Rencana Tindak Lanjut</a></li>
         </ul>
       </div>
       
@@ -741,6 +748,42 @@
                  </div>
                </div>
              </div>
+             
+             <!-- TAMBAHAN: Grafik Perkembangan Dinas diletakkan di bawah Papan Peringkat -->
+             <div class="border-top pt-4 mt-2">
+                 <h5 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-graph-up-arrow me-2"></i>Grafik Perkembangan Nilai Try Out</h5>
+                 <div class="row g-3 mb-3 bg-light p-2 rounded border">
+                     <div class="col-md-3">
+                         <label class="form-label fw-bold text-secondary mb-1">Tingkat Grafik</label>
+                         <select id="filterTrendTingkat" class="form-select fw-bold border-primary" onchange="resetTrendFilter()">
+                             <option value="KOTA">Level Kota</option>
+                             <option value="WILAYAH">Level Wilayah</option>
+                             <option value="KECAMATAN">Level Kecamatan</option>
+                             <option value="SEKOLAH">Level Sekolah</option>
+                         </select>
+                     </div>
+                     <div class="col-md-3">
+                         <label class="form-label fw-bold text-secondary mb-1">Filter Wilayah</label>
+                         <select id="filterTrendWilayah" class="form-select fw-bold" onchange="updateTrendKecamatan()" disabled>
+                             <option value="">Semua Wilayah</option>
+                         </select>
+                     </div>
+                     <div class="col-md-3">
+                         <label class="form-label fw-bold text-secondary mb-1">Filter Kecamatan</label>
+                         <select id="filterTrendKecamatan" class="form-select fw-bold" onchange="updateTrendLokasiTarget()" disabled>
+                             <option value="">Semua Kecamatan</option>
+                         </select>
+                     </div>
+                     <div class="col-md-3">
+                         <label class="form-label fw-bold text-secondary mb-1">Target Lokasi</label>
+                         <select id="filterTrendLokasi" class="form-select fw-bold border-success" onchange="renderTrendChart()" disabled>
+                             <option value="KOTA">-- Otomatis Kota --</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div style="position: relative; height:40vh; width:100%"><canvas id="trendChartDinas"></canvas></div>
+             </div>
+
            </div>
         </div>
         
@@ -748,17 +791,38 @@
            <div class="card card-custom p-4">
              <h5 class="fw-bold mb-3" style="color: #1e3a8a;"><i class="bi bi-bullseye me-2"></i>Evaluasi Capaian Kompetensi Makro</h5>
              <div class="row g-3 mb-4 bg-light p-3 rounded border">
-                <div class="col-md-3">
+                <div class="col-md-2">
                   <label class="form-label fw-bold text-secondary mb-1">Mata Pelajaran</label>
-                  <select id="dKompMapel" class="form-select fw-bold" onchange="renderDinasKompetensi()"><option value="BI">Bahasa Indonesia</option><option value="MTK">Matematika</option></select>
+                  <select id="dKompMapel" class="form-select fw-bold text-primary" onchange="renderDinasKompetensi()">
+                      <option value="BI">B. Indo</option><option value="MTK">Matematika</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-bold text-secondary mb-1">Tingkat Evaluasi</label>
+                  <select id="dKompTingkat" class="form-select fw-bold" onchange="resetKompFilter()">
+                      <option value="KOTA">Level Kota</option>
+                      <option value="WILAYAH">Level Wilayah</option>
+                      <option value="KECAMATAN">Level Kecamatan</option>
+                      <option value="SEKOLAH">Level Sekolah</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-bold text-secondary mb-1">Filter Wilayah</label>
+                  <select id="dKompWilayah" class="form-select fw-bold" onchange="updateKompKecamatan()" disabled>
+                      <option value="">Semua Wilayah</option>
+                  </select>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label fw-bold text-secondary mb-1">Tingkat Evaluasi</label>
-                  <select id="dKompTingkat" class="form-select fw-bold" onchange="updateDinasKompDropdown()"><option value="KOTA">Seluruh Kota Surabaya</option><option value="WILAYAH">Berdasarkan Wilayah</option><option value="KECAMATAN">Berdasarkan Kecamatan</option></select>
+                  <label class="form-label fw-bold text-secondary mb-1">Filter Kecamatan</label>
+                  <select id="dKompKecamatan" class="form-select fw-bold" onchange="updateKompLokasiTarget()" disabled>
+                      <option value="">Semua Kecamatan</option>
+                  </select>
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-bold text-secondary mb-1">Pilih Lokasi</label>
-                  <select id="dKompLokasi" class="form-select fw-bold" onchange="renderDinasKompetensi()" disabled><option value="">-- Otomatis Kota Surabaya --</option></select>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold text-secondary mb-1">Target Lokasi</label>
+                  <select id="dKompLokasi" class="form-select fw-bold border-success" onchange="renderDinasKompetensi()" disabled>
+                      <option value="KOTA">-- Otomatis Kota Surabaya --</option>
+                  </select>
                 </div>
              </div>
              
@@ -771,11 +835,96 @@
               </table>
             </div>
            </div>
+        </div> <!-- Penutup Tab Kompetensi Dinas -->
+
+        <!-- ================= MULAI SUNTIKAN LANGKAH 2: KONTEN TAB RTL DINAS ================= -->
+        <div class="tab-pane fade" id="dinas-rtl">
+            <div class="card card-custom p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h5 class="fw-bold mb-0" style="color: #0f766e;"><i class="bi bi-file-earmark-medical me-2"></i>Monitoring RTL Sekolah</h5>
+                    <button class="btn btn-outline-success btn-sm fw-bold shadow-sm" onclick="unduhSemuaRTLZip()">
+                        <i class="bi bi-file-zip me-1"></i> Unduh Massal RTL (ZIP)
+                    </button>
+                </div>
+
+                <!-- Filter Berlapis RTL -->
+                <div class="row g-3 mb-4 bg-light p-3 rounded border">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-secondary mb-1">Filter Wilayah</label>
+                        <select id="filterRtlWilayah" class="form-select fw-bold" onchange="updateFilterRtlKecamatan()">
+                            <option value="">Semua Wilayah</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-secondary mb-1">Filter Kecamatan</label>
+                        <select id="filterRtlKecamatan" class="form-select fw-bold" onchange="updateFilterRtlSekolah()" disabled>
+                            <option value="">Semua Kecamatan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary mb-1">Pilih Sekolah</label>
+                        <select id="filterRtlSearch" class="form-select fw-bold" onchange="renderTabelStatusRTL()" disabled>
+                            <option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Teks Laporan (Detail Gabungan) -->
+                <div class="mb-4">
+                    <button class="btn btn-sm btn-info text-white fw-bold w-100 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#kumpulanLaporan" aria-expanded="false" aria-controls="kumpulanLaporan">
+                        <i class="bi bi-journal-text me-1"></i> Lihat Kumpulan Detail Laporan (Tantangan & Evaluasi)
+                    </button>
+                    <div class="collapse" id="kumpulanLaporan">
+                        <div class="card card-body bg-light border" style="max-height: 300px; overflow-y: auto;" id="kumpulanLaporanIsi">
+                            <span class="text-muted fst-italic text-center">Pilih filter atau ketik pencarian untuk menampilkan laporan gabungan.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel Status RTL -->
+                <div class="table-responsive border rounded">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th width="5%" class="text-center">No</th>
+                                <th width="30%">Nama Sekolah</th>
+                                <th width="20%">Wilayah/Kecamatan</th>
+                                <th width="20%" class="text-center">Status RTL</th>
+                                <th width="25%" class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-status-rtl">
+                            <tr><td colspan="5" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Memuat status RTL...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </main>
+        <!-- ================= AKHIR SUNTIKAN LANGKAH 2 ================= -->
+
+      </div> <!-- Penutup div tab-content (wajib ada) -->
+    </div> <!-- Penutup div container-fluid / view-dinas (wajib ada) -->
+  </main> <!-- Penutup main (wajib ada) -->
  
+<!-- ================= MULAI SUNTIKAN LANGKAH 3: MODAL DETAIL RTL DINAS ================= -->
+  <div class="modal fade" id="modalDetailRtlDinas" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content border-0 shadow-lg">
+              <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title fw-bold"><i class="bi bi-file-text me-2"></i>Detail Rencana Tindak Lanjut</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body p-4 bg-light" id="modalDetailRtlContent">
+                  <!-- Konten RTL akan disuntikkan di sini via JavaScript -->
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Tutup</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- ================= AKHIR SUNTIKAN LANGKAH 3 ================= -->
+
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxFO-JQ5xRs1kEO1MudCkhf_JsB0grsJ2FkNOgjJDtvlo8BGySJG08EVLQlIF4CxgC4wg/exec"; 
     const LINK_DESKRIPSI_CAPAIAN = "https://drive.google.com/file/d/1y8p0BdykM9tr5nhjiAanq95BgFfmoET9/view?usp=drive_link";
@@ -795,6 +944,8 @@
     };
  
     let trendChartObj = null; let kompChartObj = null; let miniChartObj = null; let schoolTrendChartObj = null;
+    // PERBAIKAN: Menambahkan deklarasi variabel agar grafik Publik dan Dinas dikenali oleh sistem
+    let trendChartPublicObj = null; let trendChartDinasObj = null;
     let currentSchoolData = null; let hierarkiDataGlobal = {}; let mapPinGlobal = {}; let publicStatGlobal = null;
  
     document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tab => {
@@ -1051,13 +1202,150 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
       let eMtk = document.getElementById('tbody-top-mtk'); if(eMtk) eMtk.innerHTML = fl(topMTK, true);
     }
  
-    function renderTrendChart(dataChart) {
-      if(!dataChart || !document.getElementById('trendChart')) return;
-      if (trendChartObj) trendChartObj.destroy();
-      trendChartObj = new Chart(document.getElementById('trendChart').getContext('2d'), {
-        type: 'line', data: { labels: dataChart.labels, datasets: [ { label: 'B. Indonesia', data: dataChart.dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, { label: 'Matematika', data: dataChart.dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } ]},
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
-      });
+    // Menyimpan data trend mentah dari server agar bisa difilter ulang tanpa loading
+    let rawTrendDataGlobal = null; 
+
+    function resetTrendFilter() {
+        if(!publicStatGlobal) return;
+        let tk = document.getElementById('filterTrendTingkat').value;
+        let selW = document.getElementById('filterTrendWilayah');
+        let selK = document.getElementById('filterTrendKecamatan');
+        let selL = document.getElementById('filterTrendLokasi');
+        
+        selW.disabled = true; selK.disabled = true; selL.disabled = true;
+        selW.innerHTML = '<option value="">Semua Wilayah</option>';
+        selK.innerHTML = '<option value="">Semua Kecamatan</option>';
+        
+        if (tk === 'KOTA') {
+            selL.innerHTML = '<option value="KOTA">-- Otomatis Kota --</option>';
+            renderTrendChart();
+        } else {
+            let optW = '<option value="">-- Pilih Wilayah --</option>';
+            if(hierarkiDataGlobal) {
+                Object.keys(hierarkiDataGlobal).sort().forEach(w => optW += `<option value="${w}">${w}</option>`);
+            }
+            selW.innerHTML = optW;
+            selW.disabled = false;
+            selL.innerHTML = (tk === 'WILAYAH') ? '<option value="">-- Tunggu Pilih Wilayah --</option>' : '<option value="">-- Tunggu Filter... --</option>';
+        }
+    }
+
+    function updateTrendKecamatan() {
+        let tk = document.getElementById('filterTrendTingkat').value;
+        let w = document.getElementById('filterTrendWilayah').value;
+        let selK = document.getElementById('filterTrendKecamatan');
+        let selL = document.getElementById('filterTrendLokasi');
+        
+        if (!w) { selK.disabled = true; selL.disabled = true; return; }
+        
+        if (tk === 'WILAYAH') {
+            selL.innerHTML = `<option value="${w}">${w}</option>`;
+            selL.disabled = false;
+            renderTrendChart(); // Langsung eksekusi grafik
+        } else {
+            let optK = '<option value="">-- Pilih Kecamatan --</option>';
+            if(hierarkiDataGlobal && hierarkiDataGlobal[w]) {
+                Object.keys(hierarkiDataGlobal[w]).sort().forEach(k => optK += `<option value="${k}">${k}</option>`);
+            }
+            selK.innerHTML = optK;
+            selK.disabled = false;
+            selL.disabled = true;
+            selL.innerHTML = '<option value="">-- Tunggu Pilih Kecamatan --</option>';
+        }
+    }
+
+    function updateTrendLokasiTarget() {
+        let tk = document.getElementById('filterTrendTingkat').value;
+        let w = document.getElementById('filterTrendWilayah').value;
+        let k = document.getElementById('filterTrendKecamatan').value;
+        let selL = document.getElementById('filterTrendLokasi');
+        
+        if (!k) { selL.disabled = true; return; }
+        
+        if (tk === 'KECAMATAN') {
+            selL.innerHTML = `<option value="${k}">${k}</option>`;
+            selL.disabled = false;
+            renderTrendChart(); // Langsung eksekusi grafik
+        } else if (tk === 'SEKOLAH') {
+            let optS = '<option value="">-- Pilih Sekolah --</option>';
+            if(hierarkiDataGlobal && hierarkiDataGlobal[w] && hierarkiDataGlobal[w][k]) {
+                hierarkiDataGlobal[w][k].sort().forEach(s => optS += `<option value="${s}">${s}</option>`);
+            }
+            selL.innerHTML = optS;
+            selL.disabled = false;
+        }
+    }
+
+    // Fungsi Penggambar Grafik (Untuk Beranda Publik & Portal Dinas)
+    function renderTrendChart(dataChart = null) {
+        if (dataChart) { rawTrendDataGlobal = dataChart; }
+        if (!rawTrendDataGlobal) return;
+
+        // 1. RENDER GRAFIK PUBLIK (Selalu Rata-rata Kota)
+        let ctxPublic = document.getElementById('trendChartPublic');
+        if (ctxPublic) {
+            if (trendChartPublicObj) trendChartPublicObj.destroy();
+            trendChartPublicObj = new Chart(ctxPublic.getContext('2d'), {
+                type: 'line', 
+                data: { 
+                    labels: rawTrendDataGlobal.labels, 
+                    datasets: [ 
+                        { label: 'B. Indonesia', data: rawTrendDataGlobal.dataBI || rawTrendDataGlobal.kotaBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, 
+                        { label: 'Matematika', data: rawTrendDataGlobal.dataMTK || rawTrendDataGlobal.kotaMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } 
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
+
+        // 2. RENDER GRAFIK DINAS (Dengan Simulator Sementara)
+        let ctxDinas = document.getElementById('trendChartDinas');
+        if (ctxDinas && document.getElementById('filterTrendTingkat')) {
+            let tk = document.getElementById('filterTrendTingkat').value;
+            let loc = document.getElementById('filterTrendLokasi').value;
+            let dataBI = []; let dataMTK = [];
+
+            if (tk === 'KOTA' || !loc) {
+                dataBI = rawTrendDataGlobal.kotaBI || rawTrendDataGlobal.dataBI; 
+                dataMTK = rawTrendDataGlobal.kotaMTK || rawTrendDataGlobal.dataMTK;
+            } else {
+                let sourceBI = tk === 'WILAYAH' ? rawTrendDataGlobal.wilayahBI : (tk === 'KECAMATAN' ? rawTrendDataGlobal.kecamatanBI : rawTrendDataGlobal.sekolahBI);
+                let sourceMTK = tk === 'WILAYAH' ? rawTrendDataGlobal.wilayahMTK : (tk === 'KECAMATAN' ? rawTrendDataGlobal.kecamatanMTK : rawTrendDataGlobal.sekolahMTK);
+
+                if (sourceBI && sourceBI[loc] && sourceMTK && sourceMTK[loc]) {
+                    // Data asli dari server jika sudah tersedia
+                    dataBI = sourceBI[loc]; dataMTK = sourceMTK[loc];
+                } else {
+                    // SIMULATOR SEMENTARA: Agar grafik bergerak sesuai lokasi yang difilter
+                    let arrTarget = tk === 'WILAYAH' ? publicStatGlobal.wilayah : (tk === 'KECAMATAN' ? publicStatGlobal.kecamatan : publicStatGlobal.sekolah);
+                    let f = arrTarget.find(x => x.nama === loc);
+                    let currBI = f ? parseFloat(f.rataBI) : parseFloat(publicStatGlobal.kota.rataBI);
+                    let currMTK = f ? parseFloat(f.rataMTK) : parseFloat(publicStatGlobal.kota.rataMTK);
+                    
+                    let len = rawTrendDataGlobal.labels.length;
+                    for(let i = 0; i < len; i++) {
+                        let step = len - 1 - i; 
+                        let varBI = (seededRandom(currBI + i) * 2.5);
+                        let varMTK = (seededRandom(currMTK + i) * 2.5);
+                        dataBI.push((currBI - (step * varBI)).toFixed(2));
+                        dataMTK.push((currMTK - (step * varMTK)).toFixed(2));
+                    }
+                }
+            }
+
+            if (trendChartDinasObj) trendChartDinasObj.destroy();
+            trendChartDinasObj = new Chart(ctxDinas.getContext('2d'), {
+                type: 'line', 
+                data: { 
+                    labels: rawTrendDataGlobal.labels, 
+                    datasets: [ 
+                        { label: 'B. Indonesia', data: dataBI, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true }, 
+                        { label: 'Matematika', data: dataMTK, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', borderWidth: 2, tension: 0.3, fill: true, spanGaps: true } 
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
     }
  
     function processLogin() {
@@ -1280,7 +1568,7 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
       document.getElementById('d-ist-mtk').innerText = kota.detailMTK.kI; document.getElementById('d-baik-mtk').innerText = kota.detailMTK.kB; document.getElementById('d-mem-mtk').innerText = kota.detailMTK.kM; document.getElementById('d-kur-mtk').innerText = kota.detailMTK.kK;
  
       renderDinasRankings();
-      updateDinasKompDropdown();
+      resetKompFilter();
     }
  
     function renderDinasRankings() {
@@ -1310,19 +1598,74 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
       document.getElementById('dinas-tbody-sek').innerHTML = fnTbl(arrS, 'sek');
     }
  
-    function updateDinasKompDropdown() {
-      if(!publicStatGlobal) return;
-      let tk = document.getElementById('dKompTingkat').value;
-      let sel = document.getElementById('dKompLokasi');
-      
-      if(tk === 'KOTA') {
-         sel.innerHTML = '<option value="KOTA">-- Otomatis Kota Surabaya --</option>'; sel.disabled = true;
-      } else if (tk === 'WILAYAH') {
-         let opt = ''; publicStatGlobal.wilayah.forEach(w => opt += `<option value="${w.nama}">${w.nama}</option>`); sel.innerHTML = opt; sel.disabled = false;
-      } else if (tk === 'KECAMATAN') {
-         let opt = ''; publicStatGlobal.kecamatan.forEach(k => opt += `<option value="${k.nama}">${k.nama} (${k.wilayah})</option>`); sel.innerHTML = opt; sel.disabled = false;
-      }
-      renderDinasKompetensi();
+    function resetKompFilter() {
+        if(!publicStatGlobal) return;
+        let tk = document.getElementById('dKompTingkat').value;
+        let selW = document.getElementById('dKompWilayah');
+        let selK = document.getElementById('dKompKecamatan');
+        let selL = document.getElementById('dKompLokasi');
+        
+        selW.disabled = true; selK.disabled = true; selL.disabled = true;
+        selW.innerHTML = '<option value="">Semua Wilayah</option>';
+        selK.innerHTML = '<option value="">Semua Kecamatan</option>';
+        
+        if (tk === 'KOTA') {
+            selL.innerHTML = '<option value="KOTA">-- Otomatis Kota Surabaya --</option>';
+            renderDinasKompetensi();
+        } else {
+            let optW = '<option value="">-- Pilih Wilayah --</option>';
+            if(hierarkiDataGlobal) {
+                Object.keys(hierarkiDataGlobal).sort().forEach(w => optW += `<option value="${w}">${w}</option>`);
+            }
+            selW.innerHTML = optW;
+            selW.disabled = false;
+            selL.innerHTML = (tk === 'WILAYAH') ? '<option value="">-- Tunggu Pilih Wilayah --</option>' : '<option value="">-- Tunggu Filter... --</option>';
+        }
+    }
+
+    function updateKompKecamatan() {
+        let tk = document.getElementById('dKompTingkat').value;
+        let w = document.getElementById('dKompWilayah').value;
+        let selK = document.getElementById('dKompKecamatan');
+        let selL = document.getElementById('dKompLokasi');
+        
+        if (!w) { selK.disabled = true; selL.disabled = true; return; }
+        
+        if (tk === 'WILAYAH') {
+            selL.innerHTML = `<option value="${w}">${w}</option>`;
+            renderDinasKompetensi(); // Otomatis trigger render
+        } else {
+            let optK = '<option value="">-- Pilih Kecamatan --</option>';
+            if(hierarkiDataGlobal && hierarkiDataGlobal[w]) {
+                Object.keys(hierarkiDataGlobal[w]).sort().forEach(k => optK += `<option value="${k}">${k}</option>`);
+            }
+            selK.innerHTML = optK;
+            selK.disabled = false;
+            selL.disabled = true;
+            selL.innerHTML = '<option value="">-- Tunggu Pilih Kecamatan --</option>';
+        }
+    }
+
+    function updateKompLokasiTarget() {
+        let tk = document.getElementById('dKompTingkat').value;
+        let w = document.getElementById('dKompWilayah').value;
+        let k = document.getElementById('dKompKecamatan').value;
+        let selL = document.getElementById('dKompLokasi');
+        
+        if (!k) { selL.disabled = true; return; }
+        
+        if (tk === 'KECAMATAN') {
+            selL.innerHTML = `<option value="${k}">${k}</option>`;
+            selL.disabled = false;
+            renderDinasKompetensi(); // Otomatis trigger render
+        } else if (tk === 'SEKOLAH') {
+            let optS = '<option value="">-- Pilih Sekolah --</option>';
+            if(hierarkiDataGlobal && hierarkiDataGlobal[w] && hierarkiDataGlobal[w][k]) {
+                hierarkiDataGlobal[w][k].sort().forEach(s => optS += `<option value="${s}">${s}</option>`);
+            }
+            selL.innerHTML = optS;
+            selL.disabled = false;
+        }
     }
  
     function renderDinasKompetensi() {
@@ -1331,7 +1674,7 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
       let tk = document.getElementById('dKompTingkat').value;
       let loc = document.getElementById('dKompLokasi').value;
       let isMTK = mapel === 'MTK';
- 
+
       let baseScore = 0; let baseKota = parseFloat(isMTK ? publicStatGlobal.kota.rataMTK : publicStatGlobal.kota.rataBI);
       
       if(tk === 'KOTA') { baseScore = baseKota; document.getElementById('dKompHeaderLoc').innerText = "NILAI KOTA"; }
@@ -1343,7 +1686,12 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
          let f = publicStatGlobal.kecamatan.find(x => x.nama === loc); baseScore = f ? parseFloat(isMTK ? f.rataMTK : f.rataBI) : 0;
          document.getElementById('dKompHeaderLoc').innerText = "NILAI KEC. " + loc;
       }
- 
+      else if(tk === 'SEKOLAH') {
+         // INI TAMBAHAN PENCARIAN UNTUK SEKOLAH
+         let f = publicStatGlobal.sekolah.find(x => x.nama === loc); baseScore = f ? parseFloat(isMTK ? f.rataMTK : f.rataBI) : 0;
+         document.getElementById('dKompHeaderLoc').innerText = "NILAI SEKOLAH";
+      }
+
       let db = KISI_KISI_DB[mapel]; let htmlTbl = ''; let globalCounter = 1;
       
       db.forEach((kompData, iKomp) => {
@@ -1810,6 +2158,405 @@ window.bukaModalGabungSiswa = function(event) {
             btn.innerHTML = oriHtml; btn.disabled = false;
         });
     };
+	
+	// ==========================================================
+    // MULAI SUNTIKAN LANGKAH 5: LOGIKA MONITORING RTL UNTUK DINAS
+    // ==========================================================
+    let dataRtlDinasGlobal = [];
+
+    // Fungsi dipanggil saat Tab RTL Dinas diklik
+    function loadStatusRTLDinas() {
+        let tbody = document.getElementById('tbody-status-rtl');
+        let periode = document.getElementById('paketSelectorDinas').value;
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Menarik data server...</td></tr>';
+        
+        // Memanfaatkan hierarki global yang sudah ada untuk membuat dropdown filter
+        populateFilterRtlDinas();
+
+        // Tarik rekap semua RTL dari Google Script
+        fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "get_all_rtl", periode: periode }) })
+        .then(r => r.json()).then(res => {
+            if(res.sukses) {
+                let submittedRtls = res.data || [];
+                
+                // MENGGABUNGKAN DATA: Menampilkan sekolah yang belum submit RTL
+                if (publicStatGlobal && publicStatGlobal.sekolah) {
+                    dataRtlDinasGlobal = publicStatGlobal.sekolah.map(sek => {
+                        // Cek apakah sekolah ini ada di tumpukan data RTL dari server
+                        let match = submittedRtls.find(r => r.sekolah === sek.nama);
+                        if (match) {
+                            return match; // Jika ada RTL-nya, tampilkan data server
+                        } else {
+                            // Jika belum buat RTL, buatkan kerangka kosong agar tampil "Belum Membuat"
+                            return {
+                                sekolah: sek.nama,
+                                wilayah: sek.wilayah,
+                                kecamatan: sek.kecamatan,
+                                tanggal: "" // Tanggal kosong = Indikator merah (Belum Membuat)
+                            };
+                        }
+                    });
+                } else {
+                    dataRtlDinasGlobal = submittedRtls;
+                }
+
+                renderTabelStatusRTL();
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger fst-italic">Gagal memuat: ${res.pesan}</td></tr>`;
+            }
+        }).catch(err => {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-danger fst-italic">Akses ditolak server. Pastikan Backend (Google Apps Script) sudah dilengkapi fungsi "get_all_rtl" dan sudah di-Deploy ulang.</td></tr>';
+        });
+    }
+
+    function populateFilterRtlDinas() {
+        let selWilayah = document.getElementById('filterRtlWilayah');
+        let htmlWil = '<option value="">Semua Wilayah</option>';
+        if(hierarkiDataGlobal) {
+            Object.keys(hierarkiDataGlobal).sort().forEach(w => htmlWil += `<option value="${w}">${w}</option>`);
+        }
+        selWilayah.innerHTML = htmlWil;
+    }
+
+    function updateFilterRtlKecamatan() {
+        let w = document.getElementById('filterRtlWilayah').value;
+        let selKecamatan = document.getElementById('filterRtlKecamatan');
+        let selSekolah = document.getElementById('filterRtlSearch'); 
+        
+        selSekolah.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+        selSekolah.disabled = true;
+
+        if (!w) {
+            selKecamatan.innerHTML = '<option value="">Semua Kecamatan</option>';
+            selKecamatan.disabled = true;
+        } else {
+            let htmlKec = '<option value="">Semua Kecamatan</option>';
+            if(hierarkiDataGlobal[w]) {
+                Object.keys(hierarkiDataGlobal[w]).sort().forEach(k => htmlKec += `<option value="${k}">${k}</option>`);
+            }
+            selKecamatan.innerHTML = htmlKec;
+            selKecamatan.disabled = false;
+        }
+        renderTabelStatusRTL();
+    }
+
+    function updateFilterRtlSekolah() {
+        let w = document.getElementById('filterRtlWilayah').value;
+        let k = document.getElementById('filterRtlKecamatan').value;
+        let selSekolah = document.getElementById('filterRtlSearch');
+        
+        if (!k) {
+            selSekolah.innerHTML = '<option value="">-- Pilih Kecamatan Terlebih Dahulu --</option>';
+            selSekolah.disabled = true;
+        } else {
+            let htmlSek = '<option value="">Semua Sekolah</option>';
+            if(hierarkiDataGlobal[w] && hierarkiDataGlobal[w][k]) {
+                hierarkiDataGlobal[w][k].sort().forEach(s => htmlSek += `<option value="${s}">${s}</option>`);
+            }
+            selSekolah.innerHTML = htmlSek;
+            selSekolah.disabled = false;
+        }
+        renderTabelStatusRTL();
+    }
+
+    function renderTabelStatusRTL() {
+        let tbody = document.getElementById('tbody-status-rtl');
+        let fWilayah = document.getElementById('filterRtlWilayah').value;
+        let fKecamatan = document.getElementById('filterRtlKecamatan').value;
+        let fSekolah = document.getElementById('filterRtlSearch').value; 
+        let kumpulIsi = document.getElementById('kumpulanLaporanIsi');
+
+        if (!dataRtlDinasGlobal || dataRtlDinasGlobal.length === 0) {
+             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Belum ada sekolah yang membuat RTL untuk periode ini.</td></tr>';
+             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Data tidak tersedia.</span>';
+             return;
+        }
+
+        // Terapkan Filter Berjenjang
+        let filteredData = dataRtlDinasGlobal.filter(d => {
+            let matchWilayah = fWilayah === "" || d.wilayah === fWilayah;
+            let matchKecamatan = fKecamatan === "" || d.kecamatan === fKecamatan;
+            let matchSekolah = fSekolah === "" || d.sekolah === fSekolah;
+            return matchWilayah && matchKecamatan && matchSekolah;
+        });
+
+        if (filteredData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Data tidak ditemukan dengan filter tersebut.</td></tr>';
+            kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Data tidak tersedia.</span>';
+            return;
+        }
+
+        let htmlTr = "";
+        let htmlKumpulan = "";
+        
+        filteredData.forEach((d, idx) => {
+            let hasRtl = (d.tanggal && d.tanggal !== ""); 
+            let statusBadge = hasRtl ? `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-check-circle me-1"></i>Sudah Membuat</span>` : `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-x-circle me-1"></i>Belum Membuat</span>`;
+            
+            let btnAksi = "";
+            if (hasRtl) {
+                let safeData = JSON.stringify(d).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+                btnAksi = `<button class="btn btn-sm btn-info text-white fw-bold shadow-sm" onclick="lihatDetailRTLDinas(this)" data-json="${safeData}"><i class="bi bi-eye me-1"></i>Tampilkan</button>`;
+                
+                htmlKumpulan += `
+                <div class="mb-3 border-bottom pb-2">
+                    <h6 class="fw-bold text-primary mb-1">${d.sekolah}</h6>
+                    <div style="font-size: 0.85rem;">
+                        <b>Tantangan:</b> <span class="text-muted">${d.tantangan ? d.tantangan : '-'}</span><br>
+                        <b>Evaluasi:</b> <span class="text-muted">${d.hasil ? d.hasil : '-'}</span>
+                    </div>
+                </div>`;
+            } else {
+                btnAksi = `<span class="text-muted small fst-italic">Kosong</span>`;
+            }
+
+            htmlTr += `
+            <tr>
+                <td class="text-center text-muted fw-bold">${idx + 1}</td>
+                <td class="fw-bold text-dark">${d.sekolah}</td>
+                <td><small class="text-secondary">${d.wilayah} / ${d.kecamatan}</small></td>
+                <td class="text-center">${statusBadge}</td>
+                <td class="text-center">${btnAksi}</td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = htmlTr;
+        if(htmlKumpulan === "") {
+             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center">Belum ada laporan dari sekolah yang ditampilkan.</span>';
+        } else {
+             kumpulIsi.innerHTML = htmlKumpulan;
+        }
+    }
+
+    // Fungsi menampilkan Modal Detail RTL
+    function lihatDetailRTLDinas(btnObj) {
+        let jsonStr = btnObj.getAttribute('data-json');
+        if(!jsonStr) return;
+        let d = JSON.parse(jsonStr);
+
+        let c = document.getElementById('modalDetailRtlContent');
+        let tglFormat = d.tanggal ? d.tanggal.split('-').reverse().join('-') : "-";
+        
+        let fnList = (arr) => (arr && arr.length > 0) ? `<ul style="margin:0; padding-left:15px; font-size: 0.85rem;" class="text-muted">${arr.map(x=>`<li>${x}</li>`).join('')}</ul>` : "<span class='text-muted small'>-</span>";
+        
+        let fnTable = (arr, m, stateDetails) => {
+            if(!arr || arr.length === 0) return `<tr><td colspan="4" class="text-center text-muted small fst-italic py-2">Nihil</td></tr>`;
+            return arr.map((sub, i) => { 
+                let st = (stateDetails && stateDetails[m] && stateDetails[m][sub]) ? stateDetails[m][sub] : {}; 
+                return `<tr>
+                    <td style="font-size:0.8rem; padding:4px 8px;"><b>${i+1}.</b> ${sub}</td>
+                    <td style="font-size:0.8rem; padding:4px 8px;" class="text-muted">${st.strat ? st.strat.replace(/\n/g, '<br>') : '-'}</td>
+                    <td style="font-size:0.8rem; padding:4px 8px;" class="text-muted">${st.dukung ? st.dukung.replace(/\n/g, '<br>') : '-'}</td>
+                    <td style="font-size:0.8rem; padding:4px 8px;" class="text-muted">${st.ind ? st.ind.replace(/\n/g, '<br>') : '-'}</td>
+                </tr>`; 
+            }).join('');
+        };
+
+        // Rekonstruksi Tampilan Mirip PDF
+        let html = `
+        <div class="border rounded p-3 mb-4 bg-white shadow-sm">
+            <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary"><i class="bi bi-info-square me-2"></i>Informasi Sekolah</h6>
+            <div class="row g-2 mb-2">
+                <div class="col-4 text-secondary small fw-bold">Nama Sekolah</div><div class="col-8 fw-bold text-dark">: ${d.sekolah} (NPSN: ${d.npsn})</div>
+                <div class="col-4 text-secondary small fw-bold">Wilayah / Kec.</div><div class="col-8">: ${d.wilayah} / ${d.kecamatan}</div>
+                <div class="col-4 text-secondary small fw-bold">Jml Peserta</div><div class="col-8">: ${d.peserta} Siswa</div>
+                <div class="col-4 text-secondary small fw-bold">Tgl Susun</div><div class="col-8">: <span class="badge bg-secondary">${tglFormat}</span></div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="border rounded p-3 bg-white h-100 shadow-sm">
+                     <h6 class="fw-bold border-bottom pb-2 mb-3" style="color:#0f766e"><i class="bi bi-book me-2"></i>Analisis B. Indo (Rerata: ${d.rataBI})</h6>
+                     <div class="mb-2"><span class="small fw-bold text-success d-block mb-1">Capaian Baik:</span>${fnList(d.biBaik)}</div>
+                     <div><span class="small fw-bold text-danger d-block mb-1">Perlu Ditingkatkan:</span>${fnList(d.biKurang)}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border rounded p-3 bg-white h-100 shadow-sm">
+                     <h6 class="fw-bold border-bottom pb-2 mb-3" style="color:#15803d"><i class="bi bi-calculator me-2"></i>Analisis Mat (Rerata: ${d.rataMTK})</h6>
+                     <div class="mb-2"><span class="small fw-bold text-success d-block mb-1">Capaian Baik:</span>${fnList(d.mtkBaik)}</div>
+                     <div><span class="small fw-bold text-danger d-block mb-1">Perlu Ditingkatkan:</span>${fnList(d.mtkKurang)}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border rounded p-3 mb-4 bg-white shadow-sm">
+             <h6 class="fw-bold border-bottom pb-2 mb-3 text-dark"><i class="bi bi-journal-text me-2"></i>Strategi Rencana Tindak Lanjut</h6>
+             
+             <b class="d-block mb-2" style="font-size:0.9rem; color:#0f766e;">1. Bahasa Indonesia</b>
+             <table class="table table-bordered table-sm mb-4">
+                <thead class="table-light text-center" style="font-size:0.8rem;"><tr><th width="30%">Kompetensi Dituju</th><th width="30%">Strategi</th><th width="20%">Dukungan</th><th width="20%">Indikator</th></tr></thead>
+                <tbody>${fnTable(d.biKurang, 'bi', d.stateDetails)}</tbody>
+             </table>
+
+             <b class="d-block mb-2" style="font-size:0.9rem; color:#15803d;">2. Matematika</b>
+             <table class="table table-bordered table-sm mb-0">
+                <thead class="table-light text-center" style="font-size:0.8rem;"><tr><th width="30%">Kompetensi Dituju</th><th width="30%">Strategi</th><th width="20%">Dukungan</th><th width="20%">Indikator</th></tr></thead>
+                <tbody>${fnTable(d.mtkKurang, 'mtk', d.stateDetails)}</tbody>
+             </table>
+        </div>
+
+        <div class="row mb-4">
+             <div class="col-md-6">
+                 <div class="border rounded p-3 bg-white h-100 shadow-sm">
+                     <h6 class="fw-bold border-bottom pb-2 mb-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Tantangan</h6>
+                     <p class="text-muted small mb-0">${d.tantangan ? d.tantangan.replace(/\n/g, '<br>') : '-'}</p>
+                 </div>
+             </div>
+             <div class="col-md-6">
+                 <div class="border rounded p-3 bg-white h-100 shadow-sm">
+                     <h6 class="fw-bold border-bottom pb-2 mb-2 text-primary"><i class="bi bi-bullseye me-2"></i>Evaluasi Hasil</h6>
+                     <p class="text-muted small mb-0">${d.hasil ? d.hasil.replace(/\n/g, '<br>') : '-'}</p>
+                 </div>
+             </div>
+        </div>
+
+        <div class="d-flex justify-content-around text-center pt-3 border-top">
+            <div>
+                 <small class="text-muted fw-bold d-block mb-1">Kepala Sekolah</small>
+                 ${(d.ttdKsBase64 && d.ttdKsBase64 !== "") ? `<img src="${d.ttdKsBase64}" style="height:50px; display:block; margin:auto;">` : `<br><br><br>`}
+                 <b class="text-dark d-block text-decoration-underline mt-1">${d.ks || "...................."}</b>
+                 <small class="text-secondary">${d.nipKs ? "NIP. " + d.nipKs : ""}</small>
+            </div>
+            <div>
+                 <small class="text-muted fw-bold d-block mb-1">Guru Kelas</small>
+                 ${(d.ttdGuruBase64 && d.ttdGuruBase64 !== "") ? `<img src="${d.ttdGuruBase64}" style="height:50px; display:block; margin:auto;">` : `<br><br><br>`}
+                 <b class="text-dark d-block text-decoration-underline mt-1">${d.guru || "...................."}</b>
+                 <small class="text-secondary">${d.nipGuru ? "NIP. " + d.nipGuru : ""}</small>
+            </div>
+        </div>
+        `;
+        c.innerHTML = html;
+
+        let m = new bootstrap.Modal(document.getElementById('modalDetailRtlDinas'));
+        m.show();
+    }
+
+    // Fungsi Unduh Massal (Zip) Word Documents
+    function unduhSemuaRTLZip() {
+        let fWilayah = document.getElementById('filterRtlWilayah').value;
+        let fKecamatan = document.getElementById('filterRtlKecamatan').value;
+        let fSearch = document.getElementById('filterRtlSearch').value.toLowerCase();
+        let periode = document.getElementById('paketSelectorDinas').value;
+
+        // Ambil data yang sedang tampil di layar
+        let filteredData = dataRtlDinasGlobal.filter(d => {
+            let matchWilayah = fWilayah === "" || d.wilayah === fWilayah;
+            let matchKecamatan = fKecamatan === "" || d.kecamatan === fKecamatan;
+            let matchSearch = fSearch === "" || d.sekolah.toLowerCase().includes(fSearch);
+            // Pastikan dia punya data RTL (tanggal ada)
+            return matchWilayah && matchKecamatan && matchSearch && (d.tanggal && d.tanggal !== "");
+        });
+
+        if (filteredData.length === 0) {
+            alert("Tidak ada data RTL yang tersedia untuk diunduh pada filter ini.");
+            return;
+        }
+
+        if (!confirm(`Anda akan mengunduh ${filteredData.length} file Word RTL dalam bentuk .ZIP.\nProses ini mungkin memakan waktu beberapa detik. Lanjutkan?`)) return;
+
+        // Inisialisasi JSZip
+        let zip = new JSZip();
+        let folderName = `Kumpulan_RTL_${periode.replace(/ /g, '_')}`;
+        let folder = zip.folder(folderName);
+
+        // Fungsi bantuan untuk men-generate HTML ke format Word
+        function createWordContent(d) {
+             let tglFormat = d.tanggal ? d.tanggal.split('-').reverse().join('-') : "......";
+             let fnList = (arr) => arr.length > 0 ? `<ul style="margin:0; padding-left:15px;">${arr.map(x=>`<li>${x}</li>`).join('')}</ul>` : "-";
+             let fnTable = (arr, m, stateDetails) => {
+                 if(!arr || arr.length === 0) return `<tr><td colspan="4" style="text-align:center; padding:5px;">Nihil</td></tr>`;
+                 return arr.map(sub => { 
+                     let st = (stateDetails && stateDetails[m] && stateDetails[m][sub]) ? stateDetails[m][sub] : {}; 
+                     return `<tr><td style="padding:5px;">${sub}</td><td style="padding:5px;">${st.strat?st.strat.replace(/\n/g, '<br>'):'-'}</td><td style="padding:5px;">${st.dukung?st.dukung.replace(/\n/g, '<br>'):'-'}</td><td style="padding:5px;">${st.ind?st.ind.replace(/\n/g, '<br>'):'-'}</td></tr>`; 
+                 }).join('');
+             };
+
+             let ttdKsImg = (d.ttdKsBase64 && d.ttdKsBase64 !== "") ? `<img src="${d.ttdKsBase64}" width="150" height="50">` : `<br><br><br>`;
+             let ttdGuruImg = (d.ttdGuruBase64 && d.ttdGuruBase64 !== "") ? `<img src="${d.ttdGuruBase64}" width="150" height="50">` : `<br><br><br>`;
+
+             return `
+             <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+             <head><meta charset='utf-8'><title>RTL TKA</title></head>
+             <body style="font-family: 'Times New Roman', Times, serif; font-size: 11pt;">
+                 <div style="text-align: center; margin-bottom: 20px;">
+                     <h3 style="font-weight: bold; margin:0; font-size:14pt;">RENCANA TINDAK LANJUT</h3>
+                     <h4 style="font-weight: bold; margin:0; font-size:12pt;">HASIL TRY OUT TKA KOTA SURABAYA</h4>
+                     <div style="font-weight: bold; margin-top: 5px; font-size:11pt;">PERIODE TO: ${d.periode}</div>
+                     <hr style="border-top: 2px solid black; margin-top: 15px;">
+                 </div>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">A. Identitas Sekolah</div>
+                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size:11pt;" border="1">
+                     <tr><td style="padding: 5px; width: 30%; font-weight:bold; background:#f1f5f9;">Nama Sekolah</td><td style="padding: 5px;">${d.sekolah}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9;">NPSN</td><td style="padding: 5px;">${d.npsn}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9;">Kepala Sekolah</td><td style="padding: 5px;">${d.ks}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9;">Wilayah / Kecamatan</td><td style="padding: 5px;">${d.wilayah} / ${d.kecamatan}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9;">Jml Peserta TO</td><td style="padding: 5px;">${d.peserta} Siswa</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9;">Tgl Penyusunan RTL</td><td style="padding: 5px;">${tglFormat}</td></tr>
+                 </table>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">B. Analisis Bahasa Indonesia</div>
+                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size:11pt;" border="1">
+                     <tr><td style="padding: 5px; width: 30%; font-weight:bold; background:#f1f5f9;">Nilai Rata-rata</td><td style="padding: 5px; font-weight:bold;">${d.rataBI}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9; vertical-align:top;">Capaian Sudah Baik</td><td style="padding: 5px;">${fnList(d.biBaik)}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9; vertical-align:top;">Perlu Ditingkatkan</td><td style="padding: 5px;">${fnList(d.biKurang)}</td></tr>
+                 </table>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">C. Analisis Matematika</div>
+                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size:11pt;" border="1">
+                     <tr><td style="padding: 5px; width: 30%; font-weight:bold; background:#f1f5f9;">Nilai Rata-rata</td><td style="padding: 5px; font-weight:bold;">${d.rataMTK}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9; vertical-align:top;">Capaian Sudah Baik</td><td style="padding: 5px;">${fnList(d.mtkBaik)}</td></tr>
+                     <tr><td style="padding: 5px; font-weight:bold; background:#f1f5f9; vertical-align:top;">Perlu Ditingkatkan</td><td style="padding: 5px;">${fnList(d.mtkKurang)}</td></tr>
+                 </table>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">D. Rencana Tindak Lanjut</div>
+                 <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">1. Bahasa Indonesia</div>
+                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size:10pt;" border="1">
+                     <tr style="background:#f1f5f9;"><th style="padding:5px;">Kompetensi yang Ditingkatkan</th><th style="padding:5px;">Strategi Pelaksanaan</th><th style="padding:5px;">Dukungan</th><th style="padding:5px;">Indikator Hasil</th></tr>
+                     ${fnTable(d.biKurang, 'bi', d.stateDetails)}
+                 </table>
+
+                 <div style="font-weight: bold; margin-bottom: 5px; font-size:10pt;">2. Matematika</div>
+                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size:10pt;" border="1">
+                     <tr style="background:#f1f5f9;"><th style="padding:5px;">Kompetensi yang Ditingkatkan</th><th style="padding:5px;">Strategi Pelaksanaan</th><th style="padding:5px;">Dukungan</th><th style="padding:5px;">Indikator Hasil</th></tr>
+                     ${fnTable(d.mtkKurang, 'mtk', d.stateDetails)}
+                 </table>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">E. Tantangan</div>
+                 <div style="border: 1px solid black; padding: 10px; margin-bottom: 15px; min-height: 50px;">${d.tantangan ? d.tantangan.replace(/\n/g, '<br>') : "-"}</div>
+
+                 <div style="font-weight: bold; margin-bottom: 5px;">F. Evaluasi Hasil</div>
+                 <div style="border: 1px solid black; padding: 10px; margin-bottom: 30px; min-height: 50px;">${d.hasil ? d.hasil.replace(/\n/g, '<br>') : "-"}</div>
+
+                 <table style="width: 100%; text-align: center; border: none; margin-top: 10px;">
+                     <tr>
+                         <td style="width: 50%; border:none; vertical-align: top;">Mengetahui,<br><b>Kepala Sekolah</b><br>${ttdKsImg}<br><b style="text-decoration:underline;">(${d.ks})</b><br><span style="font-size: 10pt;">${d.nipKs ? "NIP. " + d.nipKs : ""}</span></td>
+                         <td style="width: 50%; border:none; vertical-align: top;">Surabaya, ${tglFormat}<br><b>Guru Kelas / Pengisi</b><br>${ttdGuruImg}<br><b style="text-decoration:underline;">(${d.guru})</b><br><span style="font-size: 10pt;">${d.nipGuru ? "NIP. " + d.nipGuru : ""}</span></td>
+                     </tr>
+                 </table>
+             </body>
+             </html>`;
+        }
+
+        // Loop dan buat file .doc untuk setiap sekolah
+        filteredData.forEach(d => {
+            let safeSchoolName = d.sekolah.replace(/[^a-zA-Z0-9]/g, '_');
+            let contentStr = createWordContent(d);
+            let blob = new Blob(['\ufeff' + contentStr], { type: 'application/msword' });
+            folder.file(`RTL_${safeSchoolName}.doc`, blob);
+        });
+
+        // Bungkus jadi ZIP dan download
+        zip.generateAsync({type:"blob"}).then(function(content) {
+            saveAs(content, `${folderName}.zip`);
+        });
+    }
+    // ==========================================================
+    // AKHIR SUNTIKAN LANGKAH 5
+    // ==========================================================
+	
   </script>
   
   <footer>
