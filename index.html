@@ -2031,18 +2031,9 @@ function resetDetailFilter() {
     }
  
     function collectRTLData() {
-        // Tarik kode Base64 dari kedua TTD sebelum menyimpan
-        let ttdGuruBase64Code = "";
-        let ttdKsBase64Code = "";
-        
-        if (signaturePadGuru && !signaturePadGuru.isEmpty()) {
-            ttdGuruBase64Code = signaturePadGuru.toDataURL("image/png");
-            document.getElementById('inputTtdGuruBase64').value = ttdGuruBase64Code;
-        }
-        if (signaturePadKs && !signaturePadKs.isEmpty()) {
-            ttdKsBase64Code = signaturePadKs.toDataURL("image/png");
-            document.getElementById('inputTtdKsBase64').value = ttdKsBase64Code;
-        }
+        // PERBAIKAN: Langsung ambil data dari input tersembunyi yang sudah menyimpan cache otomatis
+        let ttdGuruBase64Code = document.getElementById('inputTtdGuruBase64').value;
+        let ttdKsBase64Code = document.getElementById('inputTtdKsBase64').value;
 
         return {
             npsn: document.getElementById('rtl-npsn').value, periode: document.getElementById('rtl-periode').value,
@@ -2868,33 +2859,51 @@ window.bukaModalGabungSiswa = function(event) {
       function jalankanKanvasTtd() {
           const canvasGuru = document.getElementById('canvasTtdGuru');
           const canvasKs = document.getElementById('canvasTtdKs');
+          const inputGuruBase64 = document.getElementById('inputTtdGuruBase64');
+          const inputKsBase64 = document.getElementById('inputTtdKsBase64');
           
           if (!canvasGuru || !canvasKs) return;
 
-          // Mencegah inisialisasi ganda
+          // Inisialisasi SignaturePad jika belum ada
           if (!signaturePadGuru) {
               signaturePadGuru = new SignaturePad(canvasGuru, { penColor: "rgb(0, 0, 128)", backgroundColor: "rgba(255, 255, 255, 0)" });
+              // Event Listener: Simpan Base64 setiap kali selesai 1 coretan
+              signaturePadGuru.addEventListener("endStroke", () => {
+                  inputGuruBase64.value = signaturePadGuru.toDataURL("image/png");
+              });
           }
           if (!signaturePadKs) {
               signaturePadKs = new SignaturePad(canvasKs, { penColor: "rgb(0, 0, 128)", backgroundColor: "rgba(255, 255, 255, 0)" });
+              // Event Listener: Simpan Base64 setiap kali selesai 1 coretan
+              signaturePadKs.addEventListener("endStroke", () => {
+                  inputKsBase64.value = signaturePadKs.toDataURL("image/png");
+              });
           }
 
-          function resizeCanvas(canvas, pad) {
+          function resizeCanvas(canvas, pad, hiddenInput) {
               const ratio = Math.max(window.devicePixelRatio || 1, 1);
+              // Simpan data gambar yang ada sebelum di-resize
+              let dataGambarLama = hiddenInput.value;
+              
               canvas.width = canvas.offsetWidth * ratio;
               canvas.height = canvas.offsetHeight * ratio;
               canvas.getContext("2d").scale(ratio, ratio);
               pad.clear();
+              
+              // Pulihkan gambar setelah resize jika ada data di memori
+              if (dataGambarLama && dataGambarLama !== "") {
+                  pad.fromDataURL(dataGambarLama);
+              }
           }
 
           window.addEventListener("resize", () => {
-              resizeCanvas(canvasGuru, signaturePadGuru);
-              resizeCanvas(canvasKs, signaturePadKs);
+              resizeCanvas(canvasGuru, signaturePadGuru, inputGuruBase64);
+              resizeCanvas(canvasKs, signaturePadKs, inputKsBase64);
           });
 
           // Panggil fungsi resize agar ukurannya pas saat tab dibuka
-          resizeCanvas(canvasGuru, signaturePadGuru);
-          resizeCanvas(canvasKs, signaturePadKs);
+          resizeCanvas(canvasGuru, signaturePadGuru, inputGuruBase64);
+          resizeCanvas(canvasKs, signaturePadKs, inputKsBase64);
       }
 
       function hapusTandaTangan(jenis) {
