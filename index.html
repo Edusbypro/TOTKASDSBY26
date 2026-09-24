@@ -482,7 +482,8 @@
                </div>
                <div class="col-md-2">
                   <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.85rem;">Jml Peserta</label>
-                  <input type="text" id="rtl-peserta" class="form-control form-control-sm bg-white" readonly>
+                  <!-- PERBAIKAN: Menghapus readonly, mengubah tipe ke number, dan memberi border biru tanda bisa diedit -->
+                  <input type="number" id="rtl-peserta" class="form-control form-control-sm border-primary" placeholder="Bisa diedit">
                </div>
                <div class="col-md-6">
                   <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.85rem;">Tanggal Penyusunan RTL</label>
@@ -2079,6 +2080,9 @@ function resetDetailFilter() {
                 document.getElementById('rtl-tanggal').value = d.tanggal || ""; document.getElementById('rtl-guru').value = d.guru || ""; 
                 document.getElementById('rtl-nip-guru').value = d.nipGuru || ""; document.getElementById('rtl-tantangan').value = d.tantangan || "";
                 document.getElementById('rtl-hasil').value = d.hasil || ""; rtlStrategyState = d.stateDetails || {bi:{}, mtk:{}};
+                
+                // TAMBAHAN: Jika ada angka jumlah peserta yang sudah pernah diedit & disimpan, timpa sugesti sistem
+                if(d.peserta) { document.getElementById('rtl-peserta').value = d.peserta; }
                 
                 document.querySelectorAll('.form-check-input').forEach(chk => { chk.checked = false; });
                 ['bi', 'mtk'].forEach(m => {
