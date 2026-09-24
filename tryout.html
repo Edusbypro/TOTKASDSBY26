@@ -221,33 +221,62 @@
           });
       }
 
-      // 2. PERSIAPAN MULAI UJIAN
+      // 2. PERSIAPAN MULAI UJIAN (FULLSCREEN)
       function persiapanMulai(kode, nama, durasi) {
-          if(!confirm(`Mulai latihan: ${nama}?\nWaktu: ${durasi} Menit.`)) return;
+          if(!confirm(`Mulai latihan: ${nama}?\nWaktu: ${durasi} Menit.\n\n⚠️ Jangan keluar dari mode layar penuh agar tidak dianggap curang!`)) return;
+
+          // Mengamankan layar penuh sebelum loading
+          let elem = document.documentElement; 
+          if(elem.requestFullscreen) { elem.requestFullscreen().catch(()=>{}); }
+          else if(elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen().catch(()=>{}); }
 
           document.getElementById('screen-daftar-ujian').classList.add('hidden');
           document.getElementById('screen-cbt').classList.remove('hidden');
           document.getElementById('cbt-judul').innerHTML = `<i class="bi bi-laptop me-2"></i>` + nama;
           document.getElementById('cbt-area-soal').innerHTML = '<div class="text-center py-5"><span class="spinner-border text-primary fs-2"></span><br>Menyiapkan Soal...</div>';
 
+          // Tarik Soal
           panggilAPI("getSoalUjian", { kodeSekolah: KODE_SEKOLAH_DEFAULT, kodeUjian: kode, timestampBypass: new Date().getTime() })
           .then(dataSoal => {
               if(!dataSoal || dataSoal.length === 0) {
-                  alert("⚠️ PERHATIAN: Butir soal belum ada di database!\n\nSilakan lapor kepada Guru untuk memasukkan butir soal pada ujian ini."); location.reload(); return;
+                  alert("⚠️ PERHATIAN: Butir soal belum ada di database!\n\nSilakan lapor kepada Guru untuk memasukkan butir soal pada ujian ini."); 
+                  if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+                  location.reload(); 
+                  return;
               }
-              cbtSoal = dataSoal; cbtJawaban = {}; cbtRagu = {}; cbtIndex = 0; cbtWaktuSisa = parseInt(durasi) * 60; cheatCount = 0; // TAMBAHKAN BARIS INI
-              let elem = document.documentElement; if(elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
-              jalankanTimer(); renderSoalCBT();
+              
+              cbtSoal = dataSoal; 
+              cbtJawaban = {}; 
+              cbtRagu = {}; 
+              cbtIndex = 0; 
+              cheatCount = 0; // Reset sensor kecurangan
+              cbtWaktuSisa = parseInt(durasi) * 60;
+              
+              jalankanTimer(); 
+              renderSoalCBT();
           })
-          .catch(err => alert("Gagal menarik soal: " + err.message));
+          .catch(err => {
+              alert("Gagal menarik soal: " + err.message);
+              if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+          });
       }
 
+      // FUNGSI TIMER (MESIN PENGHITUNG WAKTU)
       function jalankanTimer() {
+          clearInterval(timerInterval);
           timerInterval = setInterval(() => {
               cbtWaktuSisa--;
-              let j = Math.floor(cbtWaktuSisa / 3600); let m = Math.floor((cbtWaktuSisa % 3600) / 60); let d = cbtWaktuSisa % 60;
+              let j = Math.floor(cbtWaktuSisa / 3600); 
+              let m = Math.floor((cbtWaktuSisa % 3600) / 60); 
+              let d = cbtWaktuSisa % 60;
               document.getElementById('cbt-timer').innerText = `${j<10?'0'+j:j}:${m<10?'0'+m:m}:${d<10?'0'+d:d}`;
-              if(cbtWaktuSisa <= 0) { clearInterval(timerInterval); alert("Waktu habis! Jawaban dikoreksi otomatis."); selesaiUjianLokal(); }
+              
+              // Jika waktu habis, paksa kumpul
+              if(cbtWaktuSisa <= 0) { 
+                  clearInterval(timerInterval); 
+                  alert("Waktu habis! Jawaban dikoreksi otomatis."); 
+                  selesaiUjianLokal(true); 
+              }
           }, 1000);
       }
 
