@@ -252,6 +252,13 @@
 
       // 3. RENDER SOAL (SUPPORT PG, MCMA, PGK, ESSAY)
       function renderSoalCBT() {
+          // --- TAMBAHKAN PEMBUNGKAM SUARA DI SINI ---
+          if (window.speechSynthesis && window.speechSynthesis.speaking) {
+              window.speechSynthesis.cancel();
+              document.getElementById('btn-bacakan-soal').classList.replace('btn-danger', 'btn-warning');
+              document.getElementById('ikon-suara').classList.replace('bi-volume-mute-fill', 'bi-volume-up-fill');
+          }
+          // ------------------------------------------
           let s = cbtSoal[cbtIndex]; let jwb = cbtJawaban[s.nomor] || "";
           document.getElementById('btn-prev').style.visibility = (cbtIndex === 0) ? 'hidden' : 'visible';
           document.getElementById('btn-next').style.display = (cbtIndex === cbtSoal.length - 1) ? 'none' : 'block';
@@ -372,6 +379,96 @@
           document.getElementById('screen-cbt').classList.add('hidden'); document.getElementById('screen-hasil').classList.remove('hidden');
           document.getElementById('hasil-nama').innerText = dataSiswa.nama; document.getElementById('hasil-skor').innerText = totalNilai; document.getElementById('area-pembahasan').innerHTML = htmlReview;
       }
+	  
+	  // ==========================================
+      // MESIN TEXT TO SPEECH (SUARA AI)
+      // ==========================================
+      let isSpeakingSoal = false;
+
+      function toggleBacaSoal() {
+          if (!('speechSynthesis' in window)) {
+              alert("Maaf, browser atau perangkat Anda tidak mendukung fitur Suara AI.");
+              return;
+          }
+
+          let synth = window.speechSynthesis;
+          let tombol = document.getElementById('btn-bacakan-soal');
+          let ikon = document.getElementById('ikon-suara');
+
+          // Jika AI sedang berbicara, maka HENTIKAN (Mute)
+          if (synth.speaking) {
+              synth.cancel();
+              isSpeakingSoal = false;
+              tombol.classList.replace('btn-danger', 'btn-warning');
+              ikon.classList.replace('bi-volume-mute-fill', 'bi-volume-up-fill');
+              return;
+          }
+
+          // Ambil elemen wadah soal
+          let areaSoal = document.getElementById('cbt-area-soal');
+          if (!areaSoal) return;
+
+          // Gandakan elemen agar tampilan asli tidak rusak saat kita buang elemen yang tidak perlu
+          let clone = areaSoal.cloneNode(true);
+
+          // Filter Cerdas: Hapus elemen input, kotak, gambar agar tidak ikut terbaca sebagai "undefined"
+          let sampah = clone.querySelectorAll('input, style, script, img, .badge');
+          sampah.forEach(el => el.remove());
+
+          // Ambil teks murni dan rapikan spasi
+          let teksBersih = clone.innerText || clone.textContent;
+          teksBersih = teksBersih.replace(/\s+/g, ' ').trim(); 
+
+          if (teksBersih === "") return;
+
+          // Siapkan Suara AI
+          let suaraAI = new SpeechSynthesisUtterance(teksBersih);
+          suaraAI.lang = 'id-ID'; // Wajib logat Indonesia
+          suaraAI.rate = 0.9;     // Sedikit diperlambat agar jelas terdengar anak-anak
+          suaraAI.pitch = 1;      // Nada normal
+
+          suaraAI.onstart = function() {
+              isSpeakingSoal = true;
+              tombol.classList.replace('btn-warning', 'btn-danger');
+              ikon.classList.replace('bi-volume-up-fill', 'bi-volume-mute-fill');
+          };
+
+          suaraAI.onend = function() {
+              isSpeakingSoal = false;
+              tombol.classList.replace('btn-danger', 'btn-warning');
+              ikon.classList.replace('bi-volume-mute-fill', 'bi-volume-up-fill');
+          };
+          
+          suaraAI.onerror = suaraAI.onend; 
+
+          // Mulai bersuara
+          synth.speak(suaraAI);
+      }
+	  
   </script>
+<!-- ========================================== -->
+  <!-- FITUR INKLUSIF: TOMBOL BACA SOAL (TTS AI)  -->
+  <!-- ========================================== -->
+  <style>
+      /* Tombol ini cerdas: HANYA MUNCUL saat siswa sedang berada di mode ujian (layar cbt aktif) */
+      body:not(:has(#screen-cbt:not(.hidden))) #btn-bacakan-soal { display: none !important; }
+      
+      #btn-bacakan-soal {
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          z-index: 9999;
+          width: 65px;
+          height: 65px;
+          transition: all 0.3s ease-in-out;
+          border: 3px solid #ffffff;
+      }
+      #btn-bacakan-soal:hover { transform: scale(1.1); }
+  </style>
+
+  <button id="btn-bacakan-soal" class="btn btn-warning rounded-circle shadow-lg" onclick="toggleBacaSoal()" title="Bacakan Soal Ini">
+      <i id="ikon-suara" class="bi bi-volume-up-fill fs-2 text-dark"></i>
+  </button>
+
 </body>
 </html>
