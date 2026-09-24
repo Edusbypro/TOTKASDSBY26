@@ -10,91 +10,48 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   <style>
-    /* TEMA MODERN GLASSMORPHISM UNGU/INDIGO */
-    :root { 
-        --bs-primary: #764ba2; 
-    }
-    
-    @keyframes gradientBG { 
-        0% { background-position: 0% 50%; } 
-        50% { background-position: 100% 50%; } 
-        100% { background-position: 0% 50%; } 
-    }
+    :root { --bs-primary: #764ba2; }
+    @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
     body {
         margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
         background: linear-gradient(-45deg, #e0c3fc, #8ec5fc, #a18cd1, #fbc2eb) !important;
         background-size: 400% 400% !important; 
         animation: gradientBG 15s ease infinite !important;
-        min-height: 100vh;
-        color: #1e293b;
+        min-height: 100vh; color: #1e293b;
     }
 
     .glass-container {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        box-shadow: 0 10px 40px rgba(118, 75, 162, 0.2);
-        padding: 40px;
-        margin: 40px auto;
-        max-width: 900px;
-        animation: slideUp 0.6s ease-out forwards;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 40px rgba(118, 75, 162, 0.2);
+        padding: 40px; margin: 40px auto; max-width: 900px; animation: slideUp 0.6s ease-out forwards;
     }
-
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
     .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
     .btn-primary:hover { background: linear-gradient(135deg, #5a6fd6 0%, #603a8a 100%); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4); }
-    
     .hidden { display: none !important; }
 
     /* STYLE KOTAK JAWABAN CBT */
     .cbt-opsi-wrapper { border: 2px solid #e2e8f0; transition: 0.2s; background: white; border-radius: 12px; cursor: pointer; }
     .cbt-opsi-wrapper:hover { border-color: #a18cd1; }
-    .cbt-opsi-wrapper:has(input:checked) { 
-        background-color: rgba(118, 75, 162, 0.08) !important; 
-        border-color: var(--bs-primary) !important; 
-        box-shadow: 0 4px 12px rgba(118, 75, 162, 0.15) !important; 
-    }
+    .cbt-opsi-wrapper:has(input:checked) { background-color: rgba(118, 75, 162, 0.08) !important; border-color: var(--bs-primary) !important; box-shadow: 0 4px 12px rgba(118, 75, 162, 0.15) !important; }
     .cbt-opsi-text p { margin: 0 !important; display: inline !important; }
-
     .card-ujian:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); cursor: pointer; border-color: var(--bs-primary) !important; }
-	
-	/* TAMPILAN FULLSCREEN PENUH LAYAR (ALA ASESPRO) */
-    #screen-cbt {
-        width: 100vw !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-        background: #f1f5f9 !important;
-        padding: 12px !important;
-        display: flex;
-        flex-direction: column;
-        box-sizing: border-box;
+    
+    /* TAMPILAN RESPONSIVE CBT (DESKTOP FULLSCREEN, MOBILE BISA SCROLL) */
+    .cbt-container { padding: 10px !important; background: #f1f5f9 !important; }
+    @media (min-width: 992px) {
+        .cbt-container { height: 100vh !important; overflow: hidden !important; }
+        .h-lg-100 { height: 100% !important; }
+        #cbt-navigasi { max-height: calc(100vh - 200px); }
+        #cbt-area-soal { overflow-y: auto; }
     }
-    #screen-cbt .row {
-        height: 100%;
-        margin: 0;
+    @media (max-width: 991px) {
+        .cbt-container { min-height: 100vh !important; overflow-y: auto !important; overflow-x: hidden; }
+        #cbt-area-soal { min-height: 35vh; }
+        #cbt-navigasi { max-height: 40vh; overflow-y: auto; }
     }
-    #screen-cbt .col-lg-9, #screen-cbt .col-lg-3 {
-        height: 100%;
-        padding: 6px;
-    }
-    #screen-cbt .card {
-        height: 100% !important;
-        display: flex;
-        flex-direction: column;
-    }
-    #cbt-area-soal {
-        overflow-y: auto !important;
-        flex-grow: 1;
-    }
-    #cbt-navigasi {
-        overflow-y: auto !important;
-        max-height: calc(100vh - 220px);
-    }
-	
   </style>
 </head>
 <body>
@@ -118,26 +75,14 @@
               <path d="M 43 15 L 57 15 L 50 5 Z" fill="#fbbf24"/>
               <line x1="50" y1="35" x2="50" y2="60" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
               <circle cx="50" cy="32" r="3" fill="#ffffff"/>
-              <text x="100" y="45" font-family="'Poppins', sans-serif" font-size="30" font-weight="900" fill="#1e293b" letter-spacing="-0.5">
-                  EDU<tspan fill="#ff9a9e">SBY</tspan><tspan fill="#764ba2">PRO</tspan>
-              </text>
-              <text x="103" y="65" font-family="'Poppins', sans-serif" font-size="10" font-weight="700" fill="#64748b" letter-spacing="2.5">
-                  PORTAL LATIHAN PUBLIK
-              </text>
+              <text x="100" y="45" font-family="'Poppins', sans-serif" font-size="30" font-weight="900" fill="#1e293b" letter-spacing="-0.5">EDU<tspan fill="#ff9a9e">SBY</tspan><tspan fill="#764ba2">PRO</tspan></text>
+              <text x="103" y="65" font-family="'Poppins', sans-serif" font-size="10" font-weight="700" fill="#64748b" letter-spacing="2.5">PORTAL LATIHAN PUBLIK</text>
           </svg>
-
           <h4 class="fw-bold mb-3">Selamat Datang!</h4>
           <p class="text-muted small mb-4">Silakan masukkan identitas Anda untuk memulai latihan Asesmen. Nilai akan langsung keluar tanpa harus login.</p>
-          
           <form onsubmit="masukDaftarUjian(event)">
-              <div class="mb-3 text-start">
-                  <label class="form-label fw-bold small">Nama Lengkap</label>
-                  <input type="text" id="in-nama" class="form-control form-control-lg bg-light" placeholder="Ketik nama Anda..." required>
-              </div>
-              <div class="mb-4 text-start">
-                  <label class="form-label fw-bold small">Asal Sekolah</label>
-                  <input type="text" id="in-sekolah" class="form-control form-control-lg bg-light" placeholder="Contoh: SDN Kaliasin VII" required>
-              </div>
+              <div class="mb-3 text-start"><label class="form-label fw-bold small">Nama Lengkap</label><input type="text" id="in-nama" class="form-control form-control-lg bg-light" placeholder="Ketik nama Anda..." required></div>
+              <div class="mb-4 text-start"><label class="form-label fw-bold small">Asal Sekolah</label><input type="text" id="in-sekolah" class="form-control form-control-lg bg-light" placeholder="Contoh: SDN Kaliasin VII" required></div>
               <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill">Lihat Daftar Try Out <i class="bi bi-arrow-right ms-2"></i></button>
           </form>
       </div>
@@ -146,69 +91,46 @@
   <!-- HALAMAN 2: PILIH UJIAN -->
   <div id="screen-daftar-ujian" class="container hidden">
       <div class="glass-container">
-          <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-              <div>
-                  <h4 class="fw-bold m-0 text-primary"><i class="bi bi-journal-text me-2"></i>Daftar Latihan Tersedia</h4>
-                  <p class="m-0 text-muted small">Pilih paket asesmen yang ingin Anda kerjakan.</p>
-              </div>
-              <div class="text-end">
-                  <h6 class="fw-bold m-0" id="tampil-nama-siswa">Nama Siswa</h6>
-                  <small class="text-muted" id="tampil-asal-sekolah">Asal Sekolah</small>
-              </div>
+          <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
+              <div><h4 class="fw-bold m-0 text-primary"><i class="bi bi-journal-text me-2"></i>Daftar Latihan Tersedia</h4><p class="m-0 text-muted small">Pilih paket asesmen yang ingin Anda kerjakan.</p></div>
+              <div class="text-end"><h6 class="fw-bold m-0" id="tampil-nama-siswa">Nama Siswa</h6><small class="text-muted" id="tampil-asal-sekolah">Asal Sekolah</small></div>
           </div>
-
-          <div id="area-loading-ujian" class="text-center py-5">
-              <span class="spinner-border text-primary fs-2"></span>
-              <p class="mt-3 text-muted fw-bold">Menarik data asesmen dari server...</p>
-          </div>
-
-          <div class="row g-4" id="container-kartu-ujian">
-              <!-- Kartu Ujian Akan Dimuat di Sini -->
-          </div>
+          <div id="area-loading-ujian" class="text-center py-5"><span class="spinner-border text-primary fs-2"></span><p class="mt-3 text-muted fw-bold">Menarik data asesmen dari server...</p></div>
+          <div class="row g-4" id="container-kartu-ujian"></div>
       </div>
   </div>
 
-  <!-- HALAMAN 3: RUANG UJIAN (FULLSCREEN ASESPRO STYLE) -->
-  <div id="screen-cbt" class="container-fluid hidden">
-      <div class="row g-2">
-          <!-- KIRI: Lembar Soal (Lebar 75-80%) -->
-          <div class="col-lg-9">
-              <div class="card border border-primary-subtle shadow-sm rounded-4">
-                  <!-- Header Asesmen & Timer -->
-                  <div class="card-body p-3 d-flex justify-content-between align-items-center bg-primary bg-opacity-10 rounded-top-4 border-bottom">
-                      <h5 class="fw-bold m-0 text-primary text-truncate" id="cbt-judul"><i class="bi bi-laptop me-2"></i>Memuat...</h5>
-                      <div class="badge bg-danger bg-opacity-10 text-danger fs-5 border border-danger rounded-pill px-3 py-2 flex-shrink-0">
-                          <i class="bi bi-clock-history me-2"></i><span id="cbt-timer">00:00:00</span>
-                      </div>
+  <!-- HALAMAN 3: RUANG UJIAN (CBT RESPONSIVE & RAGU-RAGU) -->
+  <div id="screen-cbt" class="container-fluid hidden cbt-container">
+      <div class="row g-3 h-100" style="max-width: 1400px; margin: 0 auto;">
+          <!-- KIRI: Lembar Soal -->
+          <div class="col-lg-8 col-12 d-flex flex-column h-lg-100">
+              <div class="card border border-primary-subtle shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden">
+                  <div class="card-body p-3 d-flex justify-content-between align-items-center bg-primary bg-opacity-10 border-bottom flex-shrink-0">
+                      <h5 class="fw-bold m-0 text-primary text-truncate fs-6 fs-md-5" id="cbt-judul" style="max-width: 65%;"><i class="bi bi-laptop me-2"></i>Memuat...</h5>
+                      <div class="badge bg-danger bg-opacity-10 text-danger fs-6 fs-md-5 border border-danger rounded-pill px-3 py-2 flex-shrink-0"><i class="bi bi-clock-history me-1"></i><span id="cbt-timer">00:00:00</span></div>
                   </div>
-                  
-                  <!-- Area Soal (Bisa Di-scroll jika panjang) -->
-                  <div class="card-body p-4 fs-5" id="cbt-area-soal">
+                  <div class="card-body p-3 p-md-4 fs-6 fs-md-5 flex-grow-1" id="cbt-area-soal" style="overflow-y: auto;">
                       <!-- Soal Muncul Di Sini -->
                   </div>
-                  
-                  <!-- Footer Navigasi (Sebelumnya & Selanjutnya) -->
-                  <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center rounded-bottom-4">
-                      <button class="btn btn-outline-secondary fw-bold rounded-pill px-4" id="btn-prev" onclick="navigasiSoal(-1)"><i class="bi bi-arrow-left me-2"></i>Sebelumnya</button>
-                      <button class="btn btn-primary fw-bold rounded-pill px-4" id="btn-next" onclick="navigasiSoal(1)">Selanjutnya<i class="bi bi-arrow-right ms-2"></i></button>
+                  <div class="card-footer bg-white border-top p-2 p-md-3 d-flex justify-content-between align-items-center flex-wrap gap-2 flex-shrink-0">
+                      <button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4" id="btn-prev" onclick="navigasiSoal(-1)"><i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline ms-1">Sebelumnya</span></button>
+                      <div class="form-check form-switch m-0 d-flex align-items-center gap-2 bg-warning bg-opacity-10 border border-warning rounded-pill px-3 py-1 cursor-pointer">
+                          <input class="form-check-input m-0 border-warning" type="checkbox" id="chk-ragu" onchange="toggleRagu()" style="cursor:pointer; width: 35px; height: 18px;">
+                          <label class="form-check-label fw-bold text-warning small m-0 pt-1" for="chk-ragu" style="cursor:pointer;">Ragu-ragu</label>
+                      </div>
+                      <button class="btn btn-primary fw-bold rounded-pill px-3 px-md-4" id="btn-next" onclick="navigasiSoal(1)"><span class="d-none d-sm-inline me-1">Selanjutnya</span> <i class="bi bi-arrow-right"></i></button>
                   </div>
               </div>
           </div>
-
-          <!-- KANAN: Panel Navigasi Soal (Lebar 20-25%) -->
-          <div class="col-lg-3">
-              <div class="card border-0 shadow-sm rounded-4">
-                  <div class="card-body p-4 d-flex flex-column h-100">
-                      <h6 class="fw-bold text-dark mb-3"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Navigasi Soal</h6>
-                      
-                      <!-- Kotak Nomor Soal -->
-                      <div class="d-flex flex-wrap gap-2 mb-4 justify-content-start" id="cbt-navigasi"></div>
-                      
-                      <div class="mt-auto pt-3 border-top">
-                          <!-- Tombol Kumpul -->
-                          <button class="btn btn-success w-100 fw-bold py-3 rounded-pill shadow-sm fs-5" id="btn-kumpul" onclick="selesaiUjianLokal()">
-                              <i class="bi bi-check2-circle me-2"></i>KUMPULKAN
-                          </button>
+          <!-- KANAN: Peta Navigasi & Kumpul -->
+          <div class="col-lg-4 col-12 d-flex flex-column h-lg-100 mt-3 mt-lg-0">
+              <div class="card border-0 shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden">
+                  <div class="card-body p-3 p-md-4 d-flex flex-column flex-grow-1">
+                      <h6 class="fw-bold text-dark mb-3 flex-shrink-0"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Navigasi Soal</h6>
+                      <div class="d-flex flex-wrap gap-2 mb-3 align-content-start flex-grow-1" id="cbt-navigasi" style="overflow-y: auto;"></div>
+                      <div class="mt-auto pt-3 border-top flex-shrink-0">
+                          <button class="btn btn-success w-100 fw-bold py-2 py-md-3 rounded-pill shadow-sm fs-6 fs-md-5" id="btn-kumpul" onclick="selesaiUjianLokal()"><i class="bi bi-check2-circle me-2"></i>KUMPULKAN</button>
                       </div>
                   </div>
               </div>
@@ -221,27 +143,19 @@
       <div class="glass-container text-center">
           <h2 class="fw-bold text-primary mb-1">LATIHAN SELESAI!</h2>
           <p class="text-muted mb-4">Kerja bagus, <span id="hasil-nama" class="fw-bold"></span>! Berikut adalah hasil pengerjaanmu.</p>
-          
           <div class="bg-white p-4 rounded-4 shadow-sm border border-primary-subtle d-inline-block w-100 mb-5" style="max-width: 400px;">
               <h6 class="text-muted fw-bold mb-2">NILAI AKHIR KAMU</h6>
               <h1 class="display-1 fw-bold text-success m-0" id="hasil-skor">100</h1>
           </div>
-
           <h5 class="fw-bold text-dark mb-4 text-start border-bottom pb-2"><i class="bi bi-journal-check me-2"></i>Review Jawaban & Pembahasan</h5>
-          
-          <div class="text-start" id="area-pembahasan">
-              <!-- Pembahasan akan di-generate di sini -->
-          </div>
-
-          <div class="mt-5 pt-3 border-top">
-              <button class="btn btn-primary btn-lg rounded-pill fw-bold px-5" onclick="window.location.reload()"><i class="bi bi-house-door me-2"></i>Kembali ke Beranda</button>
-          </div>
+          <div class="text-start" id="area-pembahasan"></div>
+          <div class="mt-5 pt-3 border-top"><button class="btn btn-primary btn-lg rounded-pill fw-bold px-5" onclick="window.location.reload()"><i class="bi bi-house-door me-2"></i>Kembali ke Beranda</button></div>
       </div>
   </div>
 
   <script>
       // ========================================================
-      // KONFIGURASI DATABASE (GUNAKAN KODE SEKOLAH DEFAULT ANDA)
+      // KONFIGURASI DATABASE
       // ========================================================
       const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzkbpwR0QHis7BImF9UA6xpTF3UKZpoA2mt4KVphPkGPWNOyjy8AlPRyubgHCoMl71agQ/exec";
       const KODE_SEKOLAH_DEFAULT = "KA07SBY"; // Kode sekolah Anda untuk menarik soal
@@ -250,67 +164,59 @@
       let bankUjian = [];
       let cbtSoal = [];
       let cbtJawaban = {};
+      let cbtRagu = {}; 
       let cbtIndex = 0;
       let cbtWaktuSisa = 0;
       let timerInterval;
 
-      // FUNGSI FETCH API
+      // FUNGSI FETCH API (ANTI ERROR & CACHE)
       function panggilAPI(action, payload = {}) {
           return fetch(GAS_API_URL, {
               method: "POST",
               headers: { "Content-Type": "text/plain;charset=utf-8" },
               body: JSON.stringify({ action: action, payload: payload })
-          }).then(r => r.json()).then(res => {
-              if(res.status === "error") throw new Error(res.message);
-              return res.data;
+          })
+          .then(response => {
+              if (!response.ok) throw new Error("HTTP Error: " + response.status);
+              return response.text(); 
+          })
+          .then(text => {
+              try {
+                  let res = JSON.parse(text);
+                  if (res.status === "error") throw new Error(res.message);
+                  return res.data;
+              } catch (e) {
+                  throw new Error("Gagal membaca data dari server.");
+              }
           });
       }
 
-      // 1. MASUK DAN LOAD DAFTAR UJIAN
+      // 1. MASUK DAN LOAD DAFTAR UJIAN PUBLIK
       function masukDaftarUjian(e) {
           e.preventDefault();
           dataSiswa.nama = document.getElementById('in-nama').value;
           dataSiswa.sekolah = document.getElementById('in-sekolah').value;
-
           document.getElementById('tampil-nama-siswa').innerText = dataSiswa.nama;
           document.getElementById('tampil-asal-sekolah').innerText = dataSiswa.sekolah;
-
           document.getElementById('screen-identitas').classList.add('hidden');
           document.getElementById('screen-daftar-ujian').classList.remove('hidden');
 
-          // Tarik semua data Ujian dari Server
-          panggilAPI("getAdminData", { kodeSekolah: KODE_SEKOLAH_DEFAULT })
+          panggilAPI("getAdminData", { kodeSekolah: KODE_SEKOLAH_DEFAULT, timestampBypass: new Date().getTime() })
           .then(data => {
               document.getElementById('area-loading-ujian').classList.add('hidden');
-              // FILTER CERDAS: Hanya ambil asesmen AKTIF yang kodenya berawalan "PUB-" (Public)
+              // Ambil Hanya yang AKTIF & Kodenya / Namanya mengandung PUB-
               bankUjian = (data.ujian || []).filter(u => 
-                  u.status === 'AKTIF' && 
-                  String(u.kode).trim().toUpperCase().startsWith('PUB-')
+                  u.status === 'AKTIF' && (String(u.kode).toUpperCase().includes('PUB-') || String(u.nama).toUpperCase().includes('PUB-'))
               );
               
               let html = '';
               bankUjian.forEach(u => {
-                  html += `
-                  <div class="col-md-6">
-                      <div class="card card-ujian h-100 border-0 shadow-sm rounded-4 p-3" onclick="persiapanMulai('${u.kode}', '${u.nama}', ${u.durasi})">
-                          <div class="d-flex align-items-center mb-2">
-                              <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                  <i class="bi bi-journal-text fs-4"></i>
-                              </div>
-                              <div>
-                                  <h6 class="fw-bold m-0 text-dark">${u.nama}</h6>
-                                  <small class="text-muted">${u.mapel} • ${u.jmlSoal} Soal • ${u.durasi} Menit</small>
-                              </div>
-                          </div>
-                          <button class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold mt-2">Mulai Latihan</button>
-                      </div>
-                  </div>`;
+                  html += `<div class="col-md-6"><div class="card card-ujian h-100 border-0 shadow-sm rounded-4 p-3" onclick="persiapanMulai('${u.kode}', '${u.nama.replace(/'/g, "\\'")}', ${u.durasi})"><div class="d-flex align-items-center mb-2"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;"><i class="bi bi-journal-text fs-4"></i></div><div><h6 class="fw-bold m-0 text-dark">${u.nama}</h6><small class="text-muted">${u.mapel} • ${u.jmlSoal} Soal • ${u.durasi} Menit</small></div></div><button class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold mt-2">Mulai Latihan</button></div></div>`;
               });
-
               document.getElementById('container-kartu-ujian').innerHTML = html || '<div class="col-12 text-center py-4 text-muted">Belum ada try out aktif saat ini.</div>';
           })
           .catch(err => {
-              document.getElementById('area-loading-ujian').innerHTML = `<i class="bi bi-x-circle text-danger display-4"></i><p class="mt-3 text-danger fw-bold">Gagal memuat data: ${err.message}</p>`;
+              document.getElementById('area-loading-ujian').innerHTML = `<i class="bi bi-x-circle text-danger display-4"></i><p class="mt-3 text-danger fw-bold">Gagal memuat: ${err.message}</p>`;
           });
       }
 
@@ -323,23 +229,14 @@
           document.getElementById('cbt-judul').innerHTML = `<i class="bi bi-laptop me-2"></i>` + nama;
           document.getElementById('cbt-area-soal').innerHTML = '<div class="text-center py-5"><span class="spinner-border text-primary fs-2"></span><br>Menyiapkan Soal...</div>';
 
-          // Tarik Soal Khusus Ujian Ini
-          panggilAPI("getSoalUjian", { kodeSekolah: KODE_SEKOLAH_DEFAULT, kodeUjian: kode })
+          panggilAPI("getSoalUjian", { kodeSekolah: KODE_SEKOLAH_DEFAULT, kodeUjian: kode, timestampBypass: new Date().getTime() })
           .then(dataSoal => {
               if(!dataSoal || dataSoal.length === 0) {
-                  alert("Soal kosong!"); location.reload(); return;
+                  alert("⚠️ PERHATIAN: Butir soal belum ada di database!\n\nSilakan lapor kepada Guru untuk memasukkan butir soal pada ujian ini."); location.reload(); return;
               }
-              cbtSoal = dataSoal;
-              cbtJawaban = {};
-              cbtIndex = 0;
-              cbtWaktuSisa = parseInt(durasi) * 60;
-              
-              // Masuk Mode Layar Penuh (Opsional untuk latihan)
-              let elem = document.documentElement;
-              if(elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
-              
-              jalankanTimer();
-              renderSoalCBT();
+              cbtSoal = dataSoal; cbtJawaban = {}; cbtRagu = {}; cbtIndex = 0; cbtWaktuSisa = parseInt(durasi) * 60;
+              let elem = document.documentElement; if(elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
+              jalankanTimer(); renderSoalCBT();
           })
           .catch(err => alert("Gagal menarik soal: " + err.message));
       }
@@ -347,23 +244,15 @@
       function jalankanTimer() {
           timerInterval = setInterval(() => {
               cbtWaktuSisa--;
-              let j = Math.floor(cbtWaktuSisa / 3600); 
-              let m = Math.floor((cbtWaktuSisa % 3600) / 60); 
-              let d = cbtWaktuSisa % 60;
+              let j = Math.floor(cbtWaktuSisa / 3600); let m = Math.floor((cbtWaktuSisa % 3600) / 60); let d = cbtWaktuSisa % 60;
               document.getElementById('cbt-timer').innerText = `${j<10?'0'+j:j}:${m<10?'0'+m:m}:${d<10?'0'+d:d}`;
-              if(cbtWaktuSisa <= 0) {
-                  clearInterval(timerInterval);
-                  alert("Waktu habis! Jawaban akan dikoreksi otomatis.");
-                  selesaiUjianLokal();
-              }
+              if(cbtWaktuSisa <= 0) { clearInterval(timerInterval); alert("Waktu habis! Jawaban dikoreksi otomatis."); selesaiUjianLokal(); }
           }, 1000);
       }
 
-      // 3. RENDER ENGINE SOAL (SAMA SEPERTI PORTAL SISWA)
+      // 3. RENDER SOAL (SUPPORT PG, MCMA, PGK, ESSAY)
       function renderSoalCBT() {
-          let s = cbtSoal[cbtIndex];
-          let jwb = cbtJawaban[s.nomor] || "";
-          
+          let s = cbtSoal[cbtIndex]; let jwb = cbtJawaban[s.nomor] || "";
           document.getElementById('btn-prev').style.visibility = (cbtIndex === 0) ? 'hidden' : 'visible';
           document.getElementById('btn-next').style.display = (cbtIndex === cbtSoal.length - 1) ? 'none' : 'block';
           document.getElementById('btn-kumpul').style.display = (cbtIndex === cbtSoal.length - 1) ? 'block' : 'none';
@@ -371,129 +260,118 @@
           let html = `<h5 class="fw-bold text-primary mb-3">Soal No. ${s.nomor}</h5><div class="mb-4 text-dark" style="line-height:1.6;">${s.pertanyaan}</div>`;
           let tipe = String(s.tipe || 'Pilihan Ganda').trim();
 
-          if(tipe.includes('Pilihan Ganda') && !tipe.includes('MCMA') && !tipe.includes('Kategori')) {
+          if(tipe.includes('Pilihan Ganda') && !tipe.includes('MCMA') && !tipe.includes('Kategori') && !tipe.includes('Kompleks') && !tipe.includes('Katagori')) {
               ['A','B','C','D'].forEach(opt => {
                   if(!s['opsi'+opt]) return;
                   let isChecked = (jwb === opt) ? "checked" : "";
-                  html += `
-                  <label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3">
-                      <input class="form-check-input m-0 me-3 fs-4" type="radio" name="opsi" value="${opt}" ${isChecked} onchange="simpanJawab('${s.nomor}', '${opt}')">
-                      <div class="d-flex w-100">
-                          <b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div>
-                      </div>
-                  </label>`;
+                  html += `<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4" type="radio" name="opsi" value="${opt}" ${isChecked} onchange="simpanJawab('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div></div></label>`;
               });
           } else if(tipe.includes('MCMA')) {
               let arrJ = Array.isArray(jwb) ? jwb : [];
               ['A','B','C','D'].forEach(opt => {
                   if(!s['opsi'+opt]) return;
                   let isChecked = arrJ.includes(opt) ? "checked" : "";
-                  html += `
-                  <label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3">
-                      <input class="form-check-input m-0 me-3 fs-4 border-secondary" type="checkbox" value="${opt}" ${isChecked} onchange="simpanJawabMCMA('${s.nomor}', '${opt}')">
-                      <div class="d-flex w-100">
-                          <b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div>
-                      </div>
-                  </label>`;
+                  html += `<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4 border-secondary" type="checkbox" value="${opt}" ${isChecked} onchange="simpanJawabMCMA('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div></div></label>`;
               });
+          } else if(tipe.includes('Kategori') || tipe.includes('Katagori') || tipe.includes('Kompleks')) {
+              let jObj = typeof jwb === 'object' ? jwb : {};
+              let kObj = {}; try { kObj = JSON.parse(s.kunci || "{}"); } catch(e){}
+              
+              let labelKiri = "Benar"; let labelKanan = "Salah";
+              let vals = [...new Set(Object.values(kObj))];
+              if(vals.length > 0) { labelKiri = vals[0]; if(vals.length > 1) labelKanan = vals[1]; }
+
+              html += `<div class="table-responsive"><table class="table table-bordered align-middle bg-white shadow-sm rounded"><thead class="table-light text-center"><tr><th>Pernyataan</th><th style="width:100px;">${labelKiri}</th><th style="width:100px;">${labelKanan}</th></tr></thead><tbody>`;
+              ['A','B','C','D'].forEach(opt => {
+                  let teksOpsi = s['opsi'+opt]; if(!teksOpsi) return;
+                  let js = jObj[opt] || "";
+                  let teksBersih = teksOpsi.replace(/<p[^>]*>/g, '').replace(/<\/p>/g, '');
+                  html += `<tr><td><div class="cbt-opsi-text">${teksBersih}</div></td>
+                           <td class="text-center bg-success bg-opacity-10"><input class="form-check-input fs-4 border-success m-auto" style="cursor:pointer; display:block;" type="radio" name="pgk_${opt}" value="${labelKiri}" ${js===labelKiri?'checked':''} onchange="simpanJawabPGK('${s.nomor}', '${opt}', '${labelKiri}')"></td>
+                           <td class="text-center bg-danger bg-opacity-10"><input class="form-check-input fs-4 border-danger m-auto" style="cursor:pointer; display:block;" type="radio" name="pgk_${opt}" value="${labelKanan}" ${js===labelKanan?'checked':''} onchange="simpanJawabPGK('${s.nomor}', '${opt}', '${labelKanan}')"></td></tr>`;
+              });
+              html += `</tbody></table></div>`;
           } else {
-              // Uraian/Isian Singkat
               html += `<textarea class="form-control border-primary p-3 rounded-4" rows="4" placeholder="Ketik jawaban..." oninput="simpanJawab('${s.nomor}', this.value)">${jwb}</textarea>`;
           }
 
           document.getElementById('cbt-area-soal').innerHTML = html;
+          if(document.getElementById('chk-ragu')) document.getElementById('chk-ragu').checked = cbtRagu[s.nomor] || false;
           renderNav();
       }
 
       function simpanJawab(no, val) { cbtJawaban[no] = val; renderNav(); }
-      function simpanJawabMCMA(no, val) {
-          if(!Array.isArray(cbtJawaban[no])) cbtJawaban[no] = [];
-          let arr = cbtJawaban[no];
-          if(arr.includes(val)) arr = arr.filter(x => x !== val); else arr.push(val);
-          cbtJawaban[no] = arr; renderNav();
-      }
+      function simpanJawabMCMA(no, val) { if(!Array.isArray(cbtJawaban[no])) cbtJawaban[no] = []; let arr = cbtJawaban[no]; if(arr.includes(val)) arr = arr.filter(x => x !== val); else arr.push(val); cbtJawaban[no] = arr; renderNav(); }
+      function simpanJawabPGK(no, opsi, val) { if(typeof cbtJawaban[no] !== 'object' || Array.isArray(cbtJawaban[no])) cbtJawaban[no] = {}; cbtJawaban[no][opsi] = val; renderNav(); }
+      function toggleRagu() { let s = cbtSoal[cbtIndex]; cbtRagu[s.nomor] = document.getElementById('chk-ragu').checked; renderNav(); }
       function navigasiSoal(arah) { cbtIndex += arah; renderSoalCBT(); }
 
       function renderNav() {
           let h = '';
           cbtSoal.forEach((s, i) => {
               let j = cbtJawaban[s.nomor];
-              let isIsi = (typeof j === 'string' && j !== "") || (Array.isArray(j) && j.length > 0);
-              let c = isIsi ? 'btn-primary text-white' : 'btn-outline-secondary bg-white text-dark';
+              let isIsi = (typeof j === 'string' && j !== "") || (Array.isArray(j) && j.length > 0) || (typeof j === 'object' && Object.keys(j).length > 0);
+              let isRagu = cbtRagu[s.nomor] === true;
+              
+              let c = 'btn-outline-secondary bg-white text-dark';
+              if(isRagu) c = 'btn-warning text-dark';
+              else if(isIsi) c = 'btn-primary text-white';
+              
               if(i === cbtIndex) c += ' border border-3 border-dark shadow';
               
-              // Ditambahkan d-inline-flex, justify-content-center, p-0, dan white-space: nowrap agar angka tidak terlipat
               h += `<button class="btn ${c} fw-bold m-1 d-inline-flex align-items-center justify-content-center p-0" style="width: 45px; height: 45px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;" onclick="cbtIndex=${i}; renderSoalCBT()">${s.nomor}</button>`;
           });
           document.getElementById('cbt-navigasi').innerHTML = h;
       }
 
-      // 4. KUMPULKAN DAN KOREKSI OTOMATIS (LOKAL - TANPA DATABASE)
+      // 4. KOREKSI OTOMATIS (LOKAL)
       function selesaiUjianLokal() {
-          let terisi = Object.keys(cbtJawaban).filter(k => cbtJawaban[k] && cbtJawaban[k].length > 0).length;
+          let terisi = Object.keys(cbtJawaban).filter(k => {
+              let j = cbtJawaban[k];
+              if(typeof j === 'string') return j.trim() !== "";
+              if(Array.isArray(j)) return j.length > 0;
+              if(typeof j === 'object') return Object.keys(j).length > 0;
+              return false;
+          }).length;
+          
           if(cbtWaktuSisa > 0 && !confirm(`Kamu baru menjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin ingin mengakhiri dan melihat nilai?`)) return;
 
           clearInterval(timerInterval);
           if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
 
-          // MESIN KOREKSI BROWSER (LOKAL)
-          let totalNilai = 0;
-          let htmlReview = '';
-
+          let totalNilai = 0; let htmlReview = '';
           cbtSoal.forEach(s => {
-              let js = cbtJawaban[s.nomor] || "";
-              let kunci = s.kunci || "";
-              let tipe = String(s.tipe).trim();
-              let isBenar = false;
-
-              let poinBenar = Number(s.poinBenar) || 10;
-              let poinSalah = Number(s.poinSalah) || 0;
-              let poinKosong = Number(s.poinKosong) || 0;
+              let js = cbtJawaban[s.nomor] || ""; let kunci = s.kunci || ""; let tipe = String(s.tipe).trim();
+              let isBenar = false; let pB = Number(s.poinBenar) || 10; let pS = Number(s.poinSalah) || 0; let pK = Number(s.poinKosong) || 0;
 
               if(tipe.includes('MCMA')) {
-                  let jStr = Array.isArray(js) ? js.sort().join('') : "";
-                  let kStr = String(kunci).replace(/[^A-D]/g, '').split('').sort().join('');
+                  let jStr = Array.isArray(js) ? js.sort().join('') : ""; let kStr = String(kunci).replace(/[^A-D]/g, '').split('').sort().join('');
                   isBenar = (jStr === kStr && jStr !== "");
+                  if(jStr==="") totalNilai+=pK; else if(isBenar) totalNilai+=pB; else totalNilai+=pS;
+              } else if (tipe.includes('Kategori') || tipe.includes('Kompleks') || tipe.includes('Katagori')) {
+                  try {
+                      let kObj = JSON.parse(kunci || "{}"); let jObj = typeof js === 'object' ? js : {};
+                      let isBenarSemua = true; let dijawabBerapa = Object.keys(jObj).length;
+                      ['A','B','C','D'].forEach(o => { if (s['opsi'+o] && jObj[o] !== kObj[o]) isBenarSemua = false; });
+                      if (dijawabBerapa === 0) { js = ""; isBenar = false; totalNilai+=pK; } else { isBenar = isBenarSemua; if(isBenar) totalNilai+=pB; else totalNilai+=pS; }
+                  } catch(e) {}
               } else {
                   isBenar = (String(js).trim().toUpperCase() === String(kunci).trim().toUpperCase());
+                  if(js==="") totalNilai+=pK; else if(isBenar) totalNilai+=pB; else totalNilai+=pS;
               }
 
-              // Hitung Nilai
-              if(js === "" || (Array.isArray(js) && js.length === 0)) totalNilai += poinKosong;
-              else if(isBenar) totalNilai += poinBenar;
-              else totalNilai += poinSalah;
-
-              // Render Review HTML
               let badgeHasil = isBenar ? '<span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Benar</span>' : (js==='' ? '<span class="badge bg-warning text-dark">Kosong</span>' : '<span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> Salah</span>');
-              let jwbTampil = Array.isArray(js) ? js.join(', ') : js;
+              let jwbTampil = js;
+              if (Array.isArray(js)) jwbTampil = js.join(', ');
+              else if (typeof js === 'object') jwbTampil = JSON.stringify(js).replace(/["{}]/g, '').replace(/:/g, ' -> ');
               if(jwbTampil === '') jwbTampil = '<i class="text-muted">Tidak dijawab</i>';
 
-              htmlReview += `
-              <div class="card border-0 shadow-sm rounded-4 mb-3">
-                  <div class="card-body p-4">
-                      <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                          <h6 class="fw-bold text-primary m-0">Soal No. ${s.nomor}</h6>
-                          ${badgeHasil}
-                      </div>
-                      <div class="mb-3 text-dark">${s.pertanyaan}</div>
-                      <div class="p-3 bg-light rounded-3 border d-flex justify-content-between flex-wrap gap-2">
-                          <div><small class="text-muted d-block">Jawabanmu:</small><b class="${isBenar ? 'text-success' : 'text-danger'} fs-5">${jwbTampil}</b></div>
-                          <div class="text-end border-start ps-3"><small class="text-muted d-block">Kunci Jawaban:</small><b class="text-success fs-5">${kunci}</b></div>
-                      </div>
-                      ${s.pembahasan ? `<div class="mt-3 p-3 bg-success bg-opacity-10 border border-success-subtle rounded-3"><small class="fw-bold text-success d-block mb-1">Pembahasan:</small><div class="small text-dark">${s.pembahasan}</div></div>` : ''}
-                  </div>
-              </div>`;
+              htmlReview += `<div class="card border-0 shadow-sm rounded-4 mb-3"><div class="card-body p-4"><div class="d-flex justify-content-between mb-3 border-bottom pb-2"><h6 class="fw-bold text-primary m-0">Soal No. ${s.nomor}</h6>${badgeHasil}</div><div class="mb-3 text-dark">${s.pertanyaan}</div><div class="p-3 bg-light rounded-3 border d-flex justify-content-between flex-wrap gap-2"><div><small class="text-muted d-block">Jawabanmu:</small><b class="${isBenar ? 'text-success' : 'text-danger'} fs-5">${jwbTampil}</b></div><div class="text-end border-start ps-3"><small class="text-muted d-block">Kunci Jawaban:</small><b class="text-success fs-5">${kunci}</b></div></div>${s.pembahasan ? `<div class="mt-3 p-3 bg-success bg-opacity-10 border border-success-subtle rounded-3"><small class="fw-bold text-success d-block mb-1">Pembahasan:</small><div class="small text-dark">${s.pembahasan}</div></div>` : ''}</div></div>`;
           });
 
-          // Pindah ke Layar Hasil
-          document.getElementById('screen-cbt').classList.add('hidden');
-          document.getElementById('screen-hasil').classList.remove('hidden');
-          
-          document.getElementById('hasil-nama').innerText = dataSiswa.nama;
-          document.getElementById('hasil-skor').innerText = totalNilai;
-          document.getElementById('area-pembahasan').innerHTML = htmlReview;
+          document.getElementById('screen-cbt').classList.add('hidden'); document.getElementById('screen-hasil').classList.remove('hidden');
+          document.getElementById('hasil-nama').innerText = dataSiswa.nama; document.getElementById('hasil-skor').innerText = totalNilai; document.getElementById('area-pembahasan').innerHTML = htmlReview;
       }
   </script>
-
 </body>
 </html>
