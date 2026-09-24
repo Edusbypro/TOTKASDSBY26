@@ -168,6 +168,7 @@
       let cbtIndex = 0;
       let cbtWaktuSisa = 0;
       let timerInterval;
+      let cheatCount = 0; // PENYIMPAN JUMLAH PELANGGARAN
 
       // FUNGSI FETCH API (ANTI ERROR & CACHE)
       function panggilAPI(action, payload = {}) {
@@ -234,7 +235,7 @@
               if(!dataSoal || dataSoal.length === 0) {
                   alert("⚠️ PERHATIAN: Butir soal belum ada di database!\n\nSilakan lapor kepada Guru untuk memasukkan butir soal pada ujian ini."); location.reload(); return;
               }
-              cbtSoal = dataSoal; cbtJawaban = {}; cbtRagu = {}; cbtIndex = 0; cbtWaktuSisa = parseInt(durasi) * 60;
+              cbtSoal = dataSoal; cbtJawaban = {}; cbtRagu = {}; cbtIndex = 0; cbtWaktuSisa = parseInt(durasi) * 60; cheatCount = 0; // TAMBAHKAN BARIS INI
               let elem = document.documentElement; if(elem.requestFullscreen) elem.requestFullscreen().catch(()=>{});
               jalankanTimer(); renderSoalCBT();
           })
@@ -331,17 +332,10 @@
           document.getElementById('cbt-navigasi').innerHTML = h;
       }
 
-      // 4. KOREKSI OTOMATIS (LOKAL)
-      function selesaiUjianLokal() {
-          let terisi = Object.keys(cbtJawaban).filter(k => {
-              let j = cbtJawaban[k];
-              if(typeof j === 'string') return j.trim() !== "";
-              if(Array.isArray(j)) return j.length > 0;
-              if(typeof j === 'object') return Object.keys(j).length > 0;
-              return false;
-          }).length;
-          
-          if(cbtWaktuSisa > 0 && !confirm(`Kamu baru menjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin ingin mengakhiri dan melihat nilai?`)) return;
+      // 4. KUMPULKAN DAN KOREKSI OTOMATIS (LOKAL - TANPA DATABASE)
+      function selesaiUjianLokal(isPaksa = false) {
+          let terisi = Object.keys(cbtJawaban).filter(k => cbtJawaban[k] && cbtJawaban[k].length > 0).length;
+          if(!isPaksa && cbtWaktuSisa > 0 && !confirm(`Kamu baru menjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin ingin mengakhiri dan melihat nilai?`)) return;
 
           clearInterval(timerInterval);
           if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
@@ -443,6 +437,49 @@
 
           // Mulai bersuara
           synth.speak(suaraAI);
+      }
+	  
+	  // ==========================================
+      // SENSOR ANTI-NYONTEK & DETEKSI LAYAR PENUH
+      // ==========================================
+      
+      // 1. SENSOR PINDAH TAB / BUKA APLIKASI LAIN
+      document.addEventListener("visibilitychange", () => {
+          // Cek apakah siswa sedang berada di layar ujian (CBT)
+          let cbtScreen = document.getElementById('screen-cbt');
+          if (!cbtScreen.classList.contains('hidden') && document.hidden) {
+              cheatCount++;
+              if(cheatCount >= 3) {
+                  alert("🚨 PELANGGARAN FATAL! 🚨\nKamu telah keluar dari halaman ujian sebanyak 3 kali.\nUjian dihentikan paksa dan jawabanmu dikoreksi otomatis!");
+                  selesaiUjianLokal(true); // Kumpulkan paksa!
+              } else {
+                  alert(`⚠️ PERINGATAN KECURANGAN (${cheatCount}/3)! ⚠️\nSistem mendeteksi kamu meninggalkan halaman ujian atau membuka tab/aplikasi lain. Jika mencapai 3 kali, ujian akan dihentikan otomatis!`);
+              }
+          }
+      });
+
+      // 2. SENSOR KELUAR DARI FULLSCREEN
+      document.addEventListener("fullscreenchange", handleFullscreenExit);
+      document.addEventListener("webkitfullscreenchange", handleFullscreenExit);
+      document.addEventListener("msfullscreenchange", handleFullscreenExit);
+
+      function handleFullscreenExit() {
+          let cbtScreen = document.getElementById('screen-cbt');
+          if (!cbtScreen.classList.contains('hidden') && !document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+              cheatCount++; 
+              if (cheatCount >= 3) {
+                  alert("🚨 PELANGGARAN FATAL! 🚨\nKamu telah keluar dari mode Layar Penuh (Fullscreen) sebanyak 3 kali.\nUjian dihentikan paksa!");
+                  selesaiUjianLokal(true); // Kumpulkan paksa!
+              } else {
+                  alert(`⚠️ PERINGATAN KECURANGAN (${cheatCount}/3)! ⚠️\nKamu dilarang keluar dari mode Layar Penuh selama latihan berlangsung! Silakan klik OK untuk masuk kembali ke layar penuh.`);
+                  
+                  // Paksa masuk fullscreen lagi
+                  let elem = document.documentElement;
+                  if (elem.requestFullscreen) {
+                      elem.requestFullscreen().catch(err => console.log("Perlu interaksi klik untuk fullscreen ulang."));
+                  }
+              }
+          }
       }
 	  
   </script>
