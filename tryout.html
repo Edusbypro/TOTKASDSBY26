@@ -415,6 +415,9 @@
           if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
 
           let totalNilai = 0; let htmlReview = '';
+		  // --- TAMBAHAN BARU: SORTIR ULANG SOAL AGAR PEMBAHASAN TETAP URUT ---
+          cbtSoal.sort((a, b) => parseInt(a.nomor) - parseInt(b.nomor));
+          // ------------------------------------------------------------------
           cbtSoal.forEach(s => {
               let js = cbtJawaban[s.nomor] || ""; let kunci = s.kunci || ""; let tipe = String(s.tipe).trim();
               let isBenar = false; let pB = Number(s.poinBenar) || 10; let pS = Number(s.poinSalah) || 0; let pK = Number(s.poinKosong) || 0;
