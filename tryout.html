@@ -221,11 +221,25 @@
           });
       }
 
-      // 2. PERSIAPAN MULAI UJIAN (FULLSCREEN)
+      // ==========================================
+      // FUNGSI PENGACAK ARRAY (FISHER-YATES SHUFFLE)
+      // ==========================================
+      function acakArray(array) {
+          let currentIndex = array.length, randomIndex;
+          while (currentIndex !== 0) {
+              randomIndex = Math.floor(Math.random() * currentIndex);
+              currentIndex--;
+              [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+          }
+          return array;
+      }
+
+      // ==========================================
+      // 2. PERSIAPAN MULAI UJIAN (DENGAN PENGACAKAN)
+      // ==========================================
       function persiapanMulai(kode, nama, durasi) {
           if(!confirm(`Mulai latihan: ${nama}?\nWaktu: ${durasi} Menit.\n\n⚠️ Jangan keluar dari mode layar penuh agar tidak dianggap curang!`)) return;
 
-          // Mengamankan layar penuh sebelum loading
           let elem = document.documentElement; 
           if(elem.requestFullscreen) { elem.requestFullscreen().catch(()=>{}); }
           else if(elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen().catch(()=>{}); }
@@ -235,21 +249,43 @@
           document.getElementById('cbt-judul').innerHTML = `<i class="bi bi-laptop me-2"></i>` + nama;
           document.getElementById('cbt-area-soal').innerHTML = '<div class="text-center py-5"><span class="spinner-border text-primary fs-2"></span><br>Menyiapkan Soal...</div>';
 
-          // Tarik Soal
           panggilAPI("getSoalUjian", { kodeSekolah: KODE_SEKOLAH_DEFAULT, kodeUjian: kode, timestampBypass: new Date().getTime() })
           .then(dataSoal => {
               if(!dataSoal || dataSoal.length === 0) {
-                  alert("⚠️ PERHATIAN: Butir soal belum ada di database!\n\nSilakan lapor kepada Guru untuk memasukkan butir soal pada ujian ini."); 
+                  alert("⚠️ PERHATIAN: Butir soal belum ada di database!"); 
                   if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
                   location.reload(); 
                   return;
               }
               
+              // --- LOGIKA PENGACAKAN SOAL & OPSI BERDASARKAN SETTING ADMIN ---
+              let infoUjian = bankUjian.find(u => u.kode === kode) || {};
+              let isAcakSoal = infoUjian.acakSoal === 'Ya';
+              let isAcakOpsi = infoUjian.acakOpsi === 'Ya';
+
+              if (isAcakSoal) {
+                  dataSoal = acakArray(dataSoal); // Acak urutan soal
+              }
+
+              // Kunci urutan opsi (A,B,C,D) secara permanen untuk siswa ini agar tidak berubah-ubah saat Next/Prev
+              dataSoal.forEach(s => {
+                  let opsiDasar = ['A', 'B', 'C', 'D'];
+                  // Buang opsi kosong (misal jika soal hanya punya A, B, C)
+                  opsiDasar = opsiDasar.filter(opt => s['opsi'+opt] && s['opsi'+opt].trim() !== '');
+                  
+                  if (isAcakOpsi && String(s.tipe || '').includes('Pilihan Ganda')) {
+                      s.urutanOpsi = acakArray([...opsiDasar]);
+                  } else {
+                      s.urutanOpsi = opsiDasar;
+                  }
+              });
+              // -------------------------------------------------------------
+
               cbtSoal = dataSoal; 
               cbtJawaban = {}; 
               cbtRagu = {}; 
               cbtIndex = 0; 
-              cheatCount = 0; // Reset sensor kecurangan
+              cheatCount = 0; 
               cbtWaktuSisa = parseInt(durasi) * 60;
               
               jalankanTimer(); 
@@ -280,33 +316,38 @@
           }, 1000);
       }
 
-      // 3. RENDER SOAL (SUPPORT PG, MCMA, PGK, ESSAY)
+      // 3. RENDER SOAL (SUPPORT PENGACAKAN OPSI)
       function renderSoalCBT() {
-          // --- TAMBAHKAN PEMBUNGKAM SUARA DI SINI ---
+          // Pembungkam Suara AI (Jika ada)
           if (window.speechSynthesis && window.speechSynthesis.speaking) {
               window.speechSynthesis.cancel();
-              document.getElementById('btn-bacakan-soal').classList.replace('btn-danger', 'btn-warning');
-              document.getElementById('ikon-suara').classList.replace('bi-volume-mute-fill', 'bi-volume-up-fill');
+              if(document.getElementById('btn-bacakan-soal')) document.getElementById('btn-bacakan-soal').classList.replace('btn-danger', 'btn-warning');
+              if(document.getElementById('ikon-suara')) document.getElementById('ikon-suara').classList.replace('bi-volume-mute-fill', 'bi-volume-up-fill');
           }
-          // ------------------------------------------
-          let s = cbtSoal[cbtIndex]; let jwb = cbtJawaban[s.nomor] || "";
+
+          let s = cbtSoal[cbtIndex]; if(!s) return;
+          let jwb = cbtJawaban[s.nomor] || "";
+          
           document.getElementById('btn-prev').style.visibility = (cbtIndex === 0) ? 'hidden' : 'visible';
           document.getElementById('btn-next').style.display = (cbtIndex === cbtSoal.length - 1) ? 'none' : 'block';
           document.getElementById('btn-kumpul').style.display = (cbtIndex === cbtSoal.length - 1) ? 'block' : 'none';
 
-          let html = `<h5 class="fw-bold text-primary mb-3">Soal No. ${s.nomor}</h5><div class="mb-4 text-dark" style="line-height:1.6;">${s.pertanyaan}</div>`;
+          // Gunakan urutan visual (1, 2, 3...) agar angka tetap urut di layar meski nomor aslinya acak
+          let nomorVisual = cbtIndex + 1; 
+          let html = `<h5 class="fw-bold text-primary mb-3">Soal No. ${nomorVisual}</h5><div class="mb-4 text-dark" style="line-height:1.6;">${s.pertanyaan}</div>`;
           let tipe = String(s.tipe || 'Pilihan Ganda').trim();
 
           if(tipe.includes('Pilihan Ganda') && !tipe.includes('MCMA') && !tipe.includes('Kategori') && !tipe.includes('Kompleks') && !tipe.includes('Katagori')) {
-              ['A','B','C','D'].forEach(opt => {
-                  if(!s['opsi'+opt]) return;
+              (s.urutanOpsi || ['A','B','C','D']).forEach(opt => {
+                  let teksOpsi = s['opsi'+opt]; if(!teksOpsi) return;
                   let isChecked = (jwb === opt) ? "checked" : "";
                   html += `<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4" type="radio" name="opsi" value="${opt}" ${isChecked} onchange="simpanJawab('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div></div></label>`;
               });
           } else if(tipe.includes('MCMA')) {
               let arrJ = Array.isArray(jwb) ? jwb : [];
-              ['A','B','C','D'].forEach(opt => {
-                  if(!s['opsi'+opt]) return;
+              html += `<div class="alert alert-info small mb-3"><i class="bi bi-info-circle-fill me-2"></i>Anda dapat memilih lebih dari satu jawaban (ceklis).</div>`;
+              (s.urutanOpsi || ['A','B','C','D']).forEach(opt => {
+                  let teksOpsi = s['opsi'+opt]; if(!teksOpsi) return;
                   let isChecked = arrJ.includes(opt) ? "checked" : "";
                   html += `<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4 border-secondary" type="checkbox" value="${opt}" ${isChecked} onchange="simpanJawabMCMA('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${s['opsi'+opt]}</div></div></label>`;
               });
@@ -319,7 +360,9 @@
               if(vals.length > 0) { labelKiri = vals[0]; if(vals.length > 1) labelKanan = vals[1]; }
 
               html += `<div class="table-responsive"><table class="table table-bordered align-middle bg-white shadow-sm rounded"><thead class="table-light text-center"><tr><th>Pernyataan</th><th style="width:100px;">${labelKiri}</th><th style="width:100px;">${labelKanan}</th></tr></thead><tbody>`;
-              ['A','B','C','D'].forEach(opt => {
+              
+              // PGK juga ikut diacak barisnya
+              (s.urutanOpsi || ['A','B','C','D']).forEach(opt => {
                   let teksOpsi = s['opsi'+opt]; if(!teksOpsi) return;
                   let js = jObj[opt] || "";
                   let teksBersih = teksOpsi.replace(/<p[^>]*>/g, '').replace(/<\/p>/g, '');
@@ -356,7 +399,9 @@
               
               if(i === cbtIndex) c += ' border border-3 border-dark shadow';
               
-              h += `<button class="btn ${c} fw-bold m-1 d-inline-flex align-items-center justify-content-center p-0" style="width: 45px; height: 45px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;" onclick="cbtIndex=${i}; renderSoalCBT()">${s.nomor}</button>`;
+              let nomorVisual = i + 1; // Memaksa kotak navigasi tetap urut 1, 2, 3...
+              
+              h += `<button class="btn ${c} fw-bold m-1 d-inline-flex align-items-center justify-content-center p-0" style="width: 45px; height: 45px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;" onclick="cbtIndex=${i}; renderSoalCBT()">${nomorVisual}</button>`;
           });
           document.getElementById('cbt-navigasi').innerHTML = h;
       }
