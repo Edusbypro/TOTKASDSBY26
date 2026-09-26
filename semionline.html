@@ -281,7 +281,26 @@
   </div>
 
   <!-- HALAMAN LOBBY, CBT, DAN HASIL SISWA -->
-  <div id="screen-daftar-ujian" class="container hidden"><div class="glass-container"><div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3"><div><h4 class="fw-bold m-0 text-primary"><i class="bi bi-journal-text me-2"></i>Daftar Ujian Aktif</h4></div><div class="text-end"><h6 class="fw-bold m-0 text-dark" id="tampil-nama-siswa">Nama Siswa</h6><small class="text-muted" id="tampil-kelas-siswa">Kelas</small></div></div><div class="row g-4" id="container-kartu-ujian"></div></div></div>
+  <div id="screen-daftar-ujian" class="container hidden">
+    <div class="glass-container">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold m-0 text-primary"><i class="bi bi-journal-text me-2"></i>Daftar Ujian Aktif</h4>
+            </div>
+            <!-- Bagian Kanan: Nama Siswa & Tombol Keluar -->
+            <div class="text-end d-flex align-items-center gap-3">
+                <div>
+                    <h6 class="fw-bold m-0 text-dark" id="tampil-nama-siswa">Nama Siswa</h6>
+                    <small class="text-muted" id="tampil-kelas-siswa">Kelas</small>
+                </div>
+                <button class="btn btn-outline-danger btn-sm rounded-pill fw-bold px-3 shadow-sm" onclick="hapusSesiLokal()" title="Keluar Akun">
+                    <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                </button>
+            </div>
+        </div>
+        <div class="row g-4" id="container-kartu-ujian"></div>
+    </div>
+  </div>
   <div id="screen-cbt" class="container-fluid hidden cbt-container"><div class="row g-3 h-100" style="max-width: 1400px; margin: 0 auto;"><div class="col-lg-8 col-12 d-flex flex-column h-lg-100"><div class="card border border-primary-subtle shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden"><div class="card-body p-3 d-flex justify-content-between align-items-center bg-primary bg-opacity-10 border-bottom flex-shrink-0"><h5 class="fw-bold m-0 text-primary text-truncate fs-6 fs-md-5" id="cbt-judul" style="max-width: 65%;">Asesmen</h5><div class="badge bg-danger bg-opacity-10 text-danger fs-6 fs-md-5 border border-danger rounded-pill px-3 py-2 flex-shrink-0"><i class="bi bi-clock-history me-1"></i><span id="cbt-timer">00:00:00</span></div></div><div class="card-body p-3 p-md-4 fs-6 fs-md-5 flex-grow-1" id="cbt-area-soal" style="overflow-y: auto;"></div><div class="card-footer bg-white border-top p-2 p-md-3 d-flex justify-content-between align-items-center flex-wrap gap-2 flex-shrink-0"><button class="btn btn-outline-secondary fw-bold rounded-pill px-3 px-md-4" id="btn-prev" onclick="navigasiSoal(-1)"><i class="bi bi-arrow-left"></i> Sebelumnya</button><div class="form-check form-switch m-0 d-flex align-items-center gap-2 bg-warning bg-opacity-10 border border-warning rounded-pill px-3 py-1 cursor-pointer"><input class="form-check-input m-0 border-warning" type="checkbox" id="chk-ragu" onchange="toggleRagu()" style="cursor:pointer; width: 35px; height: 18px;"><label class="form-check-label fw-bold text-warning small m-0 pt-1" for="chk-ragu" style="cursor:pointer;">Ragu-ragu</label></div><button class="btn btn-primary fw-bold rounded-pill px-3 px-md-4 text-white" id="btn-next" onclick="navigasiSoal(1)">Selanjutnya <i class="bi bi-arrow-right"></i></button></div></div></div><div class="col-lg-4 col-12 d-flex flex-column h-lg-100 mt-3 mt-lg-0"><div class="card border-0 shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden"><div class="card-body p-3 p-md-4 d-flex flex-column flex-grow-1"><h6 class="fw-bold text-dark mb-3 flex-shrink-0 border-bottom pb-2"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Navigasi Soal</h6><div class="d-flex flex-wrap gap-2 mb-3 align-content-start flex-grow-1" id="cbt-navigasi" style="overflow-y: auto;"></div><div class="mt-auto pt-3 border-top flex-shrink-0"><button class="btn btn-success w-100 fw-bold py-2 py-md-3 rounded-pill shadow-sm fs-6 fs-md-5" id="btn-kumpul" onclick="selesaiUjian()"><i class="bi bi-check2-circle me-2"></i>KUMPULKAN</button></div></div></div></div></div></div>
   <div id="screen-hasil" class="container hidden"><div class="glass-container text-center"><h2 class="fw-bold text-primary mb-1">UJIAN SELESAI!</h2><p class="text-muted mb-4">Kerja bagus, <span id="hasil-nama" class="fw-bold"></span>! Jawabanmu sudah direkam di server.</p><div class="bg-white p-4 rounded-4 shadow-sm border border-primary-subtle d-inline-block w-100 mb-4" style="max-width: 400px;"><h6 class="text-muted fw-bold mb-2">NILAI AKHIR KAMU</h6><h1 class="display-1 fw-bold text-success m-0" id="hasil-skor">0</h1></div><div class="mt-4 pt-3 border-top"><button class="btn btn-primary rounded-pill fw-bold px-5 py-2" onclick="hapusSesiLokal()"><i class="bi bi-house-door me-2"></i>Tutup & Kembali</button></div></div></div>
 
