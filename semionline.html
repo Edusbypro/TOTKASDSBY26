@@ -560,7 +560,7 @@
               dataSiswa = { username: user, nama: loginLokal.nama, kelas: loginLokal.kelas };
               simpanSesiLokal("siswa", { kodeSekolah: kode, username: user, password: pass }); 
               
-              btn.innerHTML = 'Mengecek Ujian...'; let listUjianLokal = await panggilAPI(urlApiSekolah, "getDaftarUjian", {});
+              btn.innerHTML = 'Mengecek Ujian...'; let listUjianLokal = await panggilAPI(urlApiSekolah, "getDaftarUjian", { username: user, kodeSekolah: kode });
               let ujianAktifPusat = await panggilAPI(URL_ASESMEN_PUSAT, "getUjianAktifPusat", {});
               let listUjianFinal = listUjianLokal.filter(u => ujianAktifPusat.includes(u.kode));
 
