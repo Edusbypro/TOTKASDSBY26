@@ -529,7 +529,7 @@
       // ========================================================
       // LOGIKA UJIAN SISWA (CBT + ANTI CHEAT + TTS)
       // ========================================================
-      let currentKodeUjian = ""; let cbtSoal = []; let cbtJawaban = {}; let cbtRagu = {}; let cbtIndex = 0; let cbtWaktuSisa = 0; let timerInterval; let cheatCount = 0;
+      let currentKodeUjian = ""; let cbtSoal = []; let cbtJawaban = {}; let cbtRagu = {}; let cbtIndex = 0; let cbtWaktuSisa = 0; let timerInterval; let cheatCount = 0; let statusUjianSelesai = false; // Penanda ujian sudah selesai
 
       async function prosesLoginSistem(e) {
           e.preventDefault(); let btn = document.getElementById('btn-login'); let alertBox = document.getElementById('login-alert');
@@ -573,25 +573,41 @@
       }
 
       function renderSoalCBT() {
-          if (window.speechSynthesis && window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); document.getElementById('btn-bacakan-soal').classList.replace('btn-danger','btn-warning'); document.getElementById('ikon-suara').classList.replace('bi-volume-mute-fill','bi-volume-up-fill'); }
-          let s = cbtSoal[cbtIndex]; if(!s) return; let jwb = cbtJawaban[s.nomor] || ""; let tipe = String(s.tipe||'Pilihan Ganda');
-          document.getElementById('btn-prev').style.visibility=(cbtIndex===0)?'hidden':'visible'; document.getElementById('btn-next').style.display=(cbtIndex===cbtSoal.length-1)?'none':'block'; document.getElementById('btn-kumpul').style.display=(cbtIndex===cbtSoal.length-1)?'block':'none';
+          if (window.speechSynthesis && window.speechSynthesis.speaking) { 
+              window.speechSynthesis.cancel(); 
+              document.getElementById('btn-bacakan-soal').classList.replace('btn-danger','btn-warning'); 
+              document.getElementById('ikon-suara').classList.replace('bi-volume-mute-fill','bi-volume-up-fill'); 
+          }
+          let s = cbtSoal[cbtIndex]; if(!s) return; 
+          let jwb = cbtJawaban[s.nomor] || ""; 
+          let tipe = String(s.tipe||'Pilihan Ganda');
+          
+          document.getElementById('btn-prev').style.visibility=(cbtIndex===0)?'hidden':'visible'; 
+          document.getElementById('btn-next').style.display=(cbtIndex===cbtSoal.length-1)?'none':'block'; 
+          document.getElementById('btn-kumpul').style.display=(cbtIndex===cbtSoal.length-1)?'block':'none';
 
           let html = `<h5 class="fw-bold text-primary mb-3 border-bottom pb-2">Soal No. ${cbtIndex+1}</h5><div class="mb-4 text-dark" style="line-height:1.6;">${s.pertanyaan}</div>`;
-          if(tipe.includes('Pilihan Ganda') && !tipe.includes('MCMA') && !tipe.includes('Kategori')) {
-              ['A','B','C','D'].forEach(opt=>{ let txt=s['opsi'+opt]; if(!txt)return; let chk=(jwb===opt)?"checked":""; html+=`<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4" type="radio" name="o" value="${opt}" ${chk} onchange="simpanJawab('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${txt}</div></div></label>`; });
-          } else if(tipe.includes('MCMA')) {
-              let arrJ=Array.isArray(jwb)?jwb:[]; html+=`<div class="alert alert-info small mb-3"><i class="bi bi-info-circle me-2"></i>Bisa pilih >1 jawaban.</div>`;
-              ['A','B','C','D'].forEach(opt=>{ let txt=s['opsi'+opt]; if(!txt)return; let chk=arrJ.includes(opt)?"checked":""; html+=`<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4 border-secondary" type="checkbox" value="${opt}" ${chk} onchange="simpanJawabMCMA('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${txt}</div></div></label>`; });
-          } else if(tipe.includes('Kategori') || tipe.includes('Kompleks')) {
+
+          // CEK TIPE KHUSUS TERLEBIH DAHULU SEBELUM PILIHAN GANDA BIASA
+          if(tipe.includes('Kategori') || tipe.includes('Katagori') || tipe.includes('Kompleks')) {
               let jObj=typeof jwb==='object'?jwb:{}; let kObj={}; try{kObj=JSON.parse(s.kunci||"{}");}catch(e){}
               let lKr="Benar", lKn="Salah", vals=[...new Set(Object.values(kObj))]; if(vals.length>0){lKr=vals[0]; if(vals.length>1)lKn=vals[1];}
               html+=`<div class="table-responsive"><table class="table table-bordered align-middle"><thead class="table-light text-center"><tr><th>Pernyataan</th><th style="width:100px;">${lKr}</th><th style="width:100px;">${lKn}</th></tr></thead><tbody>`;
               ['A','B','C','D'].forEach(opt=>{ let txt=s['opsi'+opt]; if(!txt)return; let js=jObj[opt]||""; let tb=txt.replace(/<p[^>]*>/g,'').replace(/<\/p>/g,'');
                   html+=`<tr><td><div class="cbt-opsi-text">${tb}</div></td><td class="text-center bg-success bg-opacity-10"><input class="form-check-input fs-4 border-success m-auto" style="cursor:pointer; display:block;" type="radio" name="pgk_${opt}" value="${lKr}" ${js===lKr?'checked':''} onchange="simpanJawabPGK('${s.nomor}','${opt}','${lKr}')"></td><td class="text-center bg-danger bg-opacity-10"><input class="form-check-input fs-4 border-danger m-auto" style="cursor:pointer; display:block;" type="radio" name="pgk_${opt}" value="${lKn}" ${js===lKn?'checked':''} onchange="simpanJawabPGK('${s.nomor}','${opt}','${lKn}')"></td></tr>`; });
               html+=`</tbody></table></div>`;
-          } else { html+=`<textarea class="form-control border-primary p-3 rounded-4" rows="4" placeholder="Ketik jawaban..." oninput="simpanJawab('${s.nomor}', this.value)">${jwb}</textarea>`; }
-          document.getElementById('cbt-area-soal').innerHTML = html; document.getElementById('chk-ragu').checked = cbtRagu[s.nomor] || false; renderNav();
+          } else if(tipe.includes('MCMA')) {
+              let arrJ=Array.isArray(jwb)?jwb:[]; html+=`<div class="alert alert-info small mb-3"><i class="bi bi-info-circle me-2"></i>Bisa pilih >1 jawaban.</div>`;
+              ['A','B','C','D'].forEach(opt=>{ let txt=s['opsi'+opt]; if(!txt)return; let chk=arrJ.includes(opt)?"checked":""; html+=`<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4 border-secondary" type="checkbox" value="${opt}" ${chk} onchange="simpanJawabMCMA('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${txt}</div></div></label>`; });
+          } else if(tipe.includes('Pilihan Ganda')) {
+              ['A','B','C','D'].forEach(opt=>{ let txt=s['opsi'+opt]; if(!txt)return; let chk=(jwb===opt)?"checked":""; html+=`<label class="cbt-opsi-wrapper d-flex align-items-start p-3 mb-3"><input class="form-check-input m-0 me-3 fs-4" type="radio" name="o" value="${opt}" ${chk} onchange="simpanJawab('${s.nomor}', '${opt}')"><div class="d-flex w-100"><b class="me-2 text-primary">${opt}.</b><div class="cbt-opsi-text">${txt}</div></div></label>`; });
+          } else { 
+              html+=`<textarea class="form-control border-primary p-3 rounded-4" rows="4" placeholder="Ketik jawaban..." oninput="simpanJawab('${s.nomor}', this.value)">${jwb}</textarea>`; 
+          }
+
+          document.getElementById('cbt-area-soal').innerHTML = html; 
+          document.getElementById('chk-ragu').checked = cbtRagu[s.nomor] || false; 
+          renderNav();
       }
 
       function simpanJawab(no, val) { cbtJawaban[no]=val; renderNav(); } function simpanJawabMCMA(no, val) { if(!Array.isArray(cbtJawaban[no])) cbtJawaban[no]=[]; let arr=cbtJawaban[no]; if(arr.includes(val)) arr=arr.filter(x=>x!==val); else arr.push(val); cbtJawaban[no]=arr; renderNav(); } function simpanJawabPGK(no, opsi, val) { if(typeof cbtJawaban[no]!=='object'||Array.isArray(cbtJawaban[no])) cbtJawaban[no]={}; cbtJawaban[no][opsi]=val; renderNav(); } function toggleRagu() { cbtRagu[cbtSoal[cbtIndex].nomor]=document.getElementById('chk-ragu').checked; renderNav(); } function navigasiSoal(arah) { cbtIndex+=arah; renderSoalCBT(); }
@@ -606,7 +622,8 @@
       }
 
       async function selesaiUjian(isPaksa = false) {
-          let terisi=Object.keys(cbtJawaban).filter(k=>cbtJawaban[k]!==""&&Object.keys(cbtJawaban[k]).length!==0).length;
+    statusUjianSelesai = true; // Mencegah sensor anti-cheat aktif saat keluar fullscreen
+    let terisi = Object.keys(cbtJawaban).filter(k => cbtJawaban[k]!=="" && Object.keys(cbtJawaban[k]).length!==0).length;
           if(!isPaksa && cbtWaktuSisa>0 && !confirm(`Terjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin kumpulkan?`)) return;
           clearInterval(timerInterval); if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
           let btn = document.getElementById('btn-kumpul'); btn.innerHTML='Menyetor...'; btn.disabled=true;
@@ -639,7 +656,9 @@
           let s = document.getElementById('screen-cbt');
           if (!s.classList.contains('hidden') && document.hidden) { cheatCount++; if(cheatCount>=3){ alert("🚨 PELANGGARAN 3 KALI! Ujian dihentikan paksa."); selesaiUjian(true); } else alert(`⚠️ KECURANGAN (${cheatCount}/3)! dilarang pindah tab.`); }
       });
-      function cekFS() { let s = document.getElementById('screen-cbt'); if (!s.classList.contains('hidden') && !document.fullscreenElement && !document.webkitFullscreenElement) { cheatCount++; if(cheatCount>=3){ alert("🚨 PELANGGARAN 3 KALI! Ujian dihentikan paksa."); selesaiUjian(true); } else { alert(`⚠️ KECURANGAN (${cheatCount}/3)! Wajib Fullscreen.`); let el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(e=>e); } } }
+      function cekFS() {
+if (statusUjianSelesai) return;
+	  let s = document.getElementById('screen-cbt'); if (!s.classList.contains('hidden') && !document.fullscreenElement && !document.webkitFullscreenElement) { cheatCount++; if(cheatCount>=3){ alert("🚨 PELANGGARAN 3 KALI! Ujian dihentikan paksa."); selesaiUjian(true); } else { alert(`⚠️ KECURANGAN (${cheatCount}/3)! Wajib Fullscreen.`); let el=document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(e=>e); } } }
       document.addEventListener("fullscreenchange", cekFS); document.addEventListener("webkitfullscreenchange", cekFS);
       
       window.addEventListener('beforeunload', function (e) {
