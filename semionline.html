@@ -58,7 +58,16 @@
           <form id="formSiswa" onsubmit="prosesLoginSistem(event)">
               <div class="mb-3 text-start"><label class="form-label fw-bold small">Kode Sekolah</label><input type="text" id="in-kode" class="form-control form-control-lg bg-light" required></div>
               <div class="mb-3 text-start"><label class="form-label fw-bold small">Username</label><input type="text" id="in-user" class="form-control form-control-lg bg-light" required></div>
-              <div class="mb-4 text-start"><label class="form-label fw-bold small">Password</label><input type="password" id="in-pass" class="form-control form-control-lg bg-light" required></div>
+              <!-- Ganti bagian password siswa yang lama dengan ini: -->
+<div class="mb-4 text-start">
+    <label class="form-label fw-bold small">Password</label>
+    <div class="input-group input-group-lg">
+        <input type="password" id="in-pass" class="form-control bg-light" required>
+        <button type="button" class="btn btn-outline-secondary border-start-0 bg-light text-muted" onclick="togglePass('in-pass', 'icon-pass-siswa')" title="Tampilkan/Sembunyikan Password">
+            <i class="bi bi-eye-slash" id="icon-pass-siswa"></i>
+        </button>
+    </div>
+</div>
               <button type="submit" id="btn-login" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill mb-3">Masuk Sistem <i class="bi bi-arrow-right ms-2"></i></button>
           </form>
 
@@ -67,7 +76,16 @@
               <div class="alert alert-warning small fw-bold"><i class="bi bi-shield-lock-fill me-2"></i>Mode Administrator Sekolah</div>
               <div class="mb-3 text-start"><label class="form-label fw-bold small">Kode Sekolah</label><input type="text" id="admin-kode" class="form-control form-control-lg border-warning" placeholder="Contoh: KA07SBY" required></div>
               <div class="mb-3 text-start"><label class="form-label fw-bold small">Username Admin</label><input type="text" id="admin-user" class="form-control form-control-lg bg-light" required></div>
-              <div class="mb-4 text-start"><label class="form-label fw-bold small">Password Admin</label><input type="password" id="admin-pass" class="form-control form-control-lg bg-light" required></div>
+              <!-- Ganti bagian password admin yang lama dengan ini: -->
+<div class="mb-4 text-start">
+    <label class="form-label fw-bold small">Password Admin</label>
+    <div class="input-group input-group-lg">
+        <input type="password" id="admin-pass" class="form-control bg-light" required>
+        <button type="button" class="btn btn-outline-secondary border-start-0 bg-light text-muted" onclick="togglePass('admin-pass', 'icon-pass-admin')" title="Tampilkan/Sembunyikan Password">
+            <i class="bi bi-eye-slash" id="icon-pass-admin"></i>
+        </button>
+    </div>
+</div>
               <button type="submit" id="btn-login-admin" class="btn btn-dark btn-lg w-100 fw-bold rounded-pill mb-3">Masuk Dashboard</button>
           </form>
 
@@ -628,6 +646,23 @@
           let s = document.getElementById('screen-cbt');
           if (!s.classList.contains('hidden')) { selesaiUjian(true); e.preventDefault(); e.returnValue = ''; }
       });
+	  
+	  // ========================================================
+// FITUR LIHAT / SEMBUNYIKAN PASSWORD
+// ========================================================
+function togglePass(inputId, iconId) {
+    let input = document.getElementById(inputId);
+    let icon = document.getElementById(iconId);
+    
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("bi-eye-slash", "bi-eye");
+    } else {
+        input.type = "password";
+        icon.classList.replace("bi-eye", "bi-eye-slash");
+    }
+}
+	  
   </script>
 </body>
 </html>
