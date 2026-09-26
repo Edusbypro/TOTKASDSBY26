@@ -566,7 +566,17 @@
 
               document.getElementById('screen-login').classList.add('hidden'); document.getElementById('screen-daftar-ujian').classList.remove('hidden');
               document.getElementById('tampil-nama-siswa').innerText = dataSiswa.nama; document.getElementById('tampil-kelas-siswa').innerText = "Kelas: " + dataSiswa.kelas;
-              let htmlUjian = ''; listUjianFinal.forEach(u => { htmlUjian += `<div class="col-md-6"><div class="card card-ujian h-100 border-0 shadow-sm rounded-4 p-3 bg-white" onclick="persiapanMulai('${u.kode}', '${u.nama.replace(/'/g, "\\'")}', ${u.durasi})"><div class="d-flex align-items-center mb-2"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;"><i class="bi bi-journal-text fs-4"></i></div><div><h6 class="fw-bold m-0 text-dark">${u.nama}</h6><small class="text-muted">Durasi: ${u.durasi} Menit</small></div></div><button class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold mt-2">Pilih Ujian</button></div></div>`; });
+              let htmlUjian = ''; 
+              listUjianFinal.forEach(u => {
+                  if (!u.sudahDikerjakan) {
+                      // Jika BELUM dikerjakan (atau akun uji coba 123456): Tombol AKTIF
+                      htmlUjian += `<div class="col-md-6"><div class="card card-ujian h-100 border-0 shadow-sm rounded-4 p-3 bg-white" onclick="persiapanMulai('${u.kode}', '${u.nama.replace(/'/g, "\\'")}', ${u.durasi})"><div class="d-flex align-items-center mb-2"><div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;"><i class="bi bi-journal-text fs-4"></i></div><div><h6 class="fw-bold m-0 text-dark">${u.nama}</h6><small class="text-muted">Durasi: ${u.durasi} Menit</small></div></div><button class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold mt-2">Pilih Ujian</button></div></div>`;
+                  } else {
+                      // Jika SUDAH dikerjakan oleh siswa biasa: Tombol TERKUNCI
+                      htmlUjian += `<div class="col-md-6"><div class="card card-ujian h-100 border-0 shadow-sm rounded-4 p-3 bg-light opacity-75"><div class="d-flex align-items-center mb-2"><div class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;"><i class="bi bi-lock-fill fs-4"></i></div><div><h6 class="fw-bold m-0 text-dark">${u.nama}</h6><small class="text-muted">Sudah diselesaikan</small></div></div><button class="btn btn-secondary btn-sm w-100 rounded-pill fw-bold mt-2" disabled>Sudah Dikerjakan</button></div></div>`;
+                  }
+              });
+              
               document.getElementById('container-kartu-ujian').innerHTML = htmlUjian || '<div class="col-12 text-center py-4 text-muted"><i class="bi bi-x-circle display-4 d-block mb-3 opacity-50"></i>Ujian ditutup pusat.</div>';
           } catch (err) { btn.disabled=false; btn.innerHTML='Masuk Sistem'; alertBox.innerText=err.message; alertBox.classList.remove('hidden'); }
       }
