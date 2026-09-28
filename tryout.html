@@ -408,8 +408,16 @@
 
       // 4. KUMPULKAN DAN KOREKSI OTOMATIS (LOKAL - TANPA DATABASE)
       function selesaiUjianLokal(isPaksa = false) {
-          let terisi = Object.keys(cbtJawaban).filter(k => cbtJawaban[k] && cbtJawaban[k].length > 0).length;
-          if(!isPaksa && cbtWaktuSisa > 0 && !confirm(`Kamu baru menjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin ingin mengakhiri dan melihat nilai?`)) return;
+          // PERBAIKAN: Deteksi cerdas untuk Teks, Array (MCMA), dan Object (PGK/Kategori)
+          let terisi = Object.keys(cbtJawaban).filter(k => {
+              let j = cbtJawaban[k];
+              if(typeof j === 'string') return j.trim() !== "";
+              if(Array.isArray(j)) return j.length > 0;
+              if(typeof j === 'object') return Object.keys(j).length > 0;
+              return false;
+          }).length;
+
+          if(!isPaksa && cbtWaktuSisa > 0 && !confirm(`Kamu sudah menjawab ${terisi} dari ${cbtSoal.length} soal.\nYakin ingin mengakhiri dan melihat nilai?`)) return;
 
           clearInterval(timerInterval);
           if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
