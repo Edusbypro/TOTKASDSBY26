@@ -2090,12 +2090,28 @@ function resetDetailFilter() {
                     if(baikArr) baikArr.forEach(v => { let el = document.querySelector(`.chk-${m}-baik[value="${v.replace(/"/g, '&quot;')}"]`); if(el) el.checked = true; });
                     if(kurgArr) kurgArr.forEach(v => { let el = document.querySelector(`.chk-${m}-kurang[value="${v.replace(/"/g, '&quot;')}"]`); if(el) el.checked = true; });
 					// === SUNTIKKAN KODE INI DI SINI ===
-                if (d.ttdGuruBase64 && signaturePadGuru) signaturePadGuru.fromDataURL(d.ttdGuruBase64);
-                if (d.ttdKsBase64 && signaturePadKs) signaturePadKs.fromDataURL(d.ttdKsBase64);
+                // 1. Simpan ke input tersembunyi agar kebal dari reset saat keyboard HP naik-turun
+                if (d.ttdGuruBase64) document.getElementById('inputTtdGuruBase64').value = d.ttdGuruBase64;
+                if (d.ttdKsBase64) document.getElementById('inputTtdKsBase64').value = d.ttdKsBase64;
+                
+                // 2. Beri jeda 300ms agar animasi keyboard HP selesai dan ukuran kanvas stabil sebelum digambar
+                setTimeout(() => {
+                    if (d.ttdGuruBase64 && signaturePadGuru) signaturePadGuru.fromDataURL(d.ttdGuruBase64);
+                    if (d.ttdKsBase64 && signaturePadKs) signaturePadKs.fromDataURL(d.ttdKsBase64);
+                }, 300);
                 // ==================================
                 });
                 updateRtlStrategiView(); statLabel.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Arsip Dimuat.</span>';
-            } else { statLabel.innerHTML = '<span class="text-secondary"><i class="bi bi-file-earmark-plus"></i> Formulir Baru.</span>'; }
+            } else { 
+                statLabel.innerHTML = '<span class="text-secondary"><i class="bi bi-file-earmark-plus"></i> Formulir Baru.</span>'; 
+                
+                // === TAMBAHAN PEMBERSIHAN KANVAS ===
+                // Kosongkan memori TTD agar formulir baru tidak mewarisi TTD secara tidak sengaja
+                document.getElementById('inputTtdGuruBase64').value = "";
+                document.getElementById('inputTtdKsBase64').value = "";
+                if(signaturePadGuru) signaturePadGuru.clear();
+                if(signaturePadKs) signaturePadKs.clear();
+            }
         }).catch(err => { statLabel.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle"></i> Gagal koneksi.</span>'; });
     }
  
