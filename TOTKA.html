@@ -89,7 +89,8 @@
 
     <!-- PAGE 2: Pengisian Data & Token -->
     <main id="page-2" class="hidden-page container mx-auto p-4 flex justify-center items-center min-h-[80vh]">
-        <div class="glass-card p-8 rounded-2xl w-full max-w-2xl flex flex-col md:flex-row gap-6">
+        <div class="glass-card p-8 rounded-2xl w-full max-w-3xl flex flex-col md:flex-row gap-6">
+            <!-- Kiri: Token -->
             <div class="w-full md:w-1/3">
                 <div class="glass-card p-4 rounded-xl text-center">
                     <p class="text-sm text-indigo-200 mb-2">Token Ujian Anda</p>
@@ -97,22 +98,84 @@
                     <p class="text-xs mt-2 text-indigo-100">*Catat token ini</p>
                 </div>
             </div>
-            <div class="w-full md:w-2/3 text-gray-800">
+            
+            <!-- Kanan: Form Data -->
+            <div class="w-full md:w-2/3 text-white">
                 <h3 class="text-xl font-bold text-white mb-4 border-b border-indigo-400 pb-2">Konfirmasi Data Peserta</h3>
                 <div class="space-y-3">
+                    
+                    <!-- Kode NIK (Sekarang BISA diedit) -->
+                    <div>
+                        <label class="block text-indigo-200 text-xs mb-1">Kode NIK</label>
+                        <input type="text" value="P130100230" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm focus:bg-white/20 focus:ring-2 focus:ring-indigo-300 outline-none transition">
+                    </div>
+
+                    <!-- Nama Peserta Sistem (Sekarang BISA diedit) -->
+                    <div>
+                        <label class="block text-indigo-200 text-xs mb-1">Nama Peserta (Data Sistem)</label>
+                        <input type="text" value="P130100230 - PESERTA TKA" class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm focus:bg-white/20 focus:ring-2 focus:ring-indigo-300 outline-none transition">
+                    </div>
+
+                    <!-- Jenis Kelamin -->
+                    <div>
+                        <label class="block text-white text-xs mb-1">Jenis Kelamin</label>
+                        <select class="w-full p-2 rounded bg-white text-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option>Laki-Laki</option>
+                            <option>Perempuan</option>
+                        </select>
+                    </div>
+
+                    <!-- Mata Ujian (Tetap dikunci karena otomatis dari Page 1) -->
+                    <div>
+                        <label class="block text-indigo-200 text-xs mb-1">Mata Ujian</label>
+                        <input type="text" id="display-mapel-page2" disabled class="w-full p-2 rounded bg-white/10 border border-white/20 text-white text-sm font-semibold cursor-not-allowed">
+                    </div>
+
+                    <!-- Nama Peserta (Ketik) -->
                     <div>
                         <label class="block text-white text-xs mb-1">Nama Peserta</label>
-                        <input type="text" id="input-nama" placeholder="Ketik Nama Lengkap..." class="w-full p-2 rounded text-sm">
+                        <input type="text" id="input-nama" placeholder="Ketikkan Nama Peserta" class="w-full p-2 rounded bg-white text-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
+
+                    <!-- Tanggal Lahir -->
                     <div>
-                        <label class="block text-white text-xs mb-1">Mata Ujian</label>
-                        <input type="text" id="display-mapel-page2" disabled class="w-full p-2 rounded bg-gray-200 text-sm font-semibold">
+                        <label class="block text-white text-xs mb-1">Tanggal Lahir</label>
+                        <div class="flex gap-2">
+                            <!-- Hari -->
+                            <select class="w-1/3 p-2 rounded bg-white text-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="">Hari</option>
+                                <option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
+                                <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
+                                <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                                <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                                <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                                <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
+                            </select>
+                            <!-- Bulan -->
+                            <select class="w-1/3 p-2 rounded bg-white text-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="">Bulan</option>
+                                <option>Januari</option><option>Februari</option><option>Maret</option>
+                                <option>April</option><option>Mei</option><option>Juni</option>
+                                <option>Juli</option><option>Agustus</option><option>September</option>
+                                <option>Oktober</option><option>November</option><option>Desember</option>
+                            </select>
+                            <!-- Tahun -->
+                            <select class="w-1/3 p-2 rounded bg-white text-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="">Tahun</option>
+                                <option>2010</option><option>2011</option><option>2012</option><option>2013</option>
+                                <option>2014</option><option>2015</option><option>2016</option><option>2017</option>
+                                <option>2018</option><option>2019</option><option>2020</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-white text-xs mb-1">Masukkan Token</label>
-                        <input type="text" id="input-token" placeholder="Ketik token di sini..." class="w-full p-2 rounded text-sm font-mono uppercase">
+
+                    <!-- Token -->
+                    <div class="pt-2">
+                        <label class="block text-white text-xs font-bold mb-1">Masukkan Token</label>
+                        <input type="text" id="input-token" placeholder="Ketikkan token di sini..." class="w-full p-2 rounded bg-white text-gray-800 text-sm font-mono uppercase focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
-                    <button onclick="goToPage(3)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded transition shadow-lg mt-2">
+
+                    <button onclick="goToPage(3)" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 rounded transition shadow-lg mt-4">
                         Submit Data
                     </button>
                 </div>
