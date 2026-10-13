@@ -323,8 +323,6 @@
                 tutupSabtuMinggu: true        
             },
             
-            // Ganti "LINK_MIRROR_..." di bawah ini dengan 5 link form gandaan Anda 
-            // Pastikan belakangnya tetap ?embedded=true
             formLinks: {
                 "indonesia": [
                     "https://docs.google.com/forms/d/e/1FAIpQLSeai8MItWrsTOP6HZldWjJtej3t41plX4DV0qu35fkvq9pzyg/viewform?embedded=true",
@@ -357,12 +355,58 @@
         let examSession = { status: 'none', mapel: '', violations: 0, endTime: 0, ragu: [] };
         let isExamActive = false, isRefreshing = false, isHandlingCheat = false, hasExitedFullscreen = false, timerInterval;
 
+        // --- SISTEM KEAMANAN WAKTU (ANTI TIME-CHEAT) ---
+        let timeOffset = 0; // Selisih waktu PC dengan waktu server dunia
+
+        // Fungsi mengambil waktu dari server dunia
+        async function syncServerTime() {
+            try {
+                // Coba API 1 (WorldTimeAPI)
+                let response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Jakarta');
+                let data = await response.json();
+                let serverTime = new Date(data.datetime).getTime();
+                timeOffset = serverTime - new Date().getTime(); 
+            } catch (e1) {
+                try {
+                    // Fallback API 2 (TimeAPI) jika API 1 sedang down
+                    let response = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Jakarta');
+                    let data = await response.json();
+                    let serverTime = new Date(data.dateTime).getTime();
+                    timeOffset = serverTime - new Date().getTime();
+                } catch (e2) {
+                    console.warn("Gagal terhubung ke server waktu. Menggunakan waktu lokal.");
+                }
+            }
+        }
+
+        // Fungsi menghasilkan waktu riil tanpa terpengaruh jam PC
+        function getRealTime() {
+            return new Date(new Date().getTime() + timeOffset);
+        }
+
+        // Deteksi jika siswa mengubah jam PC di tengah-tengah ujian
+        let lastTick = new Date().getTime();
+        setInterval(() => {
+            let currentTick = new Date().getTime();
+            // Jika waktu melompat lebih dari 5 detik tiba-tiba (indikasi jam diubah)
+            if (Math.abs(currentTick - lastTick) > 5000) {
+                alert("⚠️ Sistem mendeteksi perubahan Waktu/Jam pada perangkat Anda secara tidak wajar. Halaman dimuat ulang demi keamanan.");
+                location.reload();
+            }
+            lastTick = currentTick;
+        }, 1000);
+        // ------------------------------------------------
+
         window.addEventListener('beforeunload', () => { isRefreshing = true; });
 
-        function initApp() {
-            // Update Tanggal Berjalan (Live Date) setiap detik
+        // HARUS ASYNC UNTUK MENUNGGU SINKRONISASI WAKTU
+        async function initApp() {
+            // Tunggu hingga sinkronisasi waktu selesai sebelum mengecek jadwal
+            await syncServerTime();
+
+            // Update Tanggal Berjalan (Live Date) setiap detik MENGGUNAKAN WAKTU ASLI
             setInterval(() => {
-                const now = new Date();
+                const now = getRealTime();
                 const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
                 const dateStr = now.toLocaleDateString('id-ID', options);
                 if(document.getElementById('live-date')) document.getElementById('live-date').innerText = dateStr;
@@ -379,7 +423,8 @@
                     examSession = JSON.parse(savedSession);
                     if(!examSession.ragu) examSession.ragu = []; 
                     if (examSession.status === 'active') {
-                        if (new Date().getTime() > examSession.endTime) clearSession();
+                        // CEK END TIME MENGGUNAKAN WAKTU ASLI
+                        if (getRealTime().getTime() > examSession.endTime) clearSession();
                         else startExam(false); 
                     } else if (examSession.status === 'cheated') {
                         showFatalModal();
@@ -391,7 +436,8 @@
         }
 
         function checkSchedule() {
-            const now = new Date();
+            // MENGGUNAKAN WAKTU ASLI
+            const now = getRealTime();
             const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0');
             const todayDateStr = `${year}-${month}-${date}`;
             const startDateTime = new Date(`${CONFIG.jadwal.tanggalMulai}T${CONFIG.jadwal.jamBuka}:00`);
@@ -429,7 +475,9 @@
                 document.getElementById('countdown-container').style.display = 'grid';
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' };
                 document.getElementById('next-open-text').innerText = "Akan terbuka pada: " + nextOpen.toLocaleDateString('id-ID', options) + " WIB";
-                let diff = nextOpen.getTime() - new Date().getTime();
+                
+                // MENGHITUNG MUNDUR MENGGUNAKAN WAKTU ASLI
+                let diff = nextOpen.getTime() - getRealTime().getTime();
                 if(diff > 0) {
                     document.getElementById('cd-hari').innerText = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
                     document.getElementById('cd-jam').innerText = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
@@ -488,7 +536,6 @@
             }
         }
 
-        // --- SISTEM KAMERA PEMANTAU (NON-BLOCKING) ---
         async function initCamera() {
             const videoEl = document.getElementById('webcam-feed');
             const statusEl = document.getElementById('cam-status');
@@ -520,27 +567,30 @@
 
         function startExam(isNew) {
             if (isNew) {
-                examSession.endTime = new Date().getTime() + (75 * 60 * 1000); 
+                // END TIME DIHITUNG MENGGUNAKAN WAKTU ASLI DARI SERVER (getRealTime)
+                examSession.endTime = getRealTime().getTime() + (75 * 60 * 1000); 
                 examSession.violations = 0;
                 examSession.status = 'active';
                 examSession.ragu = [];
+                
+                // --- SISTEM LOAD BALANCER (ACAK LINK MIRROR) PADA SAAT MULAI BARU ---
+                const kumpulanLink = CONFIG.formLinks[examSession.mapel];
+                let linkTerpilih = Array.isArray(kumpulanLink) 
+                    ? kumpulanLink[Math.floor(Math.random() * kumpulanLink.length)] 
+                    : kumpulanLink;
+                
+                // Simpan link yang terpilih ke session agar tidak berubah jika halaman di-refresh
+                examSession.currentLink = linkTerpilih; 
                 sessionStorage.setItem('tkaExamSession', JSON.stringify(examSession));
             }
 
-            // --- SISTEM LOAD BALANCER (ACAK LINK MIRROR) ---
-            const kumpulanLink = CONFIG.formLinks[examSession.mapel];
-            // Cek apakah data link berbentuk array (banyak link) atau hanya 1 teks link
-            let linkTerpilih = Array.isArray(kumpulanLink) 
-                ? kumpulanLink[Math.floor(Math.random() * kumpulanLink.length)] 
-                : kumpulanLink;
-
-            document.getElementById('gform-iframe').src = linkTerpilih;
-            // ------------------------------------------------
-
+            // Gunakan link yang tersimpan di sesi (atau link yang baru terpilih)
+            document.getElementById('gform-iframe').src = examSession.currentLink || CONFIG.formLinks[examSession.mapel][0];
+            
             document.getElementById('exam-title-header').innerText = examSession.mapel === 'indonesia' ? 'B. INDONESIA' : 'MATEMATIKA';
             
             buildNavigation(); 
-            initCamera(); // Memanggil Web Kamera saat ujian mulai
+            initCamera(); 
             
             document.querySelectorAll('main').forEach(el => el.classList.add('hidden-page'));
             document.getElementById('page-4').classList.remove('hidden-page');
@@ -644,12 +694,12 @@
             document.getElementById('cheat-modal').classList.remove('hidden-page');
             document.getElementById('warning-modal').classList.add('hidden-page');
             document.getElementById('fullscreen-modal').classList.add('hidden-page');
-            stopCamera(); // Mematikan lampu webcam
+            stopCamera(); 
             clearInterval(timerInterval);
         }
 
         function clearSession() {
-            stopCamera(); // Mematikan lampu webcam saat ujian selesai
+            stopCamera(); 
             sessionStorage.removeItem('tkaExamSession');
             location.reload();
         }
@@ -662,7 +712,8 @@
             timerInterval = setInterval(() => {
                 if (examSession.status !== 'active') return;
 
-                let now = new Date().getTime();
+                // MENGHITUNG SISA WAKTU BERDASARKAN WAKTU ASLI DARI SERVER (getRealTime)
+                let now = getRealTime().getTime();
                 let distance = examSession.endTime - now;
 
                 if (distance < 0) {
