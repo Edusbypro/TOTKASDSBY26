@@ -79,6 +79,52 @@
             .gform-area { flex: 1; }
             .nav-area { width: 300px; flex-shrink: 0; }
         }
+
+        /* Efek Tooltip Keren */
+        .tooltip-container {
+            position: relative;
+            display: inline-flex;
+        }
+        .tooltip-container .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: rgba(17, 24, 39, 0.95);
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            font-weight: normal;
+            line-height: 1.4;
+            
+            position: absolute;
+            z-index: 100;
+            top: 120%; 
+            right: 0;
+            
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(-5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        .tooltip-container .tooltip-text::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            right: 15px; 
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent rgba(17, 24, 39, 0.95) transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="text-white" onload="initApp()">
@@ -205,7 +251,15 @@
                 <div><span class="block text-xs text-indigo-200">Alokasi Waktu</span><strong class="text-lg">75 Menit</strong></div>
             </div>
             <p class="text-xs text-yellow-300 mb-4 bg-black/20 p-2 rounded">Dilarang berpindah tab atau membuka aplikasi lain! Pelanggaran maksimal 3 kali.</p>
-            <button onclick="startExam(true)" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition shadow-lg text-lg">Mulai Ujian Sekarang</button>
+            
+            <!-- Tombol Mulai Normal -->
+            <button id="btn-mulai" onclick="prepareExam()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition shadow-lg text-lg">Mulai Ujian Sekarang</button>
+            
+            <!-- Elemen Loading Jeda Acak (Sembunyi by default) -->
+            <div id="loading-start" class="hidden text-center mt-4 p-4 border border-indigo-300/30 rounded-xl bg-black/20">
+                <p class="text-yellow-300 font-bold mb-2 animate-pulse">Memuat server yang tersedia...</p>
+                <div class="text-2xl font-mono font-bold bg-white/10 rounded p-2 inline-block">Harap tunggu <span id="loading-angka" class="text-white"></span> detik</div>
+            </div>
         </div>
     </main>
 
@@ -213,7 +267,7 @@
     <main id="page-4" class="hidden-page w-full p-2 md:p-4">
         
         <!-- Header Soal -->
-        <div class="flex flex-col md:flex-row justify-between items-center bg-indigo-900/50 backdrop-blur-md border border-indigo-300/20 text-white p-3 rounded-t-xl mb-1 shadow-sm gap-2">
+        <div class="relative z-50 flex flex-col md:flex-row justify-between items-center bg-indigo-900/50 backdrop-blur-md border border-indigo-300/20 text-white p-3 rounded-t-xl mb-1 shadow-sm gap-2">
             
             <div class="flex items-center gap-3">
                 <div class="font-bold text-sm md:text-base tracking-wide flex items-center gap-2">
@@ -228,12 +282,35 @@
                 <!-- Tanggal Berjalan (Versi HP) -->
                 <div class="md:hidden text-xs text-indigo-200 bg-black/20 px-2 py-1 rounded" id="live-date-hp">Memuat...</div>
 
+                <!-- TOMBOL PORTAL DARURAT DENGAN TOOLTIP -->
+                <div class="tooltip-container">
+                    <button onclick="openEmergencyPortal()" class="bg-red-500/40 hover:bg-red-500/70 border border-red-400/50 text-white px-2 py-1 md:px-3 rounded font-bold text-sm shadow-lg transition backdrop-blur-sm flex items-center gap-1">
+                        <span class="hidden md:inline">🆘 Portal</span>
+                        <span class="md:hidden">🆘</span>
+                    </button>
+                    <!-- Teks Keterangan Tooltip -->
+                    <span class="tooltip-text">
+                        <strong class="text-red-300 block mb-1">Gunakan saat Darurat!</strong>
+                        Membuka Tab Baru (hukuman pindah tab dimatikan sementara) jika Ganti Form tetap gagal.
+                    </span>
+                </div>
+
+                <!-- TOMBOL GANTI MIRROR FORM DENGAN TOOLTIP -->
+                <div class="tooltip-container">
+                    <button onclick="changeMirrorForm()" class="bg-yellow-500/40 hover:bg-yellow-500/70 border border-yellow-400/50 text-white px-2 py-1 md:px-3 rounded font-bold text-sm shadow-lg transition backdrop-blur-sm flex items-center gap-1">
+                        <span class="hidden md:inline">🔄 Ganti Form</span>
+                        <span class="md:hidden">🔄</span>
+                    </button>
+                    <!-- Teks Keterangan Tooltip -->
+                    <span class="tooltip-text">
+                        <strong class="text-yellow-300 block mb-1">Terkena Blokir Robot?</strong>
+                        Klik untuk mereload server form cadangan tanpa mengubah sisa waktu ujian.
+                    </span>
+                </div>
+
                 <!-- TOMBOL FULLSCREEN -->
                 <button onclick="forceFullscreen()" class="bg-blue-500/40 hover:bg-blue-500/70 border border-blue-400/50 text-white px-2 py-1 md:px-3 rounded font-bold text-sm shadow-lg transition backdrop-blur-sm flex items-center gap-1" title="Kembali ke Layar Penuh">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 hidden md:block">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                    </svg>
-                    <span class="hidden md:inline">Fullscreen</span>
+                    <span class="hidden md:inline">⛶ Fullscreen</span>
                     <span class="md:hidden">⛶</span>
                 </button>
 
@@ -309,7 +386,7 @@
         </div>
     </div>
 
-    <!-- MODAL BARU: WAKTU HABIS (TAMBAH WAKTU) -->
+    <!-- MODAL WAKTU HABIS (TAMBAH WAKTU) -->
     <div id="timeout-modal" class="hidden-page fixed inset-0 bg-purple-900/95 z-[1001] flex justify-center items-center p-4 backdrop-blur-md">
         <div class="bg-white text-center p-8 rounded-2xl max-w-lg shadow-2xl">
             <div class="text-6xl mb-4">⏰</div>
@@ -343,10 +420,10 @@
             formLinks: {
                 "indonesia": [
                     "https://docs.google.com/forms/d/e/1FAIpQLSeai8MItWrsTOP6HZldWjJtej3t41plX4DV0qu35fkvq9pzyg/viewform?embedded=true",
-                    "link 2",
-                    "link 3",
-                    "link 4",
-                    "link 5"
+                    "2",
+                    "3",
+                    "4",
+                    "5"
                 ],
                 "matematika": [
                     "https://docs.google.com/forms/d/e/1FAIpQLSe0a84LgBJdhb-v8pZg-SvEXEUJAPSRta8cOIS6529zYxh-iw/viewform?embedded=true",
@@ -369,9 +446,9 @@
         };
 
         let scheduleInterval;
-        // Ditambahkan extendCount untuk membatasi penambahan waktu
         let examSession = { status: 'none', mapel: '', violations: 0, endTime: 0, ragu: [], extendCount: 0 };
         let isExamActive = false, isRefreshing = false, isHandlingCheat = false, hasExitedFullscreen = false, timerInterval;
+        let isEmergencyMode = false; // Flag untuk Portal Darurat
 
         // --- SISTEM KEAMANAN WAKTU (ANTI TIME-CHEAT) ---
         let timeOffset = 0; 
@@ -431,11 +508,11 @@
                 if (savedSession) {
                     examSession = JSON.parse(savedSession);
                     if(!examSession.ragu) examSession.ragu = []; 
-                    if(examSession.extendCount === undefined) examSession.extendCount = 0; // proteksi versi lama
+                    if(examSession.extendCount === undefined) examSession.extendCount = 0; 
                     
                     if (examSession.status === 'active') {
                         if (getRealTime().getTime() > examSession.endTime) {
-                            showTimeoutModal(); // Jika refresh saat waktu sudah habis
+                            showTimeoutModal(); 
                         } else {
                             startExam(false); 
                         }
@@ -520,6 +597,27 @@
             document.getElementById(`page-${pageNum}`).classList.remove('hidden-page');
         }
 
+        // --- SISTEM JEDA MULAI ACAK (3, 5, 7 DETIK) ---
+        function prepareExam() {
+            document.getElementById('btn-mulai').classList.add('hidden');
+            document.getElementById('loading-start').classList.remove('hidden');
+
+            const delays = [3, 5, 7];
+            let countdown = delays[Math.floor(Math.random() * delays.length)];
+            
+            document.getElementById('loading-angka').innerText = countdown;
+
+            let interval = setInterval(() => {
+                countdown--;
+                if(countdown > 0) {
+                    document.getElementById('loading-angka').innerText = countdown;
+                } else {
+                    clearInterval(interval);
+                    startExam(true);
+                }
+            }, 1000);
+        }
+
         function buildNavigation() {
             const grid = document.getElementById('nav-grid');
             grid.innerHTML = ''; 
@@ -576,13 +674,46 @@
             }
         }
 
+        // --- SISTEM GANTI MIRROR (Refresh iframe ke form lain) ---
+        function changeMirrorForm() {
+            const isSure = confirm("Apakah Anda yakin ingin mengganti ke Server Form lain?\n\n(Hanya gunakan tombol ini jika Soal Blank / Error Verifikasi Robot). Jawaban yang belum tersubmit mungkin hilang.");
+            if (!isSure) return;
+
+            const kumpulanLink = CONFIG.formLinks[examSession.mapel];
+            if (!Array.isArray(kumpulanLink) || kumpulanLink.length <= 1) {
+                alert("Tidak ada link alternatif (mirror) yang disiapkan.");
+                return;
+            }
+
+            let linkBaru;
+            // Looping cari link yang berbeda dari yang sedang dipakai saat ini
+            do {
+                linkBaru = kumpulanLink[Math.floor(Math.random() * kumpulanLink.length)];
+            } while (linkBaru === examSession.currentLink);
+
+            examSession.currentLink = linkBaru;
+            sessionStorage.setItem('tkaExamSession', JSON.stringify(examSession));
+            
+            // Langsung ubah sumber iframe tanpa mereload seluruh web
+            document.getElementById('gform-iframe').src = linkBaru;
+        }
+
+        // --- SISTEM PORTAL DARURAT (Bypass Anti-Cheat) ---
+        function openEmergencyPortal() {
+            const isSure = confirm("Ini akan membuka Portal Eksternal di Tab Baru.\n\nSistem Anti-Cheat (hukuman pindah tab) akan dimatikan sementara agar Anda bisa mengerjakan di sana. Lanjutkan?");
+            if (isSure) {
+                isEmergencyMode = true; // Menghentikan hukuman Strike
+                window.open("https://sites.google.com/view/totkasby26/portal-tka", "_blank");
+            }
+        }
+
         function startExam(isNew) {
             if (isNew) {
                 examSession.endTime = getRealTime().getTime() + (75 * 60 * 1000); 
                 examSession.violations = 0;
                 examSession.status = 'active';
                 examSession.ragu = [];
-                examSession.extendCount = 0; // Reset counter penambahan waktu
+                examSession.extendCount = 0; 
                 
                 const kumpulanLink = CONFIG.formLinks[examSession.mapel];
                 let linkTerpilih = Array.isArray(kumpulanLink) 
@@ -629,8 +760,9 @@
             btn.innerHTML = "Akhiri Tes";
         }
 
+        // PERHATIKAN PENAMBAHAN: !isEmergencyMode
         document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === 'hidden' && examSession.status === 'active' && !isRefreshing) {
+            if (document.visibilityState === 'hidden' && examSession.status === 'active' && !isRefreshing && !isEmergencyMode) {
                 processCheat();
             }
         });
@@ -638,8 +770,9 @@
         document.addEventListener("fullscreenchange", checkFullscreen);
         document.addEventListener("webkitfullscreenchange", checkFullscreen);
 
+        // PERHATIKAN PENAMBAHAN: !isEmergencyMode
         function checkFullscreen() {
-            if (!document.fullscreenElement && !document.webkitIsFullScreen && examSession.status === 'active' && !isRefreshing) {
+            if (!document.fullscreenElement && !document.webkitIsFullScreen && examSession.status === 'active' && !isRefreshing && !isEmergencyMode) {
                 if (!isHandlingCheat && document.visibilityState !== 'hidden') {
                     hasExitedFullscreen = true; 
                     showFullscreenPrompt();
@@ -705,18 +838,16 @@
             clearInterval(timerInterval);
         }
 
-        // --- SISTEM TAMBAH WAKTU ---
         function showTimeoutModal() {
             document.getElementById('page-4').classList.add('hidden-page');
             document.getElementById('fullscreen-modal').classList.add('hidden-page');
             document.getElementById('warning-modal').classList.add('hidden-page');
             
-            // Cek apakah siswa sudah pernah meminta tambahan waktu (Maksimal 1 kali)
             if (examSession.extendCount >= 1) {
-                document.getElementById('btn-extend').style.display = 'none'; // Sembunyikan tombol
+                document.getElementById('btn-extend').style.display = 'none'; 
                 document.getElementById('timeout-text').innerText = "Waktu tambahan Anda juga telah habis. Anda tidak dapat memperpanjang lagi. Silakan Akhiri Ujian Sekarang.";
             } else {
-                document.getElementById('btn-extend').style.display = 'block'; // Tampilkan tombol
+                document.getElementById('btn-extend').style.display = 'block'; 
                 document.getElementById('timeout-text').innerText = "Waktu pengerjaan standar telah selesai. Apakah Anda membutuhkan tambahan waktu 10 menit untuk melakukan Submit?";
             }
             
@@ -725,7 +856,6 @@
 
         function extendTime() {
             examSession.extendCount += 1;
-            // Menambah 10 Menit dari waktu sekarang
             examSession.endTime = getRealTime().getTime() + (10 * 60 * 1000);
             sessionStorage.setItem('tkaExamSession', JSON.stringify(examSession));
             
@@ -734,7 +864,7 @@
             
             hasExitedFullscreen = false;
             requestFullscreen();
-            startTimer(); // Restart Timer
+            startTimer(); 
         }
 
         function clearSession() {
@@ -754,7 +884,6 @@
                 let now = getRealTime().getTime();
                 let distance = examSession.endTime - now;
 
-                // JIKA WAKTU HABIS = MUNCULKAN MODAL EXTEND
                 if (distance < 0) {
                     clearInterval(timerInterval);
                     showTimeoutModal();
