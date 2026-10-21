@@ -889,6 +889,7 @@
                         <div class="col-md-3">
                             <label class="form-label fw-bold text-secondary mb-1" style="font-size:0.8rem;">Urutkan Berdasarkan</label>
                             <select id="sortRtlTable" class="form-select form-select-sm fw-bold border-primary" onchange="renderTabelStatusRTL()">
+                                <option value="default">-- Otomatis (Klik Header Tabel) --</option>
                                 <option value="nama_asc">Abjad Sekolah (A-Z)</option>
                                 <option value="nama_desc">Abjad Sekolah (Z-A)</option>
                                 <option value="status_sudah">Status (Sudah Membuat)</option>
@@ -933,7 +934,7 @@
                 <!-- Tabel Status RTL -->
                 <div class="table-responsive border rounded">
                     <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light sticky-top">
+                        <thead class="table-light sticky-top" id="dinas-rtl-thead">
                             <tr>
                                 <th width="5%" class="text-center">No</th>
                                 <th width="30%">Nama Sekolah</th>
@@ -2878,17 +2879,60 @@ window.bukaModalGabungSiswa = function(event) {
         renderTabelStatusRTL();
     }
 
+    // State penyimpan arah sortir klik header tabel RTL (Default: No berurutan 1, 2, 3...)
+    let rtlSortConfig = { col: 'no', dir: 'asc' };
+
+    // Fungsi trigger saat header tabel RTL diklik
+    window.toggleSortRtl = function(colName) {
+        // Otomatis ubah dropdown ke mode 'default' agar tidak bentrok dengan klik header
+        let drop = document.getElementById('sortRtlTable');
+        if(drop) drop.value = "default";
+
+        if (rtlSortConfig.col === colName) {
+            rtlSortConfig.dir = rtlSortConfig.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+            rtlSortConfig.col = colName;
+            rtlSortConfig.dir = 'asc';
+        }
+        renderTabelStatusRTL();
+    };
+
+    // Fungsi pembuat ikon panah naik/turun
+    function getSortIconRtl(colName) {
+        if (rtlSortConfig.col !== colName) return `<i class="bi bi-arrow-down-up text-muted opacity-50 sort-icon"></i>`;
+        return rtlSortConfig.dir === 'asc' 
+            ? `<i class="bi bi-sort-up-alt text-primary fw-bold sort-icon"></i>` 
+            : `<i class="bi bi-sort-down text-primary fw-bold sort-icon"></i>`;
+    }
+
+    // Fungsi suntikan Header Tabel Dinamis
+    function buildSortableTheadRtl() {
+        return `<tr>
+            <th width="5%" class="text-center th-sortable" onclick="toggleSortRtl('no')" title="Urutkan Nomor">No ${getSortIconRtl('no')}</th>
+            <th width="30%" class="th-sortable" onclick="toggleSortRtl('nama')" title="Urutkan Abjad Sekolah">Nama Sekolah ${getSortIconRtl('nama')}</th>
+            <th width="20%" class="th-sortable" onclick="toggleSortRtl('wilayah')" title="Urutkan Wilayah/Kecamatan">Wilayah/Kecamatan ${getSortIconRtl('wilayah')}</th>
+            <th width="20%" class="text-center th-sortable" onclick="toggleSortRtl('status')" title="Urutkan Status RTL">Status RTL ${getSortIconRtl('status')}</th>
+            <th width="25%" class="text-center th-sortable" onclick="toggleSortRtl('aksi')" title="Urutkan Waktu Pembuatan (Terbaru)">Aksi ${getSortIconRtl('aksi')}</th>
+        </tr>`;
+    }
+
+    // Fungsi Render Utama Tabel RTL
     function renderTabelStatusRTL() {
         let tbody = document.getElementById('tbody-status-rtl');
+        let thead = document.getElementById('dinas-rtl-thead');
+        
+        // Segarkan Header agar panah sortir muncul dan berubah
+        if (thead) { thead.innerHTML = buildSortableTheadRtl(); }
+
         let fWilayah = document.getElementById('filterRtlWilayah').value;
         let fKecamatan = document.getElementById('filterRtlKecamatan').value;
         let fSekolah = document.getElementById('filterRtlSearch').value;
         let searchText = document.getElementById('searchRtlText').value.toLowerCase();
-        let sortBy = document.getElementById('sortRtlTable').value;
+        let sortByDropdown = document.getElementById('sortRtlTable').value;
         
         let kumpulIsi = document.getElementById('kumpulanLaporanIsi');
         
-        // Membaca status centang visibilitas
+        // Membaca status centang visibilitas kumpulan laporan
         let vTantangan = document.getElementById('viewTantangan').checked;
         let vEvaluasi = document.getElementById('viewEvaluasi').checked;
         let vStrategi = document.getElementById('viewStrategi').checked;
@@ -2913,35 +2957,70 @@ window.bukaModalGabungSiswa = function(event) {
             return matchWilayah && matchKecamatan && matchSekolah && matchSearch;
         });
 
-        // 2. SORTING (PENGURUTAN)
-        filteredData.sort((a, b) => {
-            let aHasRtl = (a.tanggal && a.tanggal !== "") ? 1 : 0;
-            let bHasRtl = (b.tanggal && b.tanggal !== "") ? 1 : 0;
-            
-            if (sortBy === 'nama_asc') return a.sekolah.localeCompare(b.sekolah);
-            if (sortBy === 'nama_desc') return b.sekolah.localeCompare(a.sekolah);
-            if (sortBy === 'status_sudah') return bHasRtl - aHasRtl || a.sekolah.localeCompare(b.sekolah);
-            if (sortBy === 'status_belum') return aHasRtl - bHasRtl || a.sekolah.localeCompare(b.sekolah);
-            if (sortBy === 'tanggal_baru') {
-                if (!aHasRtl && !bHasRtl) return a.sekolah.localeCompare(b.sekolah);
-                if (!aHasRtl) return 1;
-                if (!bHasRtl) return -1;
-                return new Date(b.tanggal) - new Date(a.tanggal);
-            }
-            return 0;
-        });
-
         if (filteredData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted fst-italic">Data tidak ditemukan dengan filter atau pencarian tersebut.</td></tr>';
             kumpulIsi.innerHTML = '<span class="text-muted fst-italic text-center d-block">Data tidak tersedia.</span>';
             return;
         }
 
+        // 2. TETAPKAN NOMOR "NO" (RANK) SECARA PERMANEN BERDASARKAN ABJAD A-Z
+        // Ini memastikan saat kolom "Status RTL" diurutkan, angka di kolom "No" ikut terbawa sesuai sekolah aslinya.
+        let baseSorted = [...filteredData].sort((a, b) => a.sekolah.localeCompare(b.sekolah));
+        let mappedData = baseSorted.map((item, idx) => ({ ...item, trueNo: idx + 1 }));
+
+        // 3. LOGIKA SORTING (GABUNGAN DROPDOWN DAN KLIK HEADER)
+        let cfg = rtlSortConfig;
+        let factor = cfg.dir === 'asc' ? 1 : -1;
+
+        mappedData.sort((a, b) => {
+            let aHasRtl = (a.tanggal && a.tanggal !== "") ? 1 : 0;
+            let bHasRtl = (b.tanggal && b.tanggal !== "") ? 1 : 0;
+            
+            // Override dengan Dropdown Jika sedang digunakan (tidak 'default')
+            if (sortByDropdown && sortByDropdown !== 'default') {
+                 if (sortByDropdown === 'nama_asc') return a.sekolah.localeCompare(b.sekolah);
+                 if (sortByDropdown === 'nama_desc') return b.sekolah.localeCompare(a.sekolah);
+                 if (sortByDropdown === 'status_sudah') return bHasRtl - aHasRtl || a.sekolah.localeCompare(b.sekolah);
+                 if (sortByDropdown === 'status_belum') return aHasRtl - bHasRtl || a.sekolah.localeCompare(b.sekolah);
+                 if (sortByDropdown === 'tanggal_baru') {
+                     if (!aHasRtl && !bHasRtl) return a.sekolah.localeCompare(b.sekolah);
+                     if (!aHasRtl) return 1;
+                     if (!bHasRtl) return -1;
+                     return new Date(b.tanggal) - new Date(a.tanggal);
+                 }
+            }
+
+            // Logika Klik Header Tabel (Jika Dropdown sedang 'default')
+            if (cfg.col === 'no') {
+                return (a.trueNo - b.trueNo) * factor;
+            } else if (cfg.col === 'nama') {
+                return a.sekolah.localeCompare(b.sekolah) * factor;
+            } else if (cfg.col === 'wilayah') {
+                let textA = a.wilayah + a.kecamatan;
+                let textB = b.wilayah + b.kecamatan;
+                if (textA !== textB) return textA.localeCompare(textB) * factor;
+                return (a.trueNo - b.trueNo);
+            } else if (cfg.col === 'status') {
+                // Urut Status (Sudah vs Belum)
+                if (aHasRtl !== bHasRtl) return (aHasRtl - bHasRtl) * factor;
+                return (a.trueNo - b.trueNo); // Jika sama, urutkan berdasarkan No
+            } else if (cfg.col === 'aksi') {
+                // Dianggap mengurutkan berdasarkan Waktu Tanggal (karena aksi terikat pada keberadaan Tgl)
+                if (!aHasRtl && !bHasRtl) return (a.trueNo - b.trueNo);
+                if (!aHasRtl) return 1; // Taruh yg kosong di paling bawah
+                if (!bHasRtl) return -1;
+                let dateDiff = new Date(a.tanggal) - new Date(b.tanggal);
+                if(dateDiff !== 0) return dateDiff * factor;
+                return (a.trueNo - b.trueNo);
+            }
+            return 0;
+        });
+
         let htmlTr = "";
         let htmlKumpulan = "";
         
-        // 3. RENDERING TABEL & KUMPULAN LAPORAN
-        filteredData.forEach((d, idx) => {
+        // 4. MENGGAMBAR TABEL & KUMPULAN LAPORAN KE LAYAR
+        mappedData.forEach((d) => {
             let hasRtl = (d.tanggal && d.tanggal !== ""); 
             let statusBadge = hasRtl ? `<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-check-circle me-1"></i>Sudah Membuat</span>` : `<span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-x-circle me-1"></i>Belum Membuat</span>`;
             
@@ -2950,7 +3029,6 @@ window.bukaModalGabungSiswa = function(event) {
                 let safeData = JSON.stringify(d).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
                 btnAksi = `<button class="btn btn-sm btn-info text-white fw-bold shadow-sm" onclick="lihatDetailRTLDinas(this)" data-json="${safeData}"><i class="bi bi-eye me-1"></i>Tampilkan</button>`;
                 
-                // MENGONTROL VISIBILITAS ISI LAPORAN BERDASARKAN CENTANG
                 let rincianStrategi = "";
                 if (d.stateDetails && (vStrategi || vDukungan || vIndikator)) {
                     ['bi', 'mtk'].forEach(mapel => {
@@ -2960,7 +3038,6 @@ window.bukaModalGabungSiswa = function(event) {
                         if(d.stateDetails[mapel] && Object.keys(d.stateDetails[mapel]).length > 0) {
                             rincianStrategi += `<div class="mt-2 fw-bold ${colorMapel}" style="font-size: 0.8rem;"><i class="bi bi-bookmark-fill me-1"></i>${labelMapel}</div>`;
                             
-                            // Membentuk Kolom Header Secara Dinamis
                             let thHtml = `<th width="30%">Kompetensi Dituju</th>`;
                             if(vStrategi) thHtml += `<th width="30%">Strategi Pelaksanaan</th>`;
                             if(vDukungan) thHtml += `<th width="20%">Dukungan</th>`;
@@ -2971,7 +3048,6 @@ window.bukaModalGabungSiswa = function(event) {
                             
                             for (let komp in d.stateDetails[mapel]) {
                                 let st = d.stateDetails[mapel][komp];
-                                
                                 let tdHtml = `<td class="text-dark fw-semibold">${komp}</td>`;
                                 if(vStrategi) tdHtml += `<td class="text-muted">${st.strat ? st.strat.replace(/\n/g, '<br>') : '-'}</td>`;
                                 if(vDukungan) tdHtml += `<td class="text-muted">${st.dukung ? st.dukung.replace(/\n/g, '<br>') : '-'}</td>`;
@@ -3008,7 +3084,7 @@ window.bukaModalGabungSiswa = function(event) {
 
             htmlTr += `
             <tr>
-                <td class="text-center text-muted fw-bold">${idx + 1}</td>
+                <td class="text-center text-muted fw-bold">${d.trueNo}</td>
                 <td class="fw-bold text-dark">${d.sekolah}</td>
                 <td><small class="text-secondary">${d.wilayah} / ${d.kecamatan}</small></td>
                 <td class="text-center">${statusBadge}</td>
