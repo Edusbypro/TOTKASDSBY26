@@ -117,6 +117,10 @@
     .sugesti-baik-bi { animation: blink-sugesti-bi 2s infinite; border-radius: 4px; }
     .sugesti-baik-mtk { animation: blink-sugesti-mtk 2s infinite; border-radius: 4px; }
     .sugesti-kurang { animation: blink-sugesti-kurang 2s infinite; border-radius: 4px; }
+	/* CSS Sortir Header Tabel Peringkat Dinas */
+    .th-sortable { cursor: pointer; user-select: none; transition: background-color 0.15s ease-in-out; white-space: nowrap; }
+    .th-sortable:hover { background-color: #e2e8f0 !important; color: #1e3a8a; }
+    .sort-icon { font-size: 0.75rem; margin-left: 3px; vertical-align: middle; }
   </style>
  
 </head>
@@ -780,13 +784,13 @@
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold text-success" id="dinas-col1-title"><i class="bi bi-geo-alt-fill me-1"></i>Peringkat Wilayah</h6>
                  <div class="table-dinas-wrapper border rounded">
-                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="10%">Rank</th><th>Wilayah</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-wil"></tbody></table>
+                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top" id="dinas-col1-thead"><tr><th class="text-center" width="10%">Rank</th><th>Wilayah</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-wil"></tbody></table>
                  </div>
                </div>
                <div class="col-md-4 mb-3">
                  <h6 class="fw-bold" style="color: #c2410c;" id="dinas-col2-title"><i class="bi bi-pin-map-fill me-1"></i>Peringkat Kecamatan</h6>
                  <div class="table-dinas-wrapper border rounded">
-                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top"><tr><th class="text-center" width="10%">Rank</th><th>Kecamatan</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-kec"></tbody></table>
+                   <table class="table table-striped table-hover mb-0"><thead class="table-light sticky-top" id="dinas-col2-thead"><tr><th class="text-center" width="10%">Rank</th><th>Kecamatan</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr></thead><tbody id="dinas-tbody-kec"></tbody></table>
                  </div>
                </div>
                <div class="col-md-4 mb-3">
@@ -1828,6 +1832,57 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
         resetKompFilter(); 
     }
 
+    // State penyimpan arah sortir masing-masing tabel di Portal Dinas (Default: Nilai Terbesar ke Terkecil / Rank 1 di atas)
+    let dinasSortConfig = {
+        wil: { col: 'nilai', dir: 'desc' },
+        kec: { col: 'nilai', dir: 'desc' },
+        sek: { col: 'nilai', dir: 'desc' },
+        sis: { col: 'nilai', dir: 'desc' }
+    };
+
+    // Fungsi saat Header Tabel (Rank / Nama / Peserta / Nilai) diklik
+    window.toggleSortDinas = function(tableType, colName) {
+        let current = dinasSortConfig[tableType];
+        if (current.col === colName) {
+            current.dir = current.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+            current.col = colName;
+            // Jika klik kolom Nama atau Rank pertama kali -> urut kecil ke besar (A-Z / 1-N)
+            // Jika klik kolom Peserta atau Nilai pertama kali -> urut besar ke kecil (Terbesar di atas)
+            current.dir = (colName === 'nama' || colName === 'rank') ? 'asc' : 'desc';
+        }
+        renderDinasRankings();
+    };
+
+    // Fungsi pembentuk ikon panah sortir pada Header Tabel
+    function getSortIconDinas(tableType, colName) {
+        let current = dinasSortConfig[tableType];
+        if (current.col !== colName) {
+            return `<i class="bi bi-arrow-down-up text-muted opacity-50 sort-icon"></i>`;
+        }
+        return current.dir === 'asc' 
+            ? `<i class="bi bi-sort-up-alt text-primary fw-bold sort-icon"></i>` 
+            : `<i class="bi bi-sort-down text-primary fw-bold sort-icon"></i>`;
+    }
+
+    // Fungsi pembentuk baris Header (<thead>) lengkap dengan tombol klik sortir
+    function buildSortableTheadDinas(tableType, labelNama) {
+        if (tableType === 'sis') {
+            return `<tr>
+                <th class="text-center th-sortable" width="12%" onclick="toggleSortDinas('sis', 'rank')" title="Urutkan berdasarkan Peringkat">Rank ${getSortIconDinas('sis', 'rank')}</th>
+                <th class="th-sortable" onclick="toggleSortDinas('sis', 'nama')" title="Urutkan berdasarkan Abjad Nama Siswa">${labelNama} ${getSortIconDinas('sis', 'nama')}</th>
+                <th class="text-center" width="20%">Paket</th>
+                <th class="text-center th-sortable" width="20%" onclick="toggleSortDinas('sis', 'nilai')" title="Urutkan berdasarkan Nilai Terbesar/Terkecil">Nilai ${getSortIconDinas('sis', 'nilai')}</th>
+            </tr>`;
+        }
+        return `<tr>
+            <th class="text-center th-sortable" width="12%" onclick="toggleSortDinas('${tableType}', 'rank')" title="Urutkan berdasarkan Peringkat">Rank ${getSortIconDinas(tableType, 'rank')}</th>
+            <th class="th-sortable" onclick="toggleSortDinas('${tableType}', 'nama')" title="Urutkan berdasarkan Abjad ${labelNama}">${labelNama} ${getSortIconDinas(tableType, 'nama')}</th>
+            <th class="text-center th-sortable" width="22%" onclick="toggleSortDinas('${tableType}', 'peserta')" title="Urutkan berdasarkan Jumlah Peserta Terbanyak/Tersedikit">Peserta ${getSortIconDinas(tableType, 'peserta')}</th>
+            <th class="text-center th-sortable" width="20%" onclick="toggleSortDinas('${tableType}', 'nilai')" title="Urutkan berdasarkan Nilai Terbesar/Terkecil">Nilai ${getSortIconDinas(tableType, 'nilai')}</th>
+        </tr>`;
+    }
+
     function renderDinasRankings() {
         if(!publicStatGlobal || !publicStatGlobal.sekolah) return;
         let mapel = document.getElementById('dinasRankMapel').value;
@@ -1842,12 +1897,14 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
         let col1Title = document.getElementById('dinas-col1-title');
         let col2Title = document.getElementById('dinas-col2-title');
         let col3Title = document.getElementById('dinas-col3-title');
+        let col1Thead = document.getElementById('dinas-col1-thead');
+        let col2Thead = document.getElementById('dinas-col2-thead');
         let col3Thead = document.getElementById('dinas-col3-thead');
 
-        // 1. Urutan Global Kota sebagai dasar
-        let allW = [...publicStatGlobal.wilayah].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
-        let allK = [...publicStatGlobal.kecamatan].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
-        let allS = [...publicStatGlobal.sekolah].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0).sort((a,b) => isMTK ? b.rataMTK - a.rataMTK : b.rataBI - a.rataBI);
+        // 1. Ambil data dasar sesuai mata pelajaran
+        let allW = [...publicStatGlobal.wilayah].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0);
+        let allK = [...publicStatGlobal.kecamatan].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0);
+        let allS = [...publicStatGlobal.sekolah].filter(x => isMTK ? x.rataMTK > 0 : x.rataBI > 0);
 
         // 2. Penyaringan (Filter) sesuai Level Wilayah / Kecamatan yang dipilih di atas
         let arrW = allW;
@@ -1862,8 +1919,50 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
 
         if ((tk === 'KECAMATAN' || tk === 'SEKOLAH') && k) {
             arrK = arrK.filter(x => x.nama === k);
-            arrS = arrS.filter(x => cekSekolahDiKecamatan(x, w, k));
+            arrS = allS.filter(x => cekSekolahDiKecamatan(x, w, k));
         }
+
+        // 3. Fungsi untuk mengunci Rank Asli (berdasarkan Nilai Tertinggi) lalu mengurutkan sesuai Kolom Header yang diklik
+        let prepareAndSortData = (arr, tableType) => {
+            // Urutkan berdasarkan nilai tertinggi dulu untuk menetapkan nomor Rank Asli (1, 2, 3...)
+            let baseSorted = [...arr].sort((a, b) => {
+                let valA = parseFloat(isMTK ? a.rataMTK : a.rataBI) || 0;
+                let valB = parseFloat(isMTK ? b.rataMTK : b.rataBI) || 0;
+                if (valB !== valA) return valB - valA;
+                return (a.nama || "").localeCompare(b.nama || "");
+            });
+
+            let mapped = baseSorted.map((item, idx) => ({
+                ...item,
+                trueRank: idx + 1,
+                numNilai: parseFloat(isMTK ? item.rataMTK : item.rataBI) || 0,
+                numPeserta: parseInt(isMTK ? (item.pesertaMTK ?? item.peserta ?? 0) : (item.pesertaBI ?? item.peserta ?? 0)) || 0
+            }));
+
+            // Terapkan pengurutan sesuai pilihan user pada header tabel
+            let cfg = dinasSortConfig[tableType];
+            let factor = cfg.dir === 'asc' ? 1 : -1;
+
+            mapped.sort((a, b) => {
+                if (cfg.col === 'rank') {
+                    return (a.trueRank - b.trueRank) * factor;
+                } else if (cfg.col === 'nama') {
+                    return (a.nama || "").localeCompare(b.nama || "") * factor;
+                } else if (cfg.col === 'peserta') {
+                    if (a.numPeserta !== b.numPeserta) return (a.numPeserta - b.numPeserta) * factor;
+                    return a.trueRank - b.trueRank;
+                } else { // 'nilai'
+                    if (a.numNilai !== b.numNilai) return (a.numNilai - b.numNilai) * factor;
+                    return a.trueRank - b.trueRank;
+                }
+            });
+
+            return mapped;
+        };
+
+        let sortedW = prepareAndSortData(arrW, 'wil');
+        let sortedK = prepareAndSortData(arrK, 'kec');
+        let sortedS = prepareAndSortData(arrS, 'sek');
 
         // Update Judul Utama Papan Peringkat
         if (mainTitle) {
@@ -1881,26 +1980,30 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
         if (col1Title) col1Title.innerHTML = `<i class="bi bi-geo-alt-fill me-1"></i>Peringkat Wilayah ${w && tk !== 'KOTA' ? '(' + w + ')' : ''}`;
         if (col2Title) col2Title.innerHTML = `<i class="bi bi-pin-map-fill me-1"></i>Peringkat Kecamatan ${(tk === 'KECAMATAN' || tk === 'SEKOLAH') && k ? '(' + k + ')' : (w && tk !== 'KOTA' ? '(' + w + ')' : '')}`;
 
+        if (col1Thead) col1Thead.innerHTML = buildSortableTheadDinas('wil', 'Wilayah');
+        if (col2Thead) col2Thead.innerHTML = buildSortableTheadDinas('kec', 'Kecamatan');
+
         let fnTbl = (arr, type) => {
             if(!arr || arr.length === 0) return `<tr><td colspan="4" class="text-center text-muted py-3">Belum ada data</td></tr>`;
             let html = '';
-            arr.forEach((item, i) => {
+            arr.forEach((item) => {
                 let namaTeks = type === 'wil' ? item.nama : (type === 'kec' ? `${item.nama}<br><small class="text-muted fw-normal">${item.wilayah}</small>` : `<span style="font-size:0.85rem">${item.nama}</span><br><small class="text-muted fw-normal" style="font-size:0.75rem">${item.kecamatan}</small>`);
-                let nilai = isMTK ? parseFloat(item.rataMTK).toFixed(2) : parseFloat(item.rataBI).toFixed(2);
-                let peserta = isMTK ? (item.pesertaMTK || item.peserta || 0) : (item.pesertaBI || item.peserta || 0);
-                let topBadge = i < 3 ? `<span class="top-rank-badge shadow-sm">${i+1}</span>` : `<span class="rank-dinas text-secondary">${i+1}</span>`;
+                let nilai = item.numNilai.toFixed(2);
+                let peserta = item.numPeserta;
+                let rnk = item.trueRank;
+                let topBadge = rnk <= 3 ? `<span class="top-rank-badge shadow-sm">${rnk}</span>` : `<span class="rank-dinas text-secondary">${rnk}</span>`;
                 html += `<tr><td class="text-center align-middle">${topBadge}</td><td class="fw-bold align-middle">${namaTeks}</td><td class="text-center align-middle text-muted" style="font-size:0.85rem;">${peserta.toLocaleString('id-ID')}</td><td class="text-center align-middle fw-bold text-primary fs-6">${nilai}</td></tr>`;
             });
             return html;
         };
       
-        document.getElementById('dinas-tbody-wil').innerHTML = fnTbl(arrW, 'wil');
-        document.getElementById('dinas-tbody-kec').innerHTML = fnTbl(arrK, 'kec');
+        document.getElementById('dinas-tbody-wil').innerHTML = fnTbl(sortedW, 'wil');
+        document.getElementById('dinas-tbody-kec').innerHTML = fnTbl(sortedK, 'kec');
 
-        // 3. Logika Kolom Ke-3: Menampilkan Peringkat Siswa jika Level Sekolah dipilih, atau Peringkat Sekolah jika Level Kota/Wilayah/Kecamatan
+        // 4. Logika Kolom Ke-3: Menampilkan Peringkat Siswa jika Level Sekolah dipilih, atau Peringkat Sekolah jika Level Kota/Wilayah/Kecamatan
         if (tk === 'SEKOLAH' && loc && loc !== 'KOTA') {
             if (col3Title) col3Title.innerHTML = `<i class="bi bi-people-fill me-1"></i>Peringkat Siswa (${loc})`;
-            if (col3Thead) col3Thead.innerHTML = `<tr><th class="text-center" width="12%">Rank</th><th>Nama Siswa</th><th class="text-center" width="22%">Paket</th><th class="text-center" width="18%">Nilai</th></tr>`;
+            if (col3Thead) col3Thead.innerHTML = buildSortableTheadDinas('sis', 'Nama Siswa');
             
             renderDinasSiswaRanking(loc, isMTK);
         } else {
@@ -1909,8 +2012,8 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             else if (tk !== 'KOTA' && w) labelCol3 = `Peringkat Sekolah (${w})`;
 
             if (col3Title) col3Title.innerHTML = `<i class="bi bi-building-fill me-1"></i>${labelCol3}`;
-            if (col3Thead) col3Thead.innerHTML = `<tr><th class="text-center" width="10%">Rank</th><th>Sekolah</th><th class="text-center" width="20%">Peserta</th><th class="text-center" width="20%">Nilai</th></tr>`;
-            document.getElementById('dinas-tbody-sek').innerHTML = fnTbl(arrS, 'sek');
+            if (col3Thead) col3Thead.innerHTML = buildSortableTheadDinas('sek', 'Sekolah');
+            document.getElementById('dinas-tbody-sek').innerHTML = fnTbl(sortedS, 'sek');
         }
     }
 
@@ -1921,7 +2024,6 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
         let tbodySek = document.getElementById('dinas-tbody-sek');
 
         let prosesTampilSiswa = (schoolData) => {
-            // Sekaligus memperbarui tabel Detail Mata Pelajaran di atas dengan statistik asli sekolah dari server
             if (schoolData.detailSekolahBI && schoolData.detailSekolahMTK && document.getElementById('fDetailTingkat').value === 'SEKOLAH') {
                 let pCount = schoolData.sekolahInfo ? schoolData.sekolahInfo.peserta : "-";
                 document.getElementById('d-sis-bi').innerText = pCount;
@@ -1955,7 +2057,6 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             let pIdx = pNames.indexOf(currentPaket);
             if (pIdx === -1) pIdx = 0;
 
-            // Ambil siswa aktif (bukan siswa yang dicoret/dikeluarkan)
             let listSiswa = schoolData.siswa.filter(s => !s.isBukan).map(s => {
                 let r = (s.riwayat && s.riwayat[pIdx]) ? s.riwayat[pIdx] : { bi: "-", mtk: "-" };
                 let rawScore = isMTK ? r.mtk : r.bi;
@@ -1967,34 +2068,57 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
                 };
             });
 
-            // Urutkan dari nilai tertinggi ke terendah (jika nilai sama, urut abjad A-Z)
-            listSiswa.sort((a, b) => {
-                if (b.numScore !== a.numScore) return b.numScore - a.numScore;
-                return a.nama.localeCompare(b.nama);
-            });
-
             if (listSiswa.length === 0) {
                 tbodySek.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">Tidak ada siswa aktif di sekolah ini.</td></tr>`;
                 return;
             }
 
+            // 1. Urutkan dasar berdasarkan nilai tertinggi untuk menetapkan Rank Asli siswa di sekolah tersebut
+            listSiswa.sort((a, b) => {
+                if (b.numScore !== a.numScore) return b.numScore - a.numScore;
+                return a.nama.localeCompare(b.nama);
+            });
+
+            let rCounter = 1;
+            let mappedSiswa = listSiswa.map(s => {
+                let hasScore = s.numScore >= 0;
+                return {
+                    ...s,
+                    hasScore: hasScore,
+                    trueRank: hasScore ? rCounter++ : 999999
+                };
+            });
+
+            // 2. Terapkan sortir sesuai klik pada Header Tabel Siswa (Rank / Nama Siswa / Nilai)
+            let cfg = dinasSortConfig['sis'];
+            let factor = cfg.dir === 'asc' ? 1 : -1;
+
+            mappedSiswa.sort((a, b) => {
+                if (cfg.col === 'nama') {
+                    return a.nama.localeCompare(b.nama) * factor;
+                } else if (cfg.col === 'rank') {
+                    if (a.trueRank !== b.trueRank) return (a.trueRank - b.trueRank) * factor;
+                    return a.nama.localeCompare(b.nama);
+                } else { // 'nilai'
+                    if (a.numScore !== b.numScore) return (a.numScore - b.numScore) * factor;
+                    return a.nama.localeCompare(b.nama);
+                }
+            });
+
             let html = '';
-            let rankCounter = 1;
             let mapelCode = isMTK ? 'MTK' : 'BI';
             let scoreClass = isMTK ? 'mtk text-success' : 'bi text-primary';
 
-            listSiswa.forEach((s) => {
-                let hasScore = s.numScore >= 0;
+            mappedSiswa.forEach((s) => {
                 let rankBadge = '-';
-                if (hasScore) {
-                    rankBadge = rankCounter <= 3 
-                        ? `<span class="top-rank-badge shadow-sm">${rankCounter}</span>` 
-                        : `<span class="rank-dinas text-secondary">${rankCounter}</span>`;
-                    rankCounter++;
+                if (s.hasScore) {
+                    rankBadge = s.trueRank <= 3 
+                        ? `<span class="top-rank-badge shadow-sm">${s.trueRank}</span>` 
+                        : `<span class="rank-dinas text-secondary">${s.trueRank}</span>`;
                 }
 
                 let escapedName = s.nama.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                let nilaiTampil = hasScore 
+                let nilaiTampil = s.hasScore 
                     ? `<span class="clickable-score ${scoreClass} fs-6" data-nama="${escapedName}" onclick="bukaRaporIndividu(this.getAttribute('data-nama'), '${mapelCode}', ${s.numScore}, '${currentPaket}')" title="Klik untuk melihat Rapor Individu">${s.numScore.toFixed(2)}</span>`
                     : `<span class="text-muted small fst-italic">Belum Ujian</span>`;
 
@@ -2009,7 +2133,6 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             tbodySek.innerHTML = html;
         };
 
-        // Gunakan cache jika paket dan sekolah sama agar tidak perlu loading ulang saat ganti BI/MTK
         if (dinasSchoolStudentCache.key === cacheKey && dinasSchoolStudentCache.data) {
             prosesTampilSiswa(dinasSchoolStudentCache.data);
         } else {
@@ -2017,7 +2140,6 @@ window.pulihkanSiswa = function(namaSiswa, btnElement) {
             fetchBackend('school', { paket: currentPaket, sek: namaSekolah }).then(res => {
                 if (res && res.sukses && res.data) {
                     dinasSchoolStudentCache = { key: cacheKey, data: res.data };
-                    // Pastikan pengguna masih berada di pilihan sekolah yang sama saat data selesai dimuat
                     if (document.getElementById('fDetailTingkat').value === 'SEKOLAH' && document.getElementById('fDetailLokasi').value === namaSekolah) {
                         prosesTampilSiswa(res.data);
                     }
